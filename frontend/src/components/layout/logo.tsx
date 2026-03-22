@@ -26,6 +26,9 @@ export function Logo({
   /** Display name next to icon-only logos; defaults to marketing constants. */
   siteName?: string;
 }) {
+  const isRemoteAbsolute =
+    logoUrl.startsWith("http://") || logoUrl.startsWith("https://");
+
   return (
     <Link
       href="/"
@@ -45,6 +48,7 @@ export function Logo({
         )}
         priority
         sizes="(max-width: 640px) 9rem, 10rem"
+        unoptimized={isRemoteAbsolute}
       />
       {showWordmark ? (
         <span className="leading-none">{siteName}</span>
