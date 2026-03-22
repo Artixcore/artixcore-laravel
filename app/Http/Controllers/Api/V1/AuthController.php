@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Permission;
 
 class AuthController extends Controller
 {
@@ -27,7 +28,7 @@ class AuthController extends Controller
             ]);
         }
 
-        if (! $user->can('portal.access')) {
+        if (! $this->userHasPortalAccess($user)) {
             abort(403, 'Portal access denied.');
         }
 
@@ -55,5 +56,12 @@ class AuthController extends Controller
         }
 
         return response()->json(['data' => ['message' => 'Logged out']]);
+    }
+
+    private function userHasPortalAccess(User $user): bool
+    {
+        return $user->getAllPermissions()->contains(
+            fn (Permission $permission): bool => $permission->name === 'portal.access'
+        );
     }
 }

@@ -61,6 +61,11 @@ class RolePermissionSeeder extends Seeder
 
         $all = Permission::query()->where('guard_name', self::GUARD)->pluck('name')->all();
 
+        $internalAll = array_values(array_filter(
+            $all,
+            static fn (string $name): bool => $name !== 'portal.access'
+        ));
+
         $pick = static function (array $names) use ($all): array {
             return array_values(array_intersect($all, $names));
         };
@@ -74,8 +79,8 @@ class RolePermissionSeeder extends Seeder
         ];
 
         $roles = [
-            'master_admin' => $all,
-            'admin' => $all,
+            'master_admin' => $internalAll,
+            'admin' => $internalAll,
             'content_admin' => $pick(array_merge(
                 ['filament.access'],
                 $crud('pages'),
