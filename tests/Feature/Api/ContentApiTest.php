@@ -11,6 +11,22 @@ class ContentApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_meta_block_types_endpoint(): void
+    {
+        $this->seed();
+
+        $res = $this->getJson('/api/v1/meta/block-types');
+
+        $res->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'block_types' => [
+                        '*' => ['value', 'label'],
+                    ],
+                ],
+            ]);
+    }
+
     public function test_site_settings_endpoint(): void
     {
         $this->seed();
