@@ -15,13 +15,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call(RolePermissionSeeder::class);
 
-        User::factory()->create([
+        $user = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'is_admin' => true,
         ]);
+        $user->assignRole('master_admin');
+
+        $portalUser = User::factory()->create([
+            'name' => 'Portal User',
+            'email' => 'portal@example.com',
+            'user_kind' => 'external',
+        ]);
+        $portalUser->assignRole('portal_user');
 
         $this->call(ContentSeeder::class);
     }

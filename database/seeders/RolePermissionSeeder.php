@@ -1,0 +1,163 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
+
+class RolePermissionSeeder extends Seeder
+{
+    private const GUARD = 'web';
+
+    /**
+     * @return list<string>
+     */
+    public static function allPermissionNames(): array
+    {
+        $crud = static fn (string $resource): array => [
+            "{$resource}.view_any",
+            "{$resource}.view",
+            "{$resource}.create",
+            "{$resource}.update",
+            "{$resource}.delete",
+        ];
+
+        return array_values(array_unique(array_merge(
+            ['filament.access', 'users.manage_roles', 'portal.access'],
+            $crud('pages'),
+            $crud('page_blocks'),
+            $crud('nav_menus'),
+            $crud('nav_items'),
+            $crud('articles'),
+            $crud('research_papers'),
+            $crud('case_studies'),
+            $crud('products'),
+            $crud('team_profiles'),
+            $crud('taxonomies'),
+            $crud('terms'),
+            $crud('analytics_events'),
+            $crud('users'),
+            $crud('site_settings'),
+            $crud('media'),
+            $crud('ai_agents'),
+            $crud('ai_workflows'),
+            $crud('ai_runs'),
+            $crud('ai_run_logs'),
+            $crud('ai_approvals'),
+        )));
+    }
+
+    public function run(): void
+    {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        foreach (self::allPermissionNames() as $name) {
+            Permission::findOrCreate($name, self::GUARD);
+        }
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $all = Permission::query()->where('guard_name', self::GUARD)->pluck('name')->all();
+
+        $pick = static function (array $names) use ($all): array {
+            return array_values(array_intersect($all, $names));
+        };
+
+        $crud = static fn (string $resource): array => [
+            "{$resource}.view_any",
+            "{$resource}.view",
+            "{$resource}.create",
+            "{$resource}.update",
+            "{$resource}.delete",
+        ];
+
+        $roles = [
+            'master_admin' => $all,
+            'admin' => $all,
+            'content_admin' => $pick(array_merge(
+                ['filament.access'],
+                $crud('pages'),
+                $crud('page_blocks'),
+                $crud('nav_menus'),
+                $crud('nav_items'),
+                $crud('articles'),
+            )),
+            'marketing_admin' => $pick(array_merge(
+                ['filament.access'],
+                $crud('pages'),
+                $crud('page_blocks'),
+                $crud('nav_menus'),
+                $crud('nav_items'),
+                $crud('articles'),
+                $crud('products'),
+                $crud('case_studies'),
+                $crud('team_profiles'),
+            )),
+            'researcher_admin' => $pick(array_merge(
+                ['filament.access'],
+                $crud('research_papers'),
+                ['articles.view_any', 'articles.view', 'pages.view_any', 'pages.view'],
+            )),
+            'designer_admin' => $pick(array_merge(
+                ['filament.access'],
+                $crud('pages'),
+                $crud('page_blocks'),
+                $crud('nav_menus'),
+                $crud('nav_items'),
+                $crud('site_settings'),
+                $crud('media'),
+            )),
+            'developer_admin' => $pick(array_merge(
+                ['filament.access'],
+                $crud('analytics_events'),
+                $crud('taxonomies'),
+                $crud('terms'),
+                ['pages.view_any', 'pages.view'],
+            )),
+            'engineer_admin' => $pick(array_merge(
+                ['filament.access'],
+                $crud('analytics_events'),
+                $crud('taxonomies'),
+                $crud('terms'),
+                ['pages.view_any', 'pages.view'],
+            )),
+            'hr_admin' => $pick(array_merge(
+                ['filament.access'],
+                $crud('team_profiles'),
+                ['pages.view_any', 'pages.view'],
+            )),
+            'support_admin' => $pick([
+                'filament.access',
+                'users.view_any',
+                'users.view',
+                'analytics_events.view_any',
+                'analytics_events.view',
+            ]),
+            'finance_admin' => $pick([
+                'filament.access',
+                'analytics_events.view_any',
+                'analytics_events.view',
+            ]),
+            'agentic_ai_admin' => $pick(array_merge(
+                ['filament.access'],
+                $crud('ai_agents'),
+                $crud('ai_workflows'),
+                $crud('ai_runs'),
+                $crud('ai_run_logs'),
+                $crud('ai_approvals'),
+            )),
+        ];
+
+        foreach ($roles as $roleName => $permissionNames) {
+            $role = Role::findOrCreate($roleName, self::GUARD);
+            $role->syncPermissions($permissionNames);
+        }
+
+        /** @var \Spatie\Permission\Contracts\Permission $portalPermission */
+        $portalPermission = Permission::findOrCreate('portal.access', self::GUARD);
+        $portalRole = Role::findOrCreate('portal_user', self::GUARD);
+        $portalRole->givePermissionTo($portalPermission);
+    }
+}

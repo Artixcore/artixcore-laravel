@@ -7,12 +7,36 @@ use App\Models\User;
 
 class CaseStudyPolicy
 {
-    public function view(?User $user, CaseStudy $study): bool
+    public function viewAny(User $user): bool
     {
-        if ($study->status !== 'published') {
+        return $user->can('case_studies.view_any');
+    }
+
+    public function view(?User $user, CaseStudy $caseStudy): bool
+    {
+        if ($user !== null && $user->can('case_studies.view')) {
+            return true;
+        }
+
+        if ($caseStudy->status !== 'published') {
             return false;
         }
 
-        return ! $study->published_at || $study->published_at->lte(now());
+        return ! $caseStudy->published_at || $caseStudy->published_at->lte(now());
+    }
+
+    public function create(User $user): bool
+    {
+        return $user->can('case_studies.create');
+    }
+
+    public function update(User $user, CaseStudy $caseStudy): bool
+    {
+        return $user->can('case_studies.update');
+    }
+
+    public function delete(User $user, CaseStudy $caseStudy): bool
+    {
+        return $user->can('case_studies.delete');
     }
 }

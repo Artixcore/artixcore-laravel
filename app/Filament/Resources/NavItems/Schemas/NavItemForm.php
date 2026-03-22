@@ -35,6 +35,8 @@ class NavItemForm
                     ->default(0)
                     ->required(),
                 JsonTextarea::make('feature_payload', 'Featured card (JSON)'),
+                JsonTextarea::make('visibility', 'Visibility (JSON)')
+                    ->helperText('Default: public. Hide from the marketing site: {"contexts":["internal"]}. Show publicly: {"contexts":["public"]} or omit.'),
             ]);
     }
 }

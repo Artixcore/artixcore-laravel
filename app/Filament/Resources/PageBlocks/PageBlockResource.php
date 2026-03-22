@@ -20,6 +20,8 @@ class PageBlockResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Site & CMS';
+
     public static function form(Schema $schema): Schema
     {
         return PageBlockForm::configure($schema);

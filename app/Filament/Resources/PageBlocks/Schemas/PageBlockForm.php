@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PageBlocks\Schemas;
 
 use App\Filament\Support\JsonTextarea;
+use App\Support\Content\PageBlockType;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -23,15 +24,7 @@ class PageBlockForm
                     ->default(0)
                     ->required(),
                 Select::make('type')
-                    ->options([
-                        'hero' => 'Hero',
-                        'feature_grid' => 'Feature grid',
-                        'product_showcase' => 'Product showcase',
-                        'research_highlight' => 'Research highlight',
-                        'article_rail' => 'Article rail',
-                        'cta' => 'CTA',
-                        'rich_text' => 'Rich text',
-                    ])
+                    ->options(PageBlockType::filamentOptions())
                     ->required(),
                 JsonTextarea::make('data', 'Block data (JSON)'),
             ]);

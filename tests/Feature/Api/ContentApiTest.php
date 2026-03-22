@@ -11,6 +11,27 @@ class ContentApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_site_settings_endpoint(): void
+    {
+        $this->seed();
+
+        $res = $this->getJson('/api/v1/site');
+
+        $res->assertOk()
+            ->assertJsonPath('data.theme_default', 'system')
+            ->assertJsonStructure([
+                'data' => [
+                    'site_name',
+                    'theme_default',
+                    'social_links',
+                    'design_tokens',
+                    'logo',
+                    'favicon_url',
+                    'og_default',
+                ],
+            ]);
+    }
+
     public function test_navigation_returns_menu_tree(): void
     {
         $this->seed();

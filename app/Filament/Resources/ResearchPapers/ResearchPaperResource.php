@@ -20,6 +20,8 @@ class ResearchPaperResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+
     public static function form(Schema $schema): Schema
     {
         return ResearchPaperForm::configure($schema);

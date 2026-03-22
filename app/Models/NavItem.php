@@ -16,6 +16,7 @@ class NavItem extends Model
         'page_id',
         'sort_order',
         'feature_payload',
+        'visibility',
     ];
 
     protected function casts(): array
@@ -23,7 +24,32 @@ class NavItem extends Model
         return [
             'sort_order' => 'integer',
             'feature_payload' => 'array',
+            'visibility' => 'array',
         ];
+    }
+
+    /**
+     * Public marketing API / site navigation. Omit `visibility` or include `contexts` containing `public`.
+     *
+     * @param  array<string, mixed>|null  $visibility
+     */
+    public static function isVisibleInPublicApi(?array $visibility): bool
+    {
+        if ($visibility === null || $visibility === []) {
+            return true;
+        }
+
+        $contexts = $visibility['contexts'] ?? null;
+        if (! is_array($contexts) || $contexts === []) {
+            return true;
+        }
+
+        return in_array('public', $contexts, true);
+    }
+
+    public function visibleInPublicApi(): bool
+    {
+        return self::isVisibleInPublicApi($this->visibility);
     }
 
     /**

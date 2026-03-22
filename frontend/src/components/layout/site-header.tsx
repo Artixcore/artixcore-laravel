@@ -10,13 +10,21 @@ import { SiteMegaNav } from "./site-mega-nav";
 import { ThemeToggle } from "./theme-toggle";
 import { LinkButton } from "@/components/ui/link-button";
 
-export function SiteHeader({ navItems }: { navItems: NavItemDTO[] }) {
+export function SiteHeader({
+  navItems,
+  logoUrl,
+  siteName,
+}: {
+  navItems: NavItemDTO[];
+  logoUrl?: string;
+  siteName?: string;
+}) {
   const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Logo />
+        <Logo logoUrl={logoUrl} siteName={siteName} />
         <SiteMegaNav items={navItems} />
         <div className="flex items-center gap-2">
           <div className="hidden lg:block">

@@ -7,6 +7,7 @@ use App\Http\Resources\Api\V1\NavigationCollection;
 use App\Models\NavItem;
 use App\Models\NavMenu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class NavigationController extends Controller
 {
@@ -31,6 +32,28 @@ class NavigationController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        $roots = $this->filterNavTreeForPublic($roots);
+
         return (new NavigationCollection($roots))->additional(['menu_key' => $menu->key]);
+    }
+
+    /**
+     * @param  Collection<int, NavItem>  $items
+     * @return Collection<int, NavItem>
+     */
+    private function filterNavTreeForPublic(Collection $items): Collection
+    {
+        return $items
+            ->filter(fn (NavItem $item): bool => $item->visibleInPublicApi())
+            ->map(function (NavItem $item): NavItem {
+                $children = $item->relationLoaded('children')
+                    ? $item->children
+                    : collect();
+
+                $item->setRelation('children', $this->filterNavTreeForPublic($children));
+
+                return $item;
+            })
+            ->values();
     }
 }

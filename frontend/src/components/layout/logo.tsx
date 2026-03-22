@@ -14,11 +14,17 @@ export function Logo({
   className,
   size = "sm",
   showWordmark = site.logoIsIconOnly,
+  logoUrl = site.logoUrl,
+  siteName = site.name,
 }: {
   className?: string;
   size?: LogoSize;
   /** Overrides `site.logoIsIconOnly` when the image is icon-only vs full wordmark. */
   showWordmark?: boolean;
+  /** CMS/API logo URL; falls back to `site.logoUrl` from env/constants. */
+  logoUrl?: string;
+  /** Display name next to icon-only logos; defaults to marketing constants. */
+  siteName?: string;
 }) {
   return (
     <Link
@@ -29,8 +35,8 @@ export function Logo({
       )}
     >
       <Image
-        src={site.logoUrl}
-        alt={showWordmark ? "" : `${site.name} home`}
+        src={logoUrl}
+        alt={showWordmark ? "" : `${siteName} home`}
         width={320}
         height={320}
         className={cn(
@@ -41,7 +47,7 @@ export function Logo({
         sizes="(max-width: 640px) 9rem, 10rem"
       />
       {showWordmark ? (
-        <span className="leading-none">{site.name}</span>
+        <span className="leading-none">{siteName}</span>
       ) : null}
     </Link>
   );

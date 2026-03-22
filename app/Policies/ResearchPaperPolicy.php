@@ -7,12 +7,36 @@ use App\Models\User;
 
 class ResearchPaperPolicy
 {
-    public function view(?User $user, ResearchPaper $paper): bool
+    public function viewAny(User $user): bool
     {
-        if ($paper->status !== 'published') {
+        return $user->can('research_papers.view_any');
+    }
+
+    public function view(?User $user, ResearchPaper $researchPaper): bool
+    {
+        if ($user !== null && $user->can('research_papers.view')) {
+            return true;
+        }
+
+        if ($researchPaper->status !== 'published') {
             return false;
         }
 
-        return ! $paper->published_at || $paper->published_at->lte(now());
+        return ! $researchPaper->published_at || $researchPaper->published_at->lte(now());
+    }
+
+    public function create(User $user): bool
+    {
+        return $user->can('research_papers.create');
+    }
+
+    public function update(User $user, ResearchPaper $researchPaper): bool
+    {
+        return $user->can('research_papers.update');
+    }
+
+    public function delete(User $user, ResearchPaper $researchPaper): bool
+    {
+        return $user->can('research_papers.delete');
     }
 }

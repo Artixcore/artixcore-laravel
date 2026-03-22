@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { getSite } from "@/lib/cms-api";
 import { site } from "@/lib/constants";
 import "./globals.css";
 
@@ -45,11 +46,25 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let defaultTheme = "dark";
+  try {
+    const cms = await getSite();
+    if (
+      cms.theme_default === "light" ||
+      cms.theme_default === "dark" ||
+      cms.theme_default === "system"
+    ) {
+      defaultTheme = cms.theme_default;
+    }
+  } catch {
+    // keep default
+  }
+
   return (
     <html
       lang="en"
@@ -57,7 +72,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider defaultTheme={defaultTheme}>{children}</ThemeProvider>
       </body>
     </html>
   );

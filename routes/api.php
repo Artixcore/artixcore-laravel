@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\Api\V1\AnalyticsEventController;
 use App\Http\Controllers\Api\V1\ArticleController;
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\MetaController;
+use App\Http\Controllers\Api\V1\Portal\MeController;
+use App\Http\Controllers\Api\V1\SiteController;
 use App\Http\Controllers\Api\V1\CaseStudyController;
 use App\Http\Controllers\Api\V1\ContactController;
 use App\Http\Controllers\Api\V1\NavigationController;
@@ -14,7 +18,21 @@ use App\Http\Controllers\Api\V1\TrendingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
+    Route::post('/auth/login', [AuthController::class, 'login'])
+        ->middleware('throttle:10,1')
+        ->name('api.v1.auth.login');
+
+    Route::middleware('auth:sanctum')->group(function (): void {
+        Route::post('/auth/logout', [AuthController::class, 'logout'])->name('api.v1.auth.logout');
+        Route::get('/portal/me', MeController::class)->name('api.v1.portal.me');
+    });
+
     Route::get('/health', fn () => ['status' => 'ok', 'timestamp' => now()->toIso8601String()]);
+
+    Route::get('/site', [SiteController::class, 'show'])->name('api.v1.site.show');
+
+    Route::get('/meta/block-types', [MetaController::class, 'blockTypes'])
+        ->name('api.v1.meta.block-types');
 
     Route::post('/contact', [ContactController::class, 'store'])
         ->middleware('throttle:10,1');

@@ -12,6 +12,18 @@ const nextConfig: NextConfig = {
         hostname: "storaeall.s3.us-east-1.amazonaws.com",
         pathname: "/**",
       },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "8000",
+        pathname: "/storage/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+        pathname: "/storage/**",
+      },
     ],
   },
 };

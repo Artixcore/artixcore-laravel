@@ -2,6 +2,7 @@ import type {
   NavigationResponse,
   PageDTO,
   NavItemDTO,
+  SiteDTO,
 } from "@/lib/cms-types";
 
 /** Comma-separated topic slugs; sent as `X-Interest-Topics` for article list ordering (first-party only). */
@@ -47,6 +48,11 @@ export async function getPrimaryNavigation(): Promise<NavigationResponse> {
 
 export async function getFooterNavigation(): Promise<NavigationResponse> {
   const json = await getJson<{ data: NavigationResponse }>("/navigation?menu=footer");
+  return json.data;
+}
+
+export async function getSite(): Promise<SiteDTO> {
+  const json = await getJson<{ data: SiteDTO }>("/site");
   return json.data;
 }
 
