@@ -27,13 +27,17 @@ const base = getApiBase();
 
 async function getJson<T>(path: string, init?: RequestInit): Promise<T> {
   const url = path.startsWith("http") ? path : `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  const useRevalidate = init?.cache !== "no-store";
+  const { next: initNext, ...restInit } = init ?? {};
   const res = await fetch(url, {
-    ...init,
+    ...restInit,
     headers: {
       Accept: "application/json",
       ...init?.headers,
     },
-    next: init?.next ?? { revalidate: 60 },
+    ...(useRevalidate
+      ? { next: initNext ?? { revalidate: 60 } }
+      : { cache: "no-store" as const }),
   });
   if (!res.ok) {
     throw new Error(`CMS request failed: ${res.status} ${url}`);
@@ -52,7 +56,7 @@ export async function getFooterNavigation(): Promise<NavigationResponse> {
 }
 
 export async function getSite(): Promise<SiteDTO> {
-  const json = await getJson<{ data: SiteDTO }>("/site");
+  const json = await getJson<{ data: SiteDTO }>("/site", { cache: "no-store" });
   return json.data;
 }
 
