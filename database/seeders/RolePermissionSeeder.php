@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
@@ -153,16 +153,15 @@ class RolePermissionSeeder extends Seeder
                 $crud('ai_run_logs'),
                 $crud('ai_approvals'),
             )),
+            'end_user' => $pick(['portal.access']),
+            'client' => $pick(['portal.access']),
+            'article_writer' => $pick(['portal.access']),
+            'contributor' => $pick(['portal.access']),
         ];
 
         foreach ($roles as $roleName => $permissionNames) {
             $role = Role::findOrCreate($roleName, self::GUARD);
             $role->syncPermissions($permissionNames);
         }
-
-        /** @var \Spatie\Permission\Contracts\Permission $portalPermission */
-        $portalPermission = Permission::findOrCreate('portal.access', self::GUARD);
-        $portalRole = Role::findOrCreate('portal_user', self::GUARD);
-        $portalRole->givePermissionTo($portalPermission);
     }
 }

@@ -15,8 +15,8 @@ class PortalApiTest extends TestCase
         $this->seed();
 
         $login = $this->postJson('/api/v1/auth/login', [
-            'email' => 'portal@example.com',
-            'password' => 'password',
+            'email' => 'client@artixcore.com',
+            'password' => 'password123',
         ]);
 
         $login->assertOk()
@@ -29,8 +29,16 @@ class PortalApiTest extends TestCase
             'Authorization' => 'Bearer '.$token,
         ])
             ->assertOk()
-            ->assertJsonPath('data.user.email', 'portal@example.com')
-            ->assertJsonPath('data.user.user_kind', 'external');
+            ->assertJsonPath('data.user.email', 'client@artixcore.com')
+            ->assertJsonPath('data.user.user_kind', 'external')
+            ->assertJsonStructure([
+                'data' => [
+                    'user' => ['id', 'name', 'email', 'user_kind', 'phone', 'bio', 'designation'],
+                    'avatar_url',
+                    'roles',
+                    'permissions',
+                ],
+            ]);
     }
 
     public function test_master_admin_cannot_use_portal_login_without_portal_permission(): void
@@ -38,8 +46,8 @@ class PortalApiTest extends TestCase
         $this->seed();
 
         $this->postJson('/api/v1/auth/login', [
-            'email' => 'test@example.com',
-            'password' => 'password',
+            'email' => 'master@artixcore.com',
+            'password' => 'password123',
         ])->assertStatus(403);
     }
 
@@ -48,12 +56,12 @@ class PortalApiTest extends TestCase
         $this->seed();
 
         /** @var User $master */
-        $master = User::query()->where('email', 'test@example.com')->firstOrFail();
+        $master = User::query()->where('email', 'master@artixcore.com')->firstOrFail();
         $master->givePermissionTo('portal.access');
 
         $login = $this->postJson('/api/v1/auth/login', [
-            'email' => 'test@example.com',
-            'password' => 'password',
+            'email' => 'master@artixcore.com',
+            'password' => 'password123',
         ]);
 
         $login->assertOk();

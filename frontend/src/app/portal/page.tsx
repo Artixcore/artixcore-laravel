@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
   getStoredPortalToken,
+  PortalApiError,
   portalLogin,
   portalLogout,
   portalMe,
@@ -52,7 +54,13 @@ export default function PortalHomePage() {
       setToken(res.data.token);
       await loadMe(res.data.token);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(
+        err instanceof PortalApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "Login failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -101,14 +109,22 @@ export default function PortalHomePage() {
                 Kind: {me.user.user_kind}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => void onLogout()}
-              disabled={loading}
-              className="rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted-bg"
-            >
-              Sign out
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/portal/profile"
+                className="rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted-bg"
+              >
+                Profile settings
+              </Link>
+              <button
+                type="button"
+                onClick={() => void onLogout()}
+                disabled={loading}
+                className="rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted-bg"
+              >
+                Sign out
+              </button>
+            </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
