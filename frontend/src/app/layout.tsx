@@ -25,16 +25,22 @@ export const metadata: Metadata = {
     template: `%s — ${site.name}`,
   },
   description: site.description,
+  icons: {
+    icon: [{ url: site.logoUrl, type: "image/png" }],
+    apple: [{ url: site.logoUrl }],
+  },
   openGraph: {
     type: "website",
     siteName: site.name,
     title: site.name,
     description: site.description,
+    images: [{ url: site.logoUrl, alt: `${site.name} logo` }],
   },
   twitter: {
     card: "summary_large_image",
     title: site.name,
     description: site.description,
+    images: [site.logoUrl],
   },
   robots: { index: true, follow: true },
 };

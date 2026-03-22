@@ -1,42 +1,29 @@
 import Link from "next/link";
-import { nav, site } from "@/lib/constants";
+import { site } from "@/lib/constants";
 import { Container } from "@/components/ui/container";
 import { Logo } from "./logo";
 
-function footerExploreLinks(): { href: string; label: string }[] {
-  const out: { href: string; label: string }[] = [];
-  for (const item of nav) {
-    if ("children" in item && item.children) {
-      out.push({ href: item.href, label: item.label });
-      for (const c of item.children) {
-        out.push({ href: c.href, label: c.label });
-      }
-    } else {
-      out.push({ href: item.href, label: item.label });
-    }
-  }
-  return out;
-}
-
-export function SiteFooter() {
-  const flatLinks = footerExploreLinks();
-
+export function SiteFooter({
+  exploreLinks,
+}: {
+  exploreLinks: { href: string; label: string }[];
+}) {
   return (
     <footer className="border-t border-border bg-muted-bg/30 py-16">
       <Container>
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4">
-            <Logo />
+            <Logo size="md" />
             <p className="max-w-xs text-sm text-muted">{site.description}</p>
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">Explore</p>
             <ul className="mt-4 space-y-2 text-sm text-muted">
-              {flatLinks.map((l) => (
+              {exploreLinks.map((l) => (
                 <li key={`${l.href}-${l.label}`}>
                   <Link
                     href={l.href}
-                    className="hover:text-foreground transition-colors"
+                    className="transition-colors hover:text-foreground"
                   >
                     {l.label}
                   </Link>
@@ -45,25 +32,20 @@ export function SiteFooter() {
             </ul>
           </div>
           <div>
-            <p className="text-sm font-semibold text-foreground">Services</p>
+            <p className="text-sm font-semibold text-foreground">Products</p>
             <ul className="mt-4 space-y-2 text-sm text-muted">
               <li>
-                <Link href="/services/software" className="hover:text-foreground">
-                  Software development
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/saas" className="hover:text-foreground">
+                <Link href="/products/saas" className="hover:text-foreground">
                   SaaS platforms
                 </Link>
               </li>
               <li>
-                <Link href="/services/blockchain" className="hover:text-foreground">
+                <Link href="/products/blockchain" className="hover:text-foreground">
                   Blockchain
                 </Link>
               </li>
               <li>
-                <Link href="/services/quantum" className="hover:text-foreground">
+                <Link href="/products/quantum" className="hover:text-foreground">
                   Quantum
                 </Link>
               </li>

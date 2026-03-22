@@ -1,8 +1,18 @@
+const defaultLogoUrl =
+  "https://storaeall.s3.us-east-1.amazonaws.com/artixcore-logo.PNG";
+
 export const site = {
   name: "Artixcore",
   tagline: "Software that scales with ambition",
   description:
     "We build software, SaaS platforms, blockchain systems, quantum-ready tooling, and mobile & web applications for teams who care about craft.",
+  /** Navbar, footer, OG image, and favicon (unless overridden). */
+  logoUrl: process.env.NEXT_PUBLIC_SITE_LOGO_URL ?? defaultLogoUrl,
+  /**
+   * If the PNG is icon-only, set true so `Logo` shows `name` next to the image.
+   * Default false assumes the asset already includes the wordmark.
+   */
+  logoIsIconOnly: false,
 };
 
 export const nav = [

@@ -4,12 +4,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
 import { Menu, X } from "lucide-react";
-import { nav } from "@/lib/constants";
+import type { NavItemDTO } from "@/lib/cms-types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./theme-toggle";
 
-export function MobileNav() {
+function isActive(pathname: string, href: string | null): boolean {
+  if (!href || href === "#") {
+    return false;
+  }
+  if (href === "/") {
+    return pathname === "/";
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function MobileNav({ items }: { items: NavItemDTO[] }) {
   const [open, setOpen] = React.useState(false);
   const pathname = usePathname();
 
@@ -35,24 +45,24 @@ export function MobileNav() {
       {open ? (
         <div
           id="mobile-nav"
-          className="fixed inset-x-0 top-14 z-50 border-b border-border bg-background/95 px-4 py-4 shadow-lg backdrop-blur-md"
+          className="fixed inset-x-0 top-14 z-50 max-h-[min(80vh,calc(100vh-3.5rem))] overflow-y-auto border-b border-border bg-background/95 px-4 py-4 shadow-lg backdrop-blur-md"
           role="dialog"
           aria-modal="true"
         >
-          <nav className="flex flex-col gap-1">
-            {nav.map((item) =>
-              "children" in item && item.children ? (
-                <div key={item.href} className="flex flex-col gap-1 py-2">
+          <nav className="flex flex-col gap-1" aria-label="Mobile">
+            {items.map((item) =>
+              item.children.length > 0 ? (
+                <div key={item.id} className="flex flex-col gap-1 py-2">
                   <span className="text-xs font-semibold uppercase tracking-wider text-muted">
                     {item.label}
                   </span>
                   {item.children.map((c) => (
                     <Link
-                      key={c.href}
-                      href={c.href}
+                      key={c.id}
+                      href={c.href ?? "#"}
                       className={cn(
                         "rounded-[var(--radius-md)] px-3 py-2 text-sm hover:bg-muted-bg",
-                        pathname === c.href && "bg-muted-bg text-foreground"
+                        isActive(pathname, c.href) && "bg-muted-bg text-foreground"
                       )}
                     >
                       {c.label}
@@ -61,17 +71,26 @@ export function MobileNav() {
                 </div>
               ) : (
                 <Link
-                  key={item.href}
-                  href={item.href}
+                  key={item.id}
+                  href={item.href ?? "/"}
                   className={cn(
                     "rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium hover:bg-muted-bg",
-                    pathname === item.href && "bg-muted-bg"
+                    isActive(pathname, item.href) && "bg-muted-bg"
                   )}
                 >
                   {item.label}
                 </Link>
               )
             )}
+            <Link
+              href="/dashboard-preview"
+              className={cn(
+                "rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium hover:bg-muted-bg",
+                pathname.startsWith("/dashboard-preview") && "bg-muted-bg"
+              )}
+            >
+              Dashboard preview
+            </Link>
           </nav>
         </div>
       ) : null}

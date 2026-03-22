@@ -1,41 +1,42 @@
-import dynamic from "next/dynamic";
 import type { Metadata } from "next";
-import { HeroSection } from "@/components/sections/hero";
-import { ServicesTeaserSection } from "@/components/sections/services-teaser";
+import { BlockRenderer } from "@/components/blocks/block-renderer";
+import { cmsPageMetadata } from "@/components/cms/cms-page";
+import { TrendingArticlesSection } from "@/components/sections/trending-articles";
+import { getPage } from "@/lib/cms-api";
+import type { PageBlockDTO } from "@/lib/cms-types";
 import { site } from "@/lib/constants";
 
-const TechStackSection = dynamic(
-  () =>
-    import("@/components/sections/tech-stack").then((m) => m.TechStackSection),
-  { loading: () => <div className="min-h-[120px]" aria-hidden /> }
-);
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    return await cmsPageMetadata({ path: "home" });
+  } catch {
+    return {
+      title: "Home",
+      description: site.description,
+    };
+  }
+}
 
-const SocialProofSection = dynamic(
-  () =>
-    import("@/components/sections/social-proof").then(
-      (m) => m.SocialProofSection
-    ),
-  { loading: () => <div className="min-h-[160px]" aria-hidden /> }
-);
+export default async function HomePage() {
+  let blocks: PageBlockDTO[] = [];
+  try {
+    const page = await getPage("home");
+    blocks = page.blocks;
+  } catch {
+    blocks = [];
+  }
 
-const CtaSection = dynamic(
-  () => import("@/components/sections/cta-section").then((m) => m.CtaSection),
-  { loading: () => <div className="min-h-[200px]" aria-hidden /> }
-);
-
-export const metadata: Metadata = {
-  title: "Home",
-  description: site.description,
-};
-
-export default function HomePage() {
   return (
     <>
-      <HeroSection />
-      <ServicesTeaserSection />
-      <TechStackSection />
-      <SocialProofSection />
-      <CtaSection />
+      {blocks.length > 0 ? (
+        <BlockRenderer blocks={blocks} />
+      ) : (
+        <div className="mx-auto max-w-6xl px-4 py-20 text-center text-muted">
+          CMS unavailable — start Laravel and run{" "}
+          <code className="rounded bg-muted-bg px-1">php artisan migrate --seed</code>.
+        </div>
+      )}
+      <TrendingArticlesSection />
     </>
   );
 }

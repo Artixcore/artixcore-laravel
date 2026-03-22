@@ -8,6 +8,7 @@ import {
   Users,
 } from "lucide-react";
 import * as React from "react";
+import { Logo } from "@/components/layout/logo";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -29,8 +30,9 @@ export function DashboardPreviewShell() {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex h-14 items-center border-b border-border px-4 font-semibold">
-          Console
+        <div className="flex h-14 items-center border-b border-border px-3">
+          <Logo showWordmark={false} className="gap-2" />
+          <span className="ml-2 text-sm font-medium text-muted">Console</span>
         </div>
         <nav className="space-y-1 p-3">
           {nav.map(({ label, icon: Icon }) => (

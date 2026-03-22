@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { LinkButton } from "@/components/ui/link-button";
+import { Logo } from "@/components/layout/logo";
 
 export default function NotFound() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center border-b border-border py-24">
       <Container className="text-center">
+        <div className="mb-8 flex justify-center">
+          <Logo className="justify-center" />
+        </div>
         <p className="text-sm font-medium text-muted">404</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight">
           Page not found
