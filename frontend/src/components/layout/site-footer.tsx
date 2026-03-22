@@ -3,12 +3,23 @@ import { nav, site } from "@/lib/constants";
 import { Container } from "@/components/ui/container";
 import { Logo } from "./logo";
 
+function footerExploreLinks(): { href: string; label: string }[] {
+  const out: { href: string; label: string }[] = [];
+  for (const item of nav) {
+    if ("children" in item && item.children) {
+      out.push({ href: item.href, label: item.label });
+      for (const c of item.children) {
+        out.push({ href: c.href, label: c.label });
+      }
+    } else {
+      out.push({ href: item.href, label: item.label });
+    }
+  }
+  return out;
+}
+
 export function SiteFooter() {
-  const flatLinks = nav.flatMap((item) =>
-    "children" in item && item.children
-      ? [{ href: item.href, label: item.label }, ...item.children]
-      : [{ href: item.href, label: item.label }]
-  );
+  const flatLinks = footerExploreLinks();
 
   return (
     <footer className="border-t border-border bg-muted-bg/30 py-16">
