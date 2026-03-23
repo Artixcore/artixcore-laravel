@@ -61,9 +61,53 @@ export async function apiFetch<T>(
   return data as T;
 }
 
+/** Strip `/api/v1` from `NEXT_PUBLIC_API_URL` (or `getApiBase()`) → Laravel app origin. */
+export function laravelOriginFromApiV1Base(apiBaseWithVersion: string): string {
+  return apiBaseWithVersion.replace(/\/$/, "").replace(/\/api\/v1$/, "");
+}
+
+function readXsrfTokenFromCookie(): string | undefined {
+  if (typeof document === "undefined") {
+    return undefined;
+  }
+  const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]*)/);
+  if (!match?.[1]) {
+    return undefined;
+  }
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+/**
+ * Laravel Sanctum stateful API: prime CSRF cookie, then return headers for mutating requests from the browser.
+ * Use with `credentials: "include"` on `fetch` when calling the API from the Next.js app (cross-origin to Laravel).
+ */
+export async function sanctumStatefulHeaders(
+  apiBaseParam?: string
+): Promise<Record<string, string>> {
+  if (typeof window === "undefined") {
+    return {};
+  }
+  const apiRoot = (apiBaseParam ?? base).replace(/\/$/, "");
+  const origin = laravelOriginFromApiV1Base(apiRoot);
+  await fetch(`${origin}/sanctum/csrf-cookie`, {
+    method: "GET",
+    credentials: "include",
+  });
+  const xsrf = readXsrfTokenFromCookie();
+  if (!xsrf) {
+    return {};
+  }
+  return { "X-XSRF-TOKEN": xsrf };
+}
+
 /** Laravel Sanctum: fetch CSRF cookie before cookie-based POST from SPA */
-export async function ensureSanctumCsrf(): Promise<void> {
-  const origin = base.replace(/\/api\/v1\/?$/, "");
+export async function ensureSanctumCsrf(apiBaseParam?: string): Promise<void> {
+  const apiRoot = (apiBaseParam ?? base).replace(/\/$/, "");
+  const origin = laravelOriginFromApiV1Base(apiRoot);
   await fetch(`${origin}/sanctum/csrf-cookie`, {
     method: "GET",
     credentials: "include",

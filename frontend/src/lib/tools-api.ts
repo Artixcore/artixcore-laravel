@@ -1,6 +1,26 @@
+import { sanctumStatefulHeaders } from "@/lib/api";
 import { getApiBase } from "@/lib/cms-api";
 
 const base = () => getApiBase();
+
+/** Sanctum stateful API: CSRF + optional Bearer for browser-originated mutating requests. */
+async function microToolsMutatingHeaders(
+  init?: { bearerToken?: string | null; json?: boolean }
+): Promise<Record<string, string>> {
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    ...(typeof window !== "undefined"
+      ? await sanctumStatefulHeaders(getApiBase())
+      : {}),
+  };
+  if (init?.json !== false) {
+    headers["Content-Type"] = "application/json";
+  }
+  if (init?.bearerToken) {
+    headers.Authorization = `Bearer ${init.bearerToken}`;
+  }
+  return headers;
+}
 
 export type MicroToolDTO = {
   id: number;
@@ -95,18 +115,13 @@ export async function runMicroToolServer(
   body: Record<string, unknown>,
   bearerToken?: string | null
 ): Promise<{ data: unknown; meta: ToolRunMeta }> {
-  const headers: HeadersInit = {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  };
-  if (bearerToken) {
-    (headers as Record<string, string>).Authorization = `Bearer ${bearerToken}`;
-  }
+  const headers = await microToolsMutatingHeaders({ bearerToken, json: true });
   const res = await fetch(
     `${base()}/tools/${encodeURIComponent(slug)}/run`,
     {
       method: "POST",
       headers,
+      credentials: "include",
       body: JSON.stringify(body),
     }
   );
@@ -147,12 +162,14 @@ export async function addToolFavorite(
   bearerToken: string,
   toolId: number
 ): Promise<void> {
+  const headers = await microToolsMutatingHeaders({
+    bearerToken,
+    json: false,
+  });
   await fetch(`${base()}/tools/me/favorites/${toolId}`, {
     method: "POST",
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${bearerToken}`,
-    },
+    headers,
+    credentials: "include",
   });
 }
 
@@ -160,12 +177,14 @@ export async function removeToolFavorite(
   bearerToken: string,
   toolId: number
 ): Promise<void> {
+  const headers = await microToolsMutatingHeaders({
+    bearerToken,
+    json: false,
+  });
   await fetch(`${base()}/tools/me/favorites/${toolId}`, {
     method: "DELETE",
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${bearerToken}`,
-    },
+    headers,
+    credentials: "include",
   });
 }
 
@@ -198,13 +217,11 @@ export async function saveToolReport(
   microToolRunId: number,
   title: string
 ): Promise<number | null> {
+  const headers = await microToolsMutatingHeaders({ bearerToken, json: true });
   const res = await fetch(`${base()}/tools/me/reports`, {
     method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${bearerToken}`,
-    },
+    headers,
+    credentials: "include",
     body: JSON.stringify({
       micro_tool_run_id: microToolRunId,
       title,

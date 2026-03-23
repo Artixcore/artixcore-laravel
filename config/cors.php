@@ -1,5 +1,6 @@
 <?php
 
+/** Must include your SPA origin; used with `supports_credentials` for Sanctum cookie + CSRF from the browser. */
 $frontend = env('FRONTEND_URL');
 
 return [
