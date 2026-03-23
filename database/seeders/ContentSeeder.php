@@ -210,6 +210,37 @@ class ContentSeeder extends Seeder
             ]);
         }
 
+        $microToolsItem = NavItem::query()->create([
+            'nav_menu_id' => $primary->id,
+            'parent_id' => null,
+            'label' => 'Micro Tools',
+            'url' => '/micro-tools',
+            'page_id' => null,
+            'sort_order' => 0,
+        ]);
+
+        foreach (
+            [
+                ['All tools', '/micro-tools'],
+                ['Web tools', '/micro-tools/web'],
+                ['Domain & DNS', '/micro-tools/domain-dns'],
+                ['Security & trust', '/micro-tools/security-trust'],
+                ['Media', '/micro-tools/media'],
+                ['SEO & content', '/micro-tools/seo-content'],
+                ['Developer', '/micro-tools/developer'],
+                ['Marketing', '/micro-tools/marketing'],
+                ['Favorites & history', '/micro-tools/me'],
+            ] as $i => [$label, $url]
+        ) {
+            NavItem::query()->create([
+                'nav_menu_id' => $primary->id,
+                'parent_id' => $microToolsItem->id,
+                'label' => $label,
+                'url' => $url,
+                'sort_order' => $i,
+            ]);
+        }
+
         $productsItem = NavItem::query()->create([
             'nav_menu_id' => $primary->id,
             'parent_id' => null,

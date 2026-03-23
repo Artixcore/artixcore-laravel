@@ -63,7 +63,8 @@ class ContentApiTest extends TestCase
                         '*' => ['id', 'label', 'href', 'feature', 'children'],
                     ],
                 ],
-            ]);
+            ])
+            ->assertJsonFragment(['label' => 'Micro Tools', 'href' => '/micro-tools']);
     }
 
     public function test_home_page_by_path(): void
