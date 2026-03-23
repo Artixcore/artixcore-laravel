@@ -22,6 +22,7 @@ export function setStoredPortalToken(token: string | null): void {
 
 export type PortalUser = {
   id: number;
+  aid?: string | null;
   name: string;
   email: string;
   user_kind: string;

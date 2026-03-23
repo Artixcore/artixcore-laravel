@@ -15,6 +15,10 @@ use App\Http\Controllers\Api\V1\RelatedContentController;
 use App\Http\Controllers\Api\V1\ResearchPaperController;
 use App\Http\Controllers\Api\V1\SiteController;
 use App\Http\Controllers\Api\V1\TeamProfileController;
+use App\Http\Controllers\Api\V1\Tools\ToolCatalogController;
+use App\Http\Controllers\Api\V1\Tools\ToolMeController;
+use App\Http\Controllers\Api\V1\Tools\ToolRunController;
+use App\Http\Controllers\Api\V1\Tools\ToolSessionController;
 use App\Http\Controllers\Api\V1\TrendingController;
 use Illuminate\Support\Facades\Route;
 
@@ -79,4 +83,32 @@ Route::prefix('v1')->group(function (): void {
 
     Route::post('/analytics/events', [AnalyticsEventController::class, 'store'])
         ->middleware('throttle:60,1');
+
+    Route::get('/tools', [ToolCatalogController::class, 'index'])->name('api.v1.tools.index');
+    Route::get('/tools/session', ToolSessionController::class)
+        ->middleware(['optional.sanctum'])
+        ->name('api.v1.tools.session');
+    Route::get('/tools/{slug}', [ToolCatalogController::class, 'show'])
+        ->where('slug', '[a-z0-9\-]+')
+        ->name('api.v1.tools.show');
+    Route::post('/tools/{slug}/run', ToolRunController::class)
+        ->middleware(['optional.sanctum', 'throttle:60,1'])
+        ->where('slug', '[a-z0-9\-]+')
+        ->name('api.v1.tools.run');
+
+    Route::middleware('auth:sanctum')->group(function (): void {
+        Route::get('/tools/me/favorites', [ToolMeController::class, 'favorites'])->name('api.v1.tools.me.favorites');
+        Route::post('/tools/me/favorites/{toolId}', [ToolMeController::class, 'favoriteStore'])
+            ->whereNumber('toolId')
+            ->name('api.v1.tools.me.favorites.store');
+        Route::delete('/tools/me/favorites/{toolId}', [ToolMeController::class, 'favoriteDestroy'])
+            ->whereNumber('toolId')
+            ->name('api.v1.tools.me.favorites.destroy');
+        Route::get('/tools/me/history', [ToolMeController::class, 'history'])->name('api.v1.tools.me.history');
+        Route::get('/tools/me/reports', [ToolMeController::class, 'reports'])->name('api.v1.tools.me.reports');
+        Route::get('/tools/me/reports/{id}', [ToolMeController::class, 'reportShow'])
+            ->whereNumber('id')
+            ->name('api.v1.tools.me.reports.show');
+        Route::post('/tools/me/reports', [ToolMeController::class, 'reportStore'])->name('api.v1.tools.me.reports.store');
+    });
 });

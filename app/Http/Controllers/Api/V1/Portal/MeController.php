@@ -18,6 +18,7 @@ class MeController extends Controller
             'data' => [
                 'user' => [
                     'id' => $user->id,
+                    'aid' => $user->aid,
                     'name' => $user->name,
                     'email' => $user->email,
                     'user_kind' => $user->user_kind,

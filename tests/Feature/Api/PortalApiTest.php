@@ -33,7 +33,7 @@ class PortalApiTest extends TestCase
             ->assertJsonPath('data.user.user_kind', 'external')
             ->assertJsonStructure([
                 'data' => [
-                    'user' => ['id', 'name', 'email', 'user_kind', 'phone', 'bio', 'designation'],
+                    'user' => ['id', 'aid', 'name', 'email', 'user_kind', 'phone', 'bio', 'designation'],
                     'avatar_url',
                     'roles',
                     'permissions',
