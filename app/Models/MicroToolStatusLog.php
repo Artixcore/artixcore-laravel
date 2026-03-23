@@ -5,16 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class MicroSavedReport extends Model
+class MicroToolStatusLog extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
-        'user_id',
         'micro_tool_id',
-        'micro_tool_run_id',
-        'title',
-        'report_data',
-        'report_format',
-        'visibility',
+        'action',
+        'old_value',
+        'new_value',
+        'note',
+        'changed_by',
+        'created_at',
     ];
 
     /**
@@ -23,13 +25,8 @@ class MicroSavedReport extends Model
     protected function casts(): array
     {
         return [
-            'report_data' => 'array',
+            'created_at' => 'datetime',
         ];
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function tool(): BelongsTo
@@ -37,8 +34,8 @@ class MicroSavedReport extends Model
         return $this->belongsTo(MicroTool::class, 'micro_tool_id');
     }
 
-    public function run(): BelongsTo
+    public function changedByUser(): BelongsTo
     {
-        return $this->belongsTo(MicroToolRun::class, 'micro_tool_run_id');
+        return $this->belongsTo(User::class, 'changed_by');
     }
 }

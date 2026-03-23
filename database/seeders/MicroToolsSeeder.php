@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\MicroTool;
+use App\Models\MicroToolCategory;
 use Illuminate\Database\Seeder;
 
 class MicroToolsSeeder extends Seeder
@@ -48,9 +49,12 @@ class MicroToolsSeeder extends Seeder
         ];
 
         foreach ($rows as $row) {
+            $categoryId = MicroToolCategory::query()->where('slug', $row['category'])->value('id');
+
             MicroTool::query()->updateOrCreate(
                 ['slug' => $row['slug']],
                 [
+                    'micro_tool_category_id' => $categoryId,
                     'category' => $row['category'],
                     'title' => $row['title'],
                     'description' => $row['description'],

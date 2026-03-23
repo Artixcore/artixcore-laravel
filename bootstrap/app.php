@@ -1,12 +1,16 @@
 <?php
 
 use App\Http\Middleware\OptionalSanctumAuth;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 return Application::configure(basePath: dirname(__DIR__))
+    ->withSchedule(function (Schedule $schedule): void {
+        $schedule->command('micro-tools:aggregate-daily-stats')->dailyAt('01:00');
+    })
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',

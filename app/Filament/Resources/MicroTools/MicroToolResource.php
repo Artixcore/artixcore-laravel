@@ -5,6 +5,9 @@ namespace App\Filament\Resources\MicroTools;
 use App\Filament\Resources\MicroTools\Pages\CreateMicroTool;
 use App\Filament\Resources\MicroTools\Pages\EditMicroTool;
 use App\Filament\Resources\MicroTools\Pages\ListMicroTools;
+use App\Filament\Resources\MicroTools\RelationManagers\AccessPlansRelationManager;
+use App\Filament\Resources\MicroTools\RelationManagers\SettingsRelationManager;
+use App\Filament\Resources\MicroTools\RelationManagers\StatusLogsRelationManager;
 use App\Filament\Resources\MicroTools\Schemas\MicroToolForm;
 use App\Filament\Resources\MicroTools\Tables\MicroToolsTable;
 use App\Models\MicroTool;
@@ -13,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class MicroToolResource extends Resource
 {
@@ -35,7 +39,9 @@ class MicroToolResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            SettingsRelationManager::class,
+            StatusLogsRelationManager::class,
+            AccessPlansRelationManager::class,
         ];
     }
 
@@ -46,5 +52,13 @@ class MicroToolResource extends Resource
             'create' => CreateMicroTool::route('/create'),
             'edit' => EditMicroTool::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * @return Builder<MicroTool>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with('toolCategory');
     }
 }

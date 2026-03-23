@@ -25,7 +25,10 @@ class RolePermissionSeeder extends Seeder
         ];
 
         return array_values(array_unique(array_merge(
-            ['filament.access', 'users.manage_roles', 'portal.access'],
+            ['filament.access', 'users.manage_roles', 'portal.access', 'micro_tool_analytics.view', 'micro_tools.manage_monetization'],
+            $crud('micro_tools'),
+            $crud('micro_tool_categories'),
+            ['micro_tool_runs.view_any', 'micro_tool_runs.view'],
             $crud('pages'),
             $crud('page_blocks'),
             $crud('nav_menus'),
@@ -88,6 +91,9 @@ class RolePermissionSeeder extends Seeder
                 $crud('nav_menus'),
                 $crud('nav_items'),
                 $crud('articles'),
+                $crud('micro_tools'),
+                $crud('micro_tool_categories'),
+                ['micro_tool_analytics.view', 'micro_tool_runs.view_any', 'micro_tool_runs.view'],
             )),
             'marketing_admin' => $pick(array_merge(
                 ['filament.access'],
@@ -99,6 +105,9 @@ class RolePermissionSeeder extends Seeder
                 $crud('products'),
                 $crud('case_studies'),
                 $crud('team_profiles'),
+                $crud('micro_tools'),
+                $crud('micro_tool_categories'),
+                ['micro_tool_analytics.view', 'micro_tool_runs.view_any', 'micro_tool_runs.view'],
             )),
             'researcher_admin' => $pick(array_merge(
                 ['filament.access'],

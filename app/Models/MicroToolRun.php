@@ -12,10 +12,22 @@ class MicroToolRun extends Model
         'micro_tool_id',
         'user_id',
         'guest_key',
+        'guest_token',
+        'session_id',
+        'request_ip',
+        'request_hash',
         'input_summary',
+        'result_summary',
         'status',
         'duration_ms',
         'error_code',
+        'is_guest',
+        'is_registered',
+        'is_aid_user',
+        'is_paid_user',
+        'ads_shown',
+        'is_saved',
+        'source',
     ];
 
     /**
@@ -25,6 +37,12 @@ class MicroToolRun extends Model
     {
         return [
             'input_summary' => 'array',
+            'is_guest' => 'boolean',
+            'is_registered' => 'boolean',
+            'is_aid_user' => 'boolean',
+            'is_paid_user' => 'boolean',
+            'ads_shown' => 'boolean',
+            'is_saved' => 'boolean',
         ];
     }
 

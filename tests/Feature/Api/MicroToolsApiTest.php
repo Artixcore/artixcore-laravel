@@ -13,9 +13,14 @@ class MicroToolsApiTest extends TestCase
     {
         $this->seed();
 
-        $this->getJson('/api/v1/tools')
+        $catalog = $this->getJson('/api/v1/tools')
             ->assertOk()
-            ->assertJsonStructure(['data' => [['slug', 'title', 'category', 'execution_mode']]]);
+            ->assertJsonStructure(['data' => [['slug', 'title', 'category', 'category_slug', 'execution_mode', 'access_type', 'locked', 'ads_expected']]])
+            ->json('data');
+
+        $dnsRow = collect($catalog)->firstWhere('slug', 'dns-lookup');
+        $this->assertNotNull($dnsRow);
+        $this->assertSame('domain-dns', $dnsRow['category_slug']);
 
         $this->getJson('/api/v1/tools/dns-lookup')
             ->assertOk()

@@ -9,7 +9,12 @@ class MicroToolRunResult extends Model
 {
     protected $fillable = [
         'micro_tool_run_id',
+        'result_type',
         'payload',
+        'warning_count',
+        'error_count',
+        'score',
+        'is_exportable',
     ];
 
     /**
@@ -19,6 +24,7 @@ class MicroToolRunResult extends Model
     {
         return [
             'payload' => 'array',
+            'is_exportable' => 'boolean',
         ];
     }
 

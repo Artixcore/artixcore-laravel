@@ -95,4 +95,25 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     {
         return $this->hasMany(MicroSavedReport::class);
     }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function microToolHistories(): HasMany
+    {
+        return $this->hasMany(UserMicroToolHistory::class, 'user_id');
+    }
+
+    public function isCurrentlyPremium(): bool
+    {
+        return $this->subscriptions()
+            ->where('status', Subscription::STATUS_ACTIVE)
+            ->where(function ($q): void {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            })
+            ->exists();
+    }
 }

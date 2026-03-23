@@ -5,16 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class MicroSavedReport extends Model
+class UserMicroToolHistory extends Model
 {
+    protected $table = 'user_micro_tool_histories';
+
     protected $fillable = [
         'user_id',
         'micro_tool_id',
         'micro_tool_run_id',
         'title',
-        'report_data',
-        'report_format',
-        'visibility',
+        'summary',
+        'is_favorite',
+        'is_saved',
+        'viewed_at',
     ];
 
     /**
@@ -23,7 +26,9 @@ class MicroSavedReport extends Model
     protected function casts(): array
     {
         return [
-            'report_data' => 'array',
+            'is_favorite' => 'boolean',
+            'is_saved' => 'boolean',
+            'viewed_at' => 'datetime',
         ];
     }
 

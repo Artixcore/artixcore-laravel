@@ -5,16 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class MicroSavedReport extends Model
+class GuestMicroToolUsage extends Model
 {
+    protected $table = 'guest_micro_tool_usage';
+
     protected $fillable = [
-        'user_id',
         'micro_tool_id',
-        'micro_tool_run_id',
-        'title',
-        'report_data',
-        'report_format',
-        'visibility',
+        'guest_token',
+        'session_id',
+        'ip_address',
+        'user_agent',
+        'usage_date',
+        'total_runs',
+        'ads_shown_count',
     ];
 
     /**
@@ -23,22 +26,12 @@ class MicroSavedReport extends Model
     protected function casts(): array
     {
         return [
-            'report_data' => 'array',
+            'usage_date' => 'date',
         ];
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function tool(): BelongsTo
     {
         return $this->belongsTo(MicroTool::class, 'micro_tool_id');
-    }
-
-    public function run(): BelongsTo
-    {
-        return $this->belongsTo(MicroToolRun::class, 'micro_tool_run_id');
     }
 }

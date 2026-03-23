@@ -18,10 +18,14 @@ class ToolCatalogController extends Controller
             'sort' => 'sometimes|string|in:popular,new,default',
         ]);
 
-        $query = MicroTool::query()->active();
+        $query = MicroTool::query()->active()->with('toolCategory');
 
         if (! empty($filters['category'])) {
-            $query->where('category', $filters['category']);
+            $cat = $filters['category'];
+            $query->where(function ($q) use ($cat): void {
+                $q->where('category', $cat)
+                    ->orWhereHas('toolCategory', fn ($q2) => $q2->where('slug', $cat));
+            });
         }
 
         if (! empty($filters['q'])) {
@@ -45,7 +49,7 @@ class ToolCatalogController extends Controller
 
     public function show(string $slug): MicroToolResource
     {
-        $tool = MicroTool::query()->active()->where('slug', $slug)->firstOrFail();
+        $tool = MicroTool::query()->active()->with('toolCategory')->where('slug', $slug)->firstOrFail();
 
         return new MicroToolResource($tool);
     }

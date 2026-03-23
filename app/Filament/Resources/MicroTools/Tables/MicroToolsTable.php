@@ -18,9 +18,15 @@ class MicroToolsTable
                 TextColumn::make('slug')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('category')
-                    ->searchable()
-                    ->sortable(),
+                TextColumn::make('category_display')
+                    ->label('Category')
+                    ->state(fn ($record): string => $record->toolCategory?->slug ?? $record->category ?? '—')
+                    ->searchable(query: function ($query, string $search): void {
+                        $query->where(function ($q) use ($search): void {
+                            $q->where('category', 'like', '%'.$search.'%')
+                                ->orWhereHas('toolCategory', fn ($q2) => $q2->where('slug', 'like', '%'.$search.'%')->orWhere('name', 'like', '%'.$search.'%'));
+                        });
+                    }),
                 TextColumn::make('title')
                     ->searchable()
                     ->sortable(),
