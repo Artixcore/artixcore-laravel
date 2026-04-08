@@ -19,7 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'optional.sanctum' => OptionalSanctumAuth::class,
+            'blade.admin' => \App\Http\Middleware\EnsureBladeAdminAccess::class,
         ]);
+
+        $middleware->redirectGuestsTo(fn () => route('login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -18,6 +18,8 @@ class SiteSetting extends Model
         'social_links',
         'design_tokens',
         'theme_default',
+        'homepage_content',
+        'about_content',
     ];
 
     protected function casts(): array
@@ -25,6 +27,8 @@ class SiteSetting extends Model
         return [
             'social_links' => 'array',
             'design_tokens' => 'array',
+            'homepage_content' => 'array',
+            'about_content' => 'array',
         ];
     }
 
