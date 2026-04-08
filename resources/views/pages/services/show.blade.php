@@ -18,7 +18,7 @@
 			<p class="lead">{{ $service->summary }}</p>
 		@endif
 		<div class="prose-lg">
-			{!! nl2br(e($service->body)) !!}
+			{!! $service->body !!}
 		</div>
 	</div>
 </section>

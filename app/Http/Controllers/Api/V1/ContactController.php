@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreContactRequest;
+use App\Models\ContactMessage;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 
 class ContactController extends Controller
 {
@@ -13,11 +13,13 @@ class ContactController extends Controller
     {
         $data = $request->validated();
 
-        Log::info('contact.submission', [
+        ContactMessage::query()->create([
             'name' => $data['name'],
             'email' => $data['email'],
             'company' => $data['company'] ?? null,
+            'phone' => $data['phone'] ?? null,
             'message' => $data['message'],
+            'ip_address' => $request->ip(),
         ]);
 
         return response()->json([

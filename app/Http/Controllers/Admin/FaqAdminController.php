@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Faq;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class FaqAdminController extends Controller
+{
+    public function index(): View
+    {
+        $this->authorize('viewAny', Faq::class);
+
+        return view('admin.faqs.index', [
+            'faqs' => Faq::query()->orderBy('sort_order')->get(),
+        ]);
+    }
+
+    public function create(): View
+    {
+        $this->authorize('create', Faq::class);
+
+        return view('admin.faqs.form', ['faq' => new Faq, 'mode' => 'create']);
+    }
+
+    public function store(Request $request): JsonResponse|RedirectResponse
+    {
+        $this->authorize('create', Faq::class);
+        Faq::query()->create($this->validated($request));
+
+        return $this->respond($request, 'FAQ created.', route('admin.faqs.index'));
+    }
+
+    public function edit(Faq $faq): View
+    {
+        $this->authorize('update', $faq);
+
+        return view('admin.faqs.form', ['faq' => $faq, 'mode' => 'edit']);
+    }
+
+    public function update(Request $request, Faq $faq): JsonResponse|RedirectResponse
+    {
+        $this->authorize('update', $faq);
+        $faq->update($this->validated($request));
+
+        return $this->respond($request, 'FAQ updated.', route('admin.faqs.index'));
+    }
+
+    public function destroy(Request $request, Faq $faq): JsonResponse|RedirectResponse
+    {
+        $this->authorize('delete', $faq);
+        $faq->delete();
+
+        return $this->respond($request, 'FAQ deleted.', route('admin.faqs.index'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function validated(Request $request): array
+    {
+        return $request->validate([
+            'question' => ['required', 'string', 'max:500'],
+            'answer' => ['required', 'string', 'max:10000'],
+            'sort_order' => ['required', 'integer', 'min:0'],
+            'is_published' => ['sometimes', 'boolean'],
+        ]) + ['is_published' => $request->boolean('is_published')];
+    }
+
+    private function respond(Request $request, string $message, string $redirect): JsonResponse|RedirectResponse
+    {
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+
+        return redirect()->to($redirect)->with('status', $message);
+    }
+}

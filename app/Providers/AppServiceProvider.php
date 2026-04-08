@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Observers\AiRunObserver;
 use App\Observers\MicroToolObserver;
 use App\Services\WebNavigationService;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -28,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Paginator::useBootstrapFive();
+
         AiRun::observe(AiRunObserver::class);
         MicroTool::observe(MicroToolObserver::class);
 
@@ -35,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
             return $user?->hasRole('master_admin') ? true : null;
         });
 
-        View::composer(['layouts.app', 'layouts.admin', 'errors.404'], function ($view): void {
+        View::composer('*', function ($view): void {
             $view->with('site', SiteSetting::instance());
         });
 

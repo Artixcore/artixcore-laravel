@@ -20,8 +20,8 @@
 								<li class="nav-item"><a class="nav-link pt-0" href="{{ url($link['url']) }}">{{ $link['label'] }}</a></li>
 							@endforeach
 							<li class="nav-item"><a class="nav-link" href="{{ route('faq') }}">FAQ</a></li>
-							<li class="nav-item"><a class="nav-link" href="{{ route('legal.show', 'privacy-policy') }}">Privacy</a></li>
-							<li class="nav-item"><a class="nav-link" href="{{ route('legal.show', 'terms-and-conditions') }}">Terms</a></li>
+							<li class="nav-item"><a class="nav-link" href="{{ route('privacy') }}">Privacy</a></li>
+							<li class="nav-item"><a class="nav-link" href="{{ route('terms') }}">Terms</a></li>
 						</ul>
 					</div>
 					<div class="col-6 col-md-4">
