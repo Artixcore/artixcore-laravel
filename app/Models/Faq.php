@@ -12,6 +12,8 @@ class Faq extends Model
         'answer',
         'sort_order',
         'is_published',
+        'show_on_general_faq',
+        'show_on_saas_page',
     ];
 
     protected function casts(): array
@@ -19,6 +21,8 @@ class Faq extends Model
         return [
             'sort_order' => 'integer',
             'is_published' => 'boolean',
+            'show_on_general_faq' => 'boolean',
+            'show_on_saas_page' => 'boolean',
         ];
     }
 

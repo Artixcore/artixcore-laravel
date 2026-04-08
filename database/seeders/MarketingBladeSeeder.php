@@ -27,6 +27,7 @@ class MarketingBladeSeeder extends Seeder
             'homepage_content' => MarketingContent::mergeHomepage($settings->homepage_content),
             'about_content' => MarketingContent::mergeAbout($settings->about_content),
             'services_page_content' => MarketingContent::mergeServicesPage($settings->services_page_content),
+            'saas_page_content' => MarketingContent::mergeSaaSPage($settings->saas_page_content),
         ]);
         $settings->save();
 
@@ -41,12 +42,13 @@ class MarketingBladeSeeder extends Seeder
             [
                 ['Home', '/', 0, null],
                 ['Services', '/services', 1, ['mega' => 'services']],
-                ['Portfolio', '/portfolio', 2, ['mega' => 'portfolio']],
-                ['Blog', '/blog', 3, null],
-                ['About', '/about', 4, null],
-                ['Careers', '/careers', 5, null],
-                ['FAQ', '/faq', 6, null],
-                ['Contact', '/contact', 7, null],
+                ['SaaS Platforms', '/saas-platforms', 2, null],
+                ['Portfolio', '/portfolio', 3, ['mega' => 'portfolio']],
+                ['Blog', '/blog', 4, null],
+                ['About', '/about', 5, null],
+                ['Careers', '/careers', 6, null],
+                ['FAQ', '/faq', 7, null],
+                ['Contact', '/contact', 8, null],
             ] as [$label, $url, $order, $featurePayload]
         ) {
             NavItem::query()->create([
@@ -99,6 +101,19 @@ class MarketingBladeSeeder extends Seeder
                 'answer' => 'Book a short discovery call via the contact form. We respond with a tailored proposal, timeline, and team shape.',
                 'sort_order' => 0,
                 'is_published' => true,
+                'show_on_general_faq' => true,
+                'show_on_saas_page' => false,
+            ]
+        );
+
+        Faq::query()->firstOrCreate(
+            ['question' => 'Can you take over an existing SaaS codebase?'],
+            [
+                'answer' => 'Yes. We start with a focused technical review, then propose a stabilization and roadmap plan—whether you need a rewrite, modular extraction, or incremental hardening.',
+                'sort_order' => 1,
+                'is_published' => true,
+                'show_on_general_faq' => false,
+                'show_on_saas_page' => true,
             ]
         );
 

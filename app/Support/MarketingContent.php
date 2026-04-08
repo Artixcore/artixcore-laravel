@@ -143,4 +143,106 @@ final class MarketingContent
     {
         return array_replace_recursive(self::defaultServicesPage(), $stored ?? []);
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function defaultSaaSPage(): array
+    {
+        return [
+            'meta_title' => 'SaaS Platforms — Artixcore',
+            'meta_description' => 'Design, build, and scale SaaS products: multi-tenant platforms, admin systems, subscriptions, automation, and AI workflows—from idea to production.',
+            'hero_badge' => 'SaaS engineering',
+            'hero_title' => 'Build SaaS products your customers pay for every month',
+            'hero_subtitle' => 'We take you from idea to launch with clear architecture, scalable backends, and polished product UX—then help you grow with automation, integrations, and operational tooling.',
+            'hero_primary_cta_label' => 'Book a strategy call',
+            'hero_primary_cta_url' => '/contact',
+            'hero_secondary_cta_label' => 'View portfolio',
+            'hero_secondary_cta_url' => '/portfolio',
+            'show_stats' => true,
+            'stats_title' => 'Delivery you can plan around',
+            'stats' => [
+                ['value' => '10+', 'label' => 'Years shipping production systems'],
+                ['value' => '120+', 'label' => 'Launches and major releases'],
+                ['value' => 'Multi-tenant', 'label' => 'Platforms, dashboards, and admin suites'],
+            ],
+            'overview_title' => 'What we build for SaaS and platform teams',
+            'overview_body' => 'Artixcore designs and ships web-based software that behaves like a real product: sign-up and onboarding, roles and permissions, billing where needed, analytics, and the admin tooling your team uses daily. We work with startups validating an MVP, scale-ups modernizing legacy systems, and enterprises building internal platforms.',
+            'offerings_title' => 'SaaS solutions we deliver',
+            'offerings_subtitle' => 'End-to-end product engineering focused on recurring revenue, operational efficiency, and maintainable systems.',
+            'offerings' => [
+                ['title' => 'Custom SaaS development', 'body' => 'Greenfield products from discovery through launch, with a roadmap tied to business outcomes.', 'icon' => 'bi bi-layers'],
+                ['title' => 'Multi-tenant platforms', 'body' => 'Tenant isolation, provisioning, plans, and the guardrails that keep data and performance predictable.', 'icon' => 'bi bi-diagram-3'],
+                ['title' => 'Internal business systems', 'body' => 'CRMs, ERP-style workflows, ops consoles, and bespoke tools that replace spreadsheets and manual handoffs.', 'icon' => 'bi bi-building-gear'],
+                ['title' => 'Admin, CRM & operations UIs', 'body' => 'Dashboards, role-based experiences, and back-office flows your team actually wants to use.', 'icon' => 'bi bi-speedometer2'],
+                ['title' => 'AI-powered SaaS', 'body' => 'Smart workflows, assistants, and automation layered on your product without compromising safety and cost.', 'icon' => 'bi bi-stars'],
+                ['title' => 'Subscriptions & monetization', 'body' => 'Plans, trials, entitlements, and integration patterns that fit your go-to-market.', 'icon' => 'bi bi-credit-card'],
+            ],
+            'why_title' => 'Why teams choose Artixcore for SaaS',
+            'why_items' => [
+                ['title' => 'Architecture first', 'body' => 'We define boundaries, data models, and scaling paths early so you are not rewriting in six months.'],
+                ['title' => 'Speed to launch', 'body' => 'Thin vertical slices, staging environments, and weekly demos keep momentum and reduce surprise.'],
+                ['title' => 'AI where it earns its place', 'body' => 'Automation and intelligence where they cut cost or improve UX—not buzzword features nobody uses.'],
+                ['title' => 'Software you can own', 'body' => 'Documentation, handover-friendly code, and observability baked in—not a black box.'],
+            ],
+            'features_title' => 'Platform capabilities we implement',
+            'features_subtitle' => 'The building blocks that turn a web app into a product business.',
+            'features' => [
+                ['title' => 'Admin panels & operator tools', 'body' => 'Support, configuration, and moderation workflows tailored to your domain.', 'icon' => 'bi bi-grid-1x2'],
+                ['title' => 'Roles, permissions, audit trails', 'body' => 'Fine-grained access and accountability for teams and tenants.', 'icon' => 'bi bi-shield-check'],
+                ['title' => 'Subscriptions & billing hooks', 'body' => 'Plans, usage, and provider integration patterns that match your model.', 'icon' => 'bi bi-receipt'],
+                ['title' => 'Analytics & reporting', 'body' => 'Product and business metrics your leadership can trust.', 'icon' => 'bi bi-graph-up-arrow'],
+                ['title' => 'Dashboards & notifications', 'body' => 'Actionable views, email and in-app signals, and escalation paths.', 'icon' => 'bi bi-bell'],
+                ['title' => 'Integrations & APIs', 'body' => 'Webhooks, third-party tools, and partner-facing APIs with clear contracts.', 'icon' => 'bi bi-plug'],
+                ['title' => 'Workflow automation', 'body' => 'Background jobs, queues, and rules that remove manual toil.', 'icon' => 'bi bi-lightning-charge'],
+            ],
+            'process_title' => 'How we build SaaS with you',
+            'process_steps' => [
+                ['title' => 'Discovery', 'body' => 'We align on users, pricing model, compliance constraints, and what “done” means for v1.'],
+                ['title' => 'Architecture & UX', 'body' => 'System design, data model, and flows for customers, admins, and integrations.'],
+                ['title' => 'Development', 'body' => 'Iterative builds with reviews, automated checks, and environments you can click through.'],
+                ['title' => 'Launch', 'body' => 'Hardening, migration if needed, monitoring, and a controlled rollout.'],
+                ['title' => 'Growth support', 'body' => 'Backlog tuning, performance, new modules, and automation as you scale.'],
+            ],
+            'use_cases_title' => 'Where this work shows up',
+            'use_cases' => [
+                ['title' => 'Startups', 'body' => 'MVPs and early SaaS products with room to grow without a rewrite.'],
+                ['title' => 'Agencies & studios', 'body' => 'White-label or co-branded platforms you deliver to many clients.'],
+                ['title' => 'Enterprise tools', 'body' => 'Internal software that matches how your organization actually operates.'],
+                ['title' => 'Marketplaces & networks', 'body' => 'Multi-sided products with distinct roles and workflows.'],
+                ['title' => 'Education & training', 'body' => 'Portals, cohort tools, and content delivery with clear access control.'],
+                ['title' => 'Fintech-adjacent workflows', 'body' => 'Operational platforms with strong audit, permissions, and integration requirements.'],
+                ['title' => 'Internal business tools', 'body' => 'Replace fragmented tools with one maintainable system of record.'],
+            ],
+            'trust_title' => 'Teams that trust our delivery',
+            'show_trust_logos' => true,
+            'show_case_studies' => true,
+            'case_studies_title' => 'Featured work',
+            'case_studies_subtitle' => 'Recent platforms and products we have shaped end-to-end.',
+            'case_study_limit' => 3,
+            'case_study_slugs' => [],
+            'service_slugs' => [],
+            'highlighted_services_title' => 'Related services',
+            'highlighted_services_subtitle' => 'Explore how we support SaaS and platform initiatives across our broader practice.',
+            'show_testimonials' => true,
+            'testimonials_title' => 'What clients say',
+            'faq_section_title' => 'SaaS platform development — FAQ',
+            'show_faq' => true,
+            'cta_title' => 'Ready to shape your SaaS roadmap?',
+            'cta_body' => 'Tell us about your idea, your current stack, and your timeline—we will respond with a practical next step.',
+            'cta_primary_label' => 'Contact Artixcore',
+            'cta_primary_url' => '/contact',
+            'cta_secondary_label' => 'Request a demo discussion',
+            'cta_secondary_url' => '/contact',
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $stored
+     * @return array<string, mixed>
+     */
+    public static function mergeSaaSPage(?array $stored): array
+    {
+        return array_replace_recursive(self::defaultSaaSPage(), $stored ?? []);
+    }
 }

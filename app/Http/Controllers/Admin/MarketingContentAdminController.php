@@ -21,6 +21,7 @@ class MarketingContentAdminController extends Controller
             'homepageJson' => json_encode($s->homepage_content ?? new \stdClass, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
             'aboutJson' => json_encode($s->about_content ?? new \stdClass, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
             'servicesPageJson' => json_encode($s->services_page_content ?? new \stdClass, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+            'saasPageJson' => json_encode($s->saas_page_content ?? new \stdClass, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
         ]);
     }
 
@@ -32,6 +33,7 @@ class MarketingContentAdminController extends Controller
             'homepage_content_json' => ['required', 'string', 'max:100000'],
             'about_content_json' => ['required', 'string', 'max:100000'],
             'services_page_content_json' => ['required', 'string', 'max:100000'],
+            'saas_page_content_json' => ['required', 'string', 'max:100000'],
         ]);
 
         $home = json_decode($data['homepage_content_json'], true);
@@ -55,10 +57,18 @@ class MarketingContentAdminController extends Controller
                 : back()->withErrors(['services_page_content_json' => 'Invalid JSON'])->withInput();
         }
 
+        $saasPage = json_decode($data['saas_page_content_json'], true);
+        if (json_last_error() !== JSON_ERROR_NONE || ! is_array($saasPage)) {
+            return $request->wantsJson()
+                ? response()->json(['success' => false, 'message' => 'SaaS Platforms page JSON is invalid.'], 422)
+                : back()->withErrors(['saas_page_content_json' => 'Invalid JSON'])->withInput();
+        }
+
         $settings = SiteSetting::instance();
         $settings->homepage_content = $home;
         $settings->about_content = $about;
         $settings->services_page_content = $servicesPage;
+        $settings->saas_page_content = $saasPage;
         $settings->save();
 
         if ($request->wantsJson()) {

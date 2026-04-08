@@ -68,7 +68,13 @@ class FaqAdminController extends Controller
             'answer' => ['required', 'string', 'max:10000'],
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_published' => ['sometimes', 'boolean'],
-        ]) + ['is_published' => $request->boolean('is_published')];
+            'show_on_general_faq' => ['sometimes', 'boolean'],
+            'show_on_saas_page' => ['sometimes', 'boolean'],
+        ]) + [
+            'is_published' => $request->boolean('is_published'),
+            'show_on_general_faq' => $request->boolean('show_on_general_faq'),
+            'show_on_saas_page' => $request->boolean('show_on_saas_page'),
+        ];
     }
 
     private function respond(Request $request, string $message, string $redirect): JsonResponse|RedirectResponse

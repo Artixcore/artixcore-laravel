@@ -21,6 +21,7 @@ use App\Http\Controllers\Web\FaqController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LegalPageController;
 use App\Http\Controllers\Web\PortfolioController;
+use App\Http\Controllers\Web\SaaSPlatformsController;
 use App\Http\Controllers\Web\ServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [AboutController::class, 'show'])->name('about');
 Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
 Route::get('/services/{slug}', [ServiceController::class, 'show'])->name('services.show');
+Route::get('/saas-platforms', [SaaSPlatformsController::class, 'index'])->name('saas-platforms');
 Route::get('/portfolio', [PortfolioController::class, 'index'])->name('portfolio.index');
 Route::get('/portfolio/{slug}', [PortfolioController::class, 'show'])->name('portfolio.show');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');

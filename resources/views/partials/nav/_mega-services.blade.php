@@ -6,7 +6,7 @@
 	$col1 = $half > 0 ? $services->take($half) : collect();
 	$col2 = $half > 0 ? $services->skip($half) : collect();
 	$menuId = 'megaMenuServices'.$idx;
-	$navActive = request()->routeIs('services.*');
+	$navActive = request()->routeIs('services.*') || request()->routeIs('saas-platforms');
 @endphp
 <li class="nav-item dropdown dropdown-fullwidth">
 	<a class="nav-link dropdown-toggle {{ $navActive ? 'active' : '' }}" href="#" id="{{ $menuId }}" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">{{ $navItem['label'] }}</a>
@@ -15,6 +15,9 @@
 			<div class="col-md-6 col-xl-3">
 				<ul class="list-unstyled mb-0">
 					<li class="dropdown-header h6 mb-2">Services</li>
+					<li>
+						<a class="dropdown-item fw-semibold" href="{{ route('saas-platforms') }}">SaaS Platforms</a>
+					</li>
 					@forelse($col1 as $service)
 						<li>
 							<a class="dropdown-item" href="{{ route('services.show', $service->slug) }}">{{ $service->title }}</a>

@@ -21,6 +21,7 @@ class SiteSetting extends Model
         'homepage_content',
         'about_content',
         'services_page_content',
+        'saas_page_content',
     ];
 
     protected function casts(): array
@@ -31,6 +32,7 @@ class SiteSetting extends Model
             'homepage_content' => 'array',
             'about_content' => 'array',
             'services_page_content' => 'array',
+            'saas_page_content' => 'array',
         ];
     }
 

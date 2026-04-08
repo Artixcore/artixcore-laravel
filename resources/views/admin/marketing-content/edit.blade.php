@@ -3,7 +3,7 @@
 @section('title', 'Marketing content')
 
 @section('content')
-<h1 class="h4 mb-3">Homepage, about &amp; services page (JSON)</h1>
+<h1 class="h4 mb-3">Homepage, about, services &amp; SaaS Platforms (JSON)</h1>
 <p class="text-muted small">Structured keys merge with defaults from <code>App\Support\MarketingContent</code>. Invalid JSON will be rejected.</p>
 <form method="post" action="{{ route('admin.marketing-content.update') }}" id="marketing-form">
 	@csrf
@@ -19,6 +19,10 @@
 	<div class="mb-3">
 		<label class="form-label">Services page content</label>
 		<textarea name="services_page_content_json" class="form-control font-monospace small" rows="16" required>{{ old('services_page_content_json', $servicesPageJson) }}</textarea>
+	</div>
+	<div class="mb-3">
+		<label class="form-label">SaaS Platforms page content</label>
+		<textarea name="saas_page_content_json" class="form-control font-monospace small" rows="18" required>{{ old('saas_page_content_json', $saasPageJson) }}</textarea>
 	</div>
 	<button type="submit" class="btn btn-primary">Save</button>
 </form>
