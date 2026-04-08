@@ -60,7 +60,7 @@ class ContentApiTest extends TestCase
                 'data' => [
                     'menu',
                     'items' => [
-                        '*' => ['id', 'label', 'href', 'feature', 'children'],
+                        '*' => ['id', 'label', 'href', 'mega', 'feature', 'children'],
                     ],
                 ],
             ])

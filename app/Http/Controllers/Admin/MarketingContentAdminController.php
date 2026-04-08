@@ -20,6 +20,7 @@ class MarketingContentAdminController extends Controller
         return view('admin.marketing-content.edit', [
             'homepageJson' => json_encode($s->homepage_content ?? new \stdClass, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
             'aboutJson' => json_encode($s->about_content ?? new \stdClass, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+            'servicesPageJson' => json_encode($s->services_page_content ?? new \stdClass, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
         ]);
     }
 
@@ -30,6 +31,7 @@ class MarketingContentAdminController extends Controller
         $data = $request->validate([
             'homepage_content_json' => ['required', 'string', 'max:100000'],
             'about_content_json' => ['required', 'string', 'max:100000'],
+            'services_page_content_json' => ['required', 'string', 'max:100000'],
         ]);
 
         $home = json_decode($data['homepage_content_json'], true);
@@ -46,9 +48,17 @@ class MarketingContentAdminController extends Controller
                 : back()->withErrors(['about_content_json' => 'Invalid JSON'])->withInput();
         }
 
+        $servicesPage = json_decode($data['services_page_content_json'], true);
+        if (json_last_error() !== JSON_ERROR_NONE || ! is_array($servicesPage)) {
+            return $request->wantsJson()
+                ? response()->json(['success' => false, 'message' => 'Services page JSON is invalid.'], 422)
+                : back()->withErrors(['services_page_content_json' => 'Invalid JSON'])->withInput();
+        }
+
         $settings = SiteSetting::instance();
         $settings->homepage_content = $home;
         $settings->about_content = $about;
+        $settings->services_page_content = $servicesPage;
         $settings->save();
 
         if ($request->wantsJson()) {

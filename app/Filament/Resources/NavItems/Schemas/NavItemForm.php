@@ -34,7 +34,8 @@ class NavItemForm
                     ->numeric()
                     ->default(0)
                     ->required(),
-                JsonTextarea::make('feature_payload', 'Featured card (JSON)'),
+                JsonTextarea::make('feature_payload', 'Feature payload (JSON)')
+                    ->helperText('Optional. For header mega menus use: {"mega":"services"} or {"mega":"portfolio"}. Other keys are reserved for future use.'),
                 JsonTextarea::make('visibility', 'Visibility (JSON)')
                     ->helperText('Default: public. Hide from the marketing site: {"contexts":["internal"]}. Show publicly: {"contexts":["public"]} or omit.'),
             ]);

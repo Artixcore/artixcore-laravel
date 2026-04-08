@@ -26,6 +26,7 @@ class MarketingBladeSeeder extends Seeder
             'contact_email' => $settings->contact_email ?: 'hello@artixcore.test',
             'homepage_content' => MarketingContent::mergeHomepage($settings->homepage_content),
             'about_content' => MarketingContent::mergeAbout($settings->about_content),
+            'services_page_content' => MarketingContent::mergeServicesPage($settings->services_page_content),
         ]);
         $settings->save();
 
@@ -38,15 +39,15 @@ class MarketingBladeSeeder extends Seeder
 
         foreach (
             [
-                ['Home', '/', 0],
-                ['Services', '/services', 1],
-                ['Portfolio', '/portfolio', 2],
-                ['Blog', '/blog', 3],
-                ['About', '/about', 4],
-                ['Careers', '/careers', 5],
-                ['FAQ', '/faq', 6],
-                ['Contact', '/contact', 7],
-            ] as [$label, $url, $order]
+                ['Home', '/', 0, null],
+                ['Services', '/services', 1, ['mega' => 'services']],
+                ['Portfolio', '/portfolio', 2, ['mega' => 'portfolio']],
+                ['Blog', '/blog', 3, null],
+                ['About', '/about', 4, null],
+                ['Careers', '/careers', 5, null],
+                ['FAQ', '/faq', 6, null],
+                ['Contact', '/contact', 7, null],
+            ] as [$label, $url, $order, $featurePayload]
         ) {
             NavItem::query()->create([
                 'nav_menu_id' => $menu->id,
@@ -54,6 +55,7 @@ class MarketingBladeSeeder extends Seeder
                 'label' => $label,
                 'url' => $url,
                 'sort_order' => $order,
+                'feature_payload' => $featurePayload,
             ]);
         }
 

@@ -21,10 +21,16 @@ class NavigationItemResource extends JsonResource
         $href = $item->url
             ?? ($item->page ? PagePath::toHref($item->page->path) : null);
 
+        $payload = $item->feature_payload;
+        $mega = is_array($payload) && isset($payload['mega']) && in_array($payload['mega'], ['services', 'portfolio'], true)
+            ? $payload['mega']
+            : null;
+
         return [
             'id' => $item->id,
             'label' => $item->label,
             'href' => $href,
+            'mega' => $mega,
             'feature' => $item->feature_payload,
             'children' => NavigationItemResource::collection(
                 $item->children->loadMissing(['page', 'children.page'])

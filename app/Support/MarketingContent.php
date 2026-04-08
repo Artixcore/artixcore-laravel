@@ -3,7 +3,7 @@
 namespace App\Support;
 
 /**
- * Default structured content for homepage / about when DB fields are empty.
+ * Default structured content for homepage, about, and services page when DB fields are empty.
  *
  * @phpstan-type HomeBlock array<string, mixed>
  */
@@ -94,5 +94,53 @@ final class MarketingContent
     public static function mergeAbout(?array $stored): array
     {
         return array_replace_recursive(self::defaultAbout(), $stored ?? []);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function defaultServicesPage(): array
+    {
+        return [
+            'meta_title' => 'Services — Artixcore',
+            'meta_description' => 'SaaS, web and app development, AI agents, Web3, custom software, and business automation from Artixcore.',
+            'hero_badge' => 'What we build',
+            'hero_title' => 'Services for teams shipping serious software',
+            'hero_subtitle' => 'From discovery to production, we deliver SaaS platforms, web and mobile apps, AI agent systems, Web3 integrations, and automation—with clear milestones and senior engineers on the tools.',
+            'hero_primary_cta_label' => 'Start a project',
+            'hero_primary_cta_url' => '/contact',
+            'hero_secondary_cta_label' => 'View portfolio',
+            'hero_secondary_cta_url' => '/portfolio',
+            'intro_title' => 'One partner across product, platform, and operations',
+            'intro_body' => 'Whether you need a net-new product, a rewrite, or targeted acceleration, we embed with your team and ship outcomes you can measure—not endless slide decks.',
+            'grid_title' => 'Our comprehensive services',
+            'grid_subtitle' => 'Explore how we help you design, build, and run modern digital products.',
+            'why_title' => 'Why teams work with us',
+            'why_items' => [
+                ['title' => 'Depth across stacks', 'body' => 'Cloud-native backends, frontends, mobile, AI, and chain-adjacent systems under one roof.'],
+                ['title' => 'Transparent delivery', 'body' => 'Weekly demos, written decisions, and documentation your team can own.'],
+                ['title' => 'Built to last', 'body' => 'Security, observability, and maintainability are part of the definition of done.'],
+            ],
+            'process_title' => 'How we engage',
+            'process_steps' => [
+                ['title' => 'Discover', 'body' => 'We align on goals, constraints, risks, and success metrics.'],
+                ['title' => 'Design & build', 'body' => 'Iterative delivery with tight feedback loops and staging environments.'],
+                ['title' => 'Launch & improve', 'body' => 'Rollout, hardening, and continuous improvement with clear ownership.'],
+            ],
+            'cta_title' => 'Not sure which service fits?',
+            'cta_body' => 'Tell us what you are building—we will suggest a practical path, timeline, and team shape.',
+            'cta_button_label' => 'Contact Artixcore',
+            'cta_button_url' => '/contact',
+            'show_testimonials' => true,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $stored
+     * @return array<string, mixed>
+     */
+    public static function mergeServicesPage(?array $stored): array
+    {
+        return array_replace_recursive(self::defaultServicesPage(), $stored ?? []);
     }
 }

@@ -44,7 +44,9 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('layouts.app', function ($view): void {
             $nav = app(WebNavigationService::class);
-            $view->with('primaryNavLinks', $nav->primaryLinks());
+            $primaryNavLinks = $nav->primaryLinks();
+            $view->with('primaryNavLinks', $primaryNavLinks);
+            $view->with('headerMegaContext', $nav->megaMenuContext($primaryNavLinks));
             $view->with('footerNavLinks', $nav->footerLinks());
         });
     }

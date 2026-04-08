@@ -2,14 +2,17 @@
 
 namespace App\Services;
 
+use App\Models\Article;
+use App\Models\CaseStudy;
 use App\Models\NavItem;
 use App\Models\NavMenu;
+use App\Models\Service;
 use Illuminate\Support\Collection;
 
 class WebNavigationService
 {
     /**
-     * @return list<array{label: string, url: string, children: list<array{label: string, url: string}>}>
+     * @return list<array{label: string, url: string, children: list<array{label: string, url: string}>, mega: ?string}>
      */
     public function primaryLinks(): array
     {
@@ -29,6 +32,59 @@ class WebNavigationService
             ->map(fn (NavItem $item): array => $this->toLinkArray($item))
             ->values()
             ->all();
+    }
+
+    /**
+     * @param  list<array{label: string, url: string, children?: list<array{label: string, url: string}>, mega?: ?string}>  $primaryLinks
+     * @return array{services: Collection<int, Service>, articles: Collection<int, Article>, caseStudies: Collection<int, CaseStudy>}
+     */
+    public function megaMenuContext(array $primaryLinks): array
+    {
+        $needsServices = false;
+        $needsPortfolio = false;
+        foreach ($primaryLinks as $link) {
+            $mega = $link['mega'] ?? null;
+            if ($mega === 'services') {
+                $needsServices = true;
+            }
+            if ($mega === 'portfolio') {
+                $needsPortfolio = true;
+            }
+        }
+
+        $services = collect();
+        $articles = collect();
+        $caseStudies = collect();
+
+        if ($needsServices) {
+            $services = Service::query()
+                ->published()
+                ->with('featuredImageMedia')
+                ->orderBy('sort_order')
+                ->orderBy('title')
+                ->get();
+
+            $articles = Article::query()
+                ->published()
+                ->orderByDesc('published_at')
+                ->take(3)
+                ->get();
+        }
+
+        if ($needsPortfolio) {
+            $caseStudies = CaseStudy::query()
+                ->published()
+                ->orderByDesc('featured')
+                ->orderByDesc('published_at')
+                ->take(2)
+                ->get();
+        }
+
+        return [
+            'services' => $services,
+            'articles' => $articles,
+            'caseStudies' => $caseStudies,
+        ];
     }
 
     /**
@@ -62,7 +118,7 @@ class WebNavigationService
     }
 
     /**
-     * @return array{label: string, url: string, children: list<array{label: string, url: string}>}
+     * @return array{label: string, url: string, children: list<array{label: string, url: string}>, mega: ?string}
      */
     private function toLinkArray(NavItem $item): array
     {
@@ -80,10 +136,17 @@ class WebNavigationService
             }
         }
 
+        $mega = null;
+        $payload = $item->feature_payload;
+        if (is_array($payload) && isset($payload['mega']) && in_array($payload['mega'], ['services', 'portfolio'], true)) {
+            $mega = $payload['mega'];
+        }
+
         return [
             'label' => $item->label,
             'url' => $url,
             'children' => $children,
+            'mega' => $mega,
         ];
     }
 
@@ -107,19 +170,19 @@ class WebNavigationService
     }
 
     /**
-     * @return list<array{label: string, url: string, children: list<array{label: string, url: string}>}>
+     * @return list<array{label: string, url: string, children: list<array{label: string, url: string}>, mega: ?string}>
      */
     private function fallbackPrimary(): array
     {
         return [
-            ['label' => 'Home', 'url' => '/', 'children' => []],
-            ['label' => 'Services', 'url' => '/services', 'children' => []],
-            ['label' => 'Portfolio', 'url' => '/portfolio', 'children' => []],
-            ['label' => 'Blog', 'url' => '/blog', 'children' => []],
-            ['label' => 'About', 'url' => '/about', 'children' => []],
-            ['label' => 'Careers', 'url' => '/careers', 'children' => []],
-            ['label' => 'FAQ', 'url' => '/faq', 'children' => []],
-            ['label' => 'Contact', 'url' => '/contact', 'children' => []],
+            ['label' => 'Home', 'url' => '/', 'children' => [], 'mega' => null],
+            ['label' => 'Services', 'url' => '/services', 'children' => [], 'mega' => 'services'],
+            ['label' => 'Portfolio', 'url' => '/portfolio', 'children' => [], 'mega' => 'portfolio'],
+            ['label' => 'Blog', 'url' => '/blog', 'children' => [], 'mega' => null],
+            ['label' => 'About', 'url' => '/about', 'children' => [], 'mega' => null],
+            ['label' => 'Careers', 'url' => '/careers', 'children' => [], 'mega' => null],
+            ['label' => 'FAQ', 'url' => '/faq', 'children' => [], 'mega' => null],
+            ['label' => 'Contact', 'url' => '/contact', 'children' => [], 'mega' => null],
         ];
     }
 }
