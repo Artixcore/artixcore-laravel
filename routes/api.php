@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AiChatController;
 use App\Http\Controllers\Api\V1\AnalyticsEventController;
 use App\Http\Controllers\Api\V1\ArticleController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -24,6 +25,14 @@ use App\Http\Controllers\Api\V1\TrendingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
+    Route::get('/ai/agents/{slug}/profile', [AiChatController::class, 'profile'])
+        ->middleware('throttle:120,1')
+        ->where('slug', '[a-z0-9\-]+')
+        ->name('api.v1.ai.agents.profile');
+    Route::post('/ai/chat', [AiChatController::class, 'chat'])
+        ->middleware('throttle:ai-chat-minute')
+        ->name('api.v1.ai.chat');
+
     Route::post('/auth/login', [AuthController::class, 'login'])
         ->middleware('throttle:10,1')
         ->name('api.v1.auth.login');

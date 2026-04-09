@@ -4,14 +4,18 @@ namespace App\Providers;
 
 use App\Models\AiRun;
 use App\Models\MicroTool;
+use App\Models\PlatformSecuritySetting;
 use App\Models\SiteSetting;
 use App\Models\User;
 use App\Observers\AiRunObserver;
 use App\Observers\MicroToolObserver;
 use App\Services\SeoSettingsService;
 use App\Services\WebNavigationService;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -31,6 +35,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
+        RateLimiter::for('ai-chat-minute', function (Request $request) {
+            $perMinute = 20;
+            try {
+                $perMinute = (int) PlatformSecuritySetting::instance()->chat_rate_limit_per_minute;
+            } catch (\Throwable) {
+                //
+            }
+            $perMinute = max(1, min(1000, $perMinute));
+            $token = (string) $request->input('visitor_token', '');
+
+            return Limit::perMinute($perMinute)->by(sha1($request->ip().'|'.$token));
+        });
 
         AiRun::observe(AiRunObserver::class);
         MicroTool::observe(MicroToolObserver::class);

@@ -1,19 +1,26 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityLogAdminController;
+use App\Http\Controllers\Admin\AiAgentAdminController;
+use App\Http\Controllers\Admin\AiConversationAdminController;
+use App\Http\Controllers\Admin\AiProviderAdminController;
 use App\Http\Controllers\Admin\ArticleAdminController;
 use App\Http\Controllers\Admin\CaseStudyAdminController;
 use App\Http\Controllers\Admin\ContactMessageAdminController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqAdminController;
 use App\Http\Controllers\Admin\JobPostingAdminController;
+use App\Http\Controllers\Admin\LeadAdminController;
 use App\Http\Controllers\Admin\LegalPageAdminController;
 use App\Http\Controllers\Admin\MarketingContentAdminController;
 use App\Http\Controllers\Admin\MediaAdminController;
 use App\Http\Controllers\Admin\NavItemAdminController;
+use App\Http\Controllers\Admin\SecuritySettingsAdminController;
 use App\Http\Controllers\Admin\SeoSettingAdminController;
 use App\Http\Controllers\Admin\ServiceAdminController;
 use App\Http\Controllers\Admin\SiteSettingAdminController;
 use App\Http\Controllers\Admin\TestimonialAdminController;
+use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Web\AboutController;
 use App\Http\Controllers\Web\BlogController;
@@ -88,4 +95,23 @@ Route::middleware(['auth', 'blade.admin'])->prefix('admin')->name('admin.')->gro
     Route::get('/media', [MediaAdminController::class, 'index'])->name('media.index');
     Route::post('/media', [MediaAdminController::class, 'store'])->name('media.store');
     Route::delete('/media/{media_asset}', [MediaAdminController::class, 'destroy'])->name('media.destroy');
+
+    Route::resource('ai-providers', AiProviderAdminController::class)->except(['show']);
+    Route::resource('ai-agents', AiAgentAdminController::class)->except(['show']);
+    Route::get('/ai-conversations', [AiConversationAdminController::class, 'index'])->name('ai-conversations.index');
+    Route::get('/ai-conversations/{ai_conversation}', [AiConversationAdminController::class, 'show'])->name('ai-conversations.show');
+
+    Route::get('/leads', [LeadAdminController::class, 'index'])->name('leads.index');
+    Route::get('/leads/{lead}', [LeadAdminController::class, 'show'])->name('leads.show');
+    Route::put('/leads/{lead}', [LeadAdminController::class, 'update'])->name('leads.update');
+    Route::delete('/leads/{lead}', [LeadAdminController::class, 'destroy'])->name('leads.destroy');
+
+    Route::get('/security-settings', [SecuritySettingsAdminController::class, 'edit'])->name('security-settings.edit');
+    Route::put('/security-settings', [SecuritySettingsAdminController::class, 'update'])->name('security-settings.update');
+
+    Route::get('/activity-logs', [ActivityLogAdminController::class, 'index'])->name('activity-logs.index');
+
+    Route::get('/users', [UserAdminController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}/edit', [UserAdminController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}/roles', [UserAdminController::class, 'updateRoles'])->name('users.roles');
 });

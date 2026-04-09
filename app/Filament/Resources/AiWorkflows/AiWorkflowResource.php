@@ -19,6 +19,8 @@ class AiWorkflowResource extends Resource
 {
     protected static ?string $model = AiWorkflow::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSquares2x2;
 
     protected static string|UnitEnum|null $navigationGroup = 'AI & automation';

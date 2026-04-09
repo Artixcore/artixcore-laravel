@@ -25,7 +25,17 @@ class RolePermissionSeeder extends Seeder
         ];
 
         return array_values(array_unique(array_merge(
-            ['filament.access', 'users.manage_roles', 'portal.access', 'micro_tool_analytics.view', 'micro_tools.manage_monetization'],
+            [
+                'filament.access',
+                'users.manage_roles',
+                'portal.access',
+                'micro_tool_analytics.view',
+                'micro_tools.manage_monetization',
+                'activity_logs.view_any',
+                'activity_logs.view',
+                'security_settings.view',
+                'security_settings.update',
+            ],
             $crud('micro_tools'),
             $crud('micro_tool_categories'),
             ['micro_tool_runs.view_any', 'micro_tool_runs.view'],
@@ -55,6 +65,10 @@ class RolePermissionSeeder extends Seeder
             $crud('ai_runs'),
             $crud('ai_run_logs'),
             $crud('ai_approvals'),
+            $crud('ai_providers'),
+            $crud('ai_conversations'),
+            $crud('ai_messages'),
+            $crud('leads'),
         )));
     }
 
@@ -135,6 +149,8 @@ class RolePermissionSeeder extends Seeder
                 $crud('micro_tools'),
                 $crud('micro_tool_categories'),
                 ['micro_tool_analytics.view', 'micro_tool_runs.view_any', 'micro_tool_runs.view'],
+                $crud('leads'),
+                ['ai_conversations.view_any', 'ai_conversations.view', 'ai_messages.view_any', 'ai_messages.view'],
             )),
             'researcher_admin' => $pick(array_merge(
                 ['filament.access'],
@@ -175,6 +191,11 @@ class RolePermissionSeeder extends Seeder
                 'users.view',
                 'analytics_events.view_any',
                 'analytics_events.view',
+                'leads.view_any',
+                'leads.view',
+                'leads.update',
+                'ai_conversations.view_any',
+                'ai_conversations.view',
             ]),
             'finance_admin' => $pick([
                 'filament.access',
@@ -188,6 +209,11 @@ class RolePermissionSeeder extends Seeder
                 $crud('ai_runs'),
                 $crud('ai_run_logs'),
                 $crud('ai_approvals'),
+                $crud('ai_providers'),
+                $crud('ai_conversations'),
+                $crud('ai_messages'),
+                $crud('leads'),
+                ['activity_logs.view_any', 'activity_logs.view', 'security_settings.view'],
             )),
             'end_user' => $pick(['portal.access']),
             'client' => $pick(['portal.access']),

@@ -19,6 +19,8 @@ class AiRunResource extends Resource
 {
     protected static ?string $model = AiRun::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPlay;
 
     protected static string|UnitEnum|null $navigationGroup = 'AI & automation';

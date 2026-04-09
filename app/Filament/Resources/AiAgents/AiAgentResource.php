@@ -19,6 +19,8 @@ class AiAgentResource extends Resource
 {
     protected static ?string $model = AiAgent::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCpuChip;
 
     protected static string|UnitEnum|null $navigationGroup = 'AI & automation';

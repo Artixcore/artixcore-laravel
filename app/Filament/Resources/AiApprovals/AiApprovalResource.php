@@ -19,6 +19,8 @@ class AiApprovalResource extends Resource
 {
     protected static ?string $model = AiApproval::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCheckCircle;
 
     protected static string|UnitEnum|null $navigationGroup = 'AI & automation';

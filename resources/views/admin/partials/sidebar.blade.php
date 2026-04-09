@@ -65,12 +65,82 @@
                 icon="inbox"
                 :active="request()->routeIs('admin.contact-messages.*')"
             >Contact inbox</x-admin.sidebar-item>
+            @can('viewAny', App\Models\Lead::class)
+                <x-admin.sidebar-item
+                    :href="route('admin.leads.index')"
+                    icon="briefcase"
+                    :active="request()->routeIs('admin.leads.*')"
+                >Leads</x-admin.sidebar-item>
+            @endcan
             <x-admin.sidebar-item
                 :href="route('admin.media.index')"
                 icon="photo"
                 :active="request()->routeIs('admin.media.*')"
             >Media</x-admin.sidebar-item>
         </x-admin.sidebar-section>
+
+        @php
+            $u = auth()->user();
+            $showAiNav =
+                ($u?->can('viewAny', App\Models\AiProvider::class) ?? false)
+                || ($u?->can('viewAny', App\Models\AiAgent::class) ?? false)
+                || ($u?->can('viewAny', App\Models\AiConversation::class) ?? false);
+            $showSecurityNav =
+                ($u?->can('view', App\Models\PlatformSecuritySetting::instance()) ?? false)
+                || ($u?->can('viewAny', App\Models\ActivityLog::class) ?? false)
+                || ($u?->can('viewAny', App\Models\User::class) ?? false);
+        @endphp
+        @if ($showAiNav)
+            <x-admin.sidebar-section title="AI &amp; automation">
+                @can('viewAny', App\Models\AiProvider::class)
+                    <x-admin.sidebar-item
+                        :href="route('admin.ai-providers.index')"
+                        icon="code-bracket"
+                        :active="request()->routeIs('admin.ai-providers.*')"
+                    >AI providers</x-admin.sidebar-item>
+                @endcan
+                @can('viewAny', App\Models\AiAgent::class)
+                    <x-admin.sidebar-item
+                        :href="route('admin.ai-agents.index')"
+                        icon="user-group"
+                        :active="request()->routeIs('admin.ai-agents.*')"
+                    >AI agents</x-admin.sidebar-item>
+                @endcan
+                @can('viewAny', App\Models\AiConversation::class)
+                    <x-admin.sidebar-item
+                        :href="route('admin.ai-conversations.index')"
+                        icon="chat-bubble-left-right"
+                        :active="request()->routeIs('admin.ai-conversations.*')"
+                    >Conversations</x-admin.sidebar-item>
+                @endcan
+            </x-admin.sidebar-section>
+        @endif
+
+        @if ($showSecurityNav)
+            <x-admin.sidebar-section title="Security &amp; access">
+                @can('view', App\Models\PlatformSecuritySetting::instance())
+                    <x-admin.sidebar-item
+                        :href="route('admin.security-settings.edit')"
+                        icon="cog-6-tooth"
+                        :active="request()->routeIs('admin.security-settings.*')"
+                    >Security</x-admin.sidebar-item>
+                @endcan
+                @can('viewAny', App\Models\ActivityLog::class)
+                    <x-admin.sidebar-item
+                        :href="route('admin.activity-logs.index')"
+                        icon="document-text"
+                        :active="request()->routeIs('admin.activity-logs.*')"
+                    >Audit log</x-admin.sidebar-item>
+                @endcan
+                @can('viewAny', App\Models\User::class)
+                    <x-admin.sidebar-item
+                        :href="route('admin.users.index')"
+                        icon="user-circle"
+                        :active="request()->routeIs('admin.users.*')"
+                    >Users &amp; roles</x-admin.sidebar-item>
+                @endcan
+            </x-admin.sidebar-section>
+        @endif
 
         <x-admin.sidebar-section title="Configuration">
             <x-admin.sidebar-item

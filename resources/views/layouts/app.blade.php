@@ -39,6 +39,7 @@
 @include('partials.footer')
 @include('partials.scripts')
 @include('partials.seo-scripts')
+@include('partials.ai-chat-widget')
 @stack('scripts')
 </body>
 </html>
