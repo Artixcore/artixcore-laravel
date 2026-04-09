@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [
@@ -10,10 +11,13 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/css/admin.css',
                 'resources/js/admin.js',
+                'resources/css/builder.css',
+                'resources/js/builder/main.jsx',
             ],
             refresh: true,
         }),
         tailwindcss(),
+        react(),
     ],
     server: {
         watch: {

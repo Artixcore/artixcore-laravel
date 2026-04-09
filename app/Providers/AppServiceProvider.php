@@ -49,6 +49,18 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute($perMinute)->by(sha1($request->ip().'|'.$token));
         });
 
+        RateLimiter::for('builder-ai-minute', function (Request $request) {
+            $perMinute = 30;
+            try {
+                $perMinute = (int) PlatformSecuritySetting::instance()->builder_ai_rate_limit_per_minute;
+            } catch (\Throwable) {
+                //
+            }
+            $perMinute = max(1, min(500, $perMinute));
+
+            return Limit::perMinute($perMinute)->by((string) $request->user()?->getAuthIdentifier() ?: $request->ip());
+        });
+
         AiRun::observe(AiRunObserver::class);
         MicroTool::observe(MicroToolObserver::class);
 

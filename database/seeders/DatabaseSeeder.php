@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             UserSeeder::class,
             ContentSeeder::class,
+            BuilderTemplateSeeder::class,
             MicroToolsNavSeeder::class,
             MicroToolCategoriesSeeder::class,
             MicroToolsSeeder::class,

@@ -29,6 +29,7 @@
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<x-admin.input name="chat_rate_limit_per_minute" label="Chat requests / minute (per IP + visitor token)" type="number" value="{{ old('chat_rate_limit_per_minute', $security->chat_rate_limit_per_minute) }}" required />
 				<x-admin.input name="chat_rate_limit_per_day" label="Chat requests / day (per IP + visitor token)" type="number" value="{{ old('chat_rate_limit_per_day', $security->chat_rate_limit_per_day) }}" required />
+				<x-admin.input name="builder_ai_rate_limit_per_minute" label="Page builder AI requests / minute (per user)" type="number" value="{{ old('builder_ai_rate_limit_per_minute', $security->builder_ai_rate_limit_per_minute ?? 30) }}" required />
 			</div>
 			<x-admin.textarea name="internal_notes" label="Internal notes (admin only)" rows="4">{{ old('internal_notes', $security->internal_notes) }}</x-admin.textarea>
 			<x-admin.button variant="primary" type="submit">Save</x-admin.button>

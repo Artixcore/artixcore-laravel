@@ -84,7 +84,8 @@
             $showAiNav =
                 ($u?->can('viewAny', App\Models\AiProvider::class) ?? false)
                 || ($u?->can('viewAny', App\Models\AiAgent::class) ?? false)
-                || ($u?->can('viewAny', App\Models\AiConversation::class) ?? false);
+                || ($u?->can('viewAny', App\Models\AiConversation::class) ?? false)
+                || ($u?->can('builder.access') ?? false);
             $showSecurityNav =
                 ($u?->can('view', App\Models\PlatformSecuritySetting::instance()) ?? false)
                 || ($u?->can('viewAny', App\Models\ActivityLog::class) ?? false)
@@ -112,6 +113,13 @@
                         icon="chat-bubble-left-right"
                         :active="request()->routeIs('admin.ai-conversations.*')"
                     >Conversations</x-admin.sidebar-item>
+                @endcan
+                @can('builder.access')
+                    <x-admin.sidebar-item
+                        :href="route('admin.ai-builder-context.edit')"
+                        icon="document-text"
+                        :active="request()->routeIs('admin.ai-builder-context.*')"
+                    >AI builder context</x-admin.sidebar-item>
                 @endcan
             </x-admin.sidebar-section>
         @endif

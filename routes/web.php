@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogAdminController;
+use App\Http\Controllers\Admin\AiBuilderBusinessProfileAdminController;
 use App\Http\Controllers\Admin\AiAgentAdminController;
 use App\Http\Controllers\Admin\AiConversationAdminController;
 use App\Http\Controllers\Admin\AiProviderAdminController;
@@ -22,7 +23,12 @@ use App\Http\Controllers\Admin\SiteSettingAdminController;
 use App\Http\Controllers\Admin\TestimonialAdminController;
 use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Api\V1\Builder\BuilderAiController;
+use App\Http\Controllers\Api\V1\Builder\BuilderPageController;
+use App\Http\Controllers\Api\V1\Builder\BuilderSavedSectionController;
+use App\Http\Controllers\Api\V1\Builder\BuilderTemplateController;
 use App\Http\Controllers\Web\AboutController;
+use App\Http\Controllers\Web\PageBuilderController;
 use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\CareerController;
 use App\Http\Controllers\Web\ContactController;
@@ -114,4 +120,44 @@ Route::middleware(['auth', 'blade.admin'])->prefix('admin')->name('admin.')->gro
     Route::get('/users', [UserAdminController::class, 'index'])->name('users.index');
     Route::get('/users/{user}/edit', [UserAdminController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}/roles', [UserAdminController::class, 'updateRoles'])->name('users.roles');
+
+    Route::get('/ai-builder-context', [AiBuilderBusinessProfileAdminController::class, 'edit'])
+        ->name('ai-builder-context.edit');
+    Route::put('/ai-builder-context', [AiBuilderBusinessProfileAdminController::class, 'update'])
+        ->name('ai-builder-context.update');
+});
+
+Route::middleware(['web', 'auth', 'builder.access'])->group(function (): void {
+    Route::get('/builder/pages/{page}', [PageBuilderController::class, 'show'])
+        ->whereNumber('page')
+        ->name('builder.pages.show');
+
+    Route::prefix('builder-api/v1')->group(function (): void {
+        Route::get('/templates', [BuilderTemplateController::class, 'index']);
+        Route::post('/pages/{page}/apply-template', [BuilderTemplateController::class, 'apply'])
+            ->whereNumber('page');
+
+        Route::get('/saved-sections', [BuilderSavedSectionController::class, 'index']);
+        Route::post('/saved-sections', [BuilderSavedSectionController::class, 'store']);
+        Route::delete('/saved-sections/{saved_section}', [BuilderSavedSectionController::class, 'destroy'])
+            ->whereNumber('saved_section');
+
+        Route::get('/pages/{page}', [BuilderPageController::class, 'show'])->whereNumber('page');
+        Route::put('/pages/{page}/document', [BuilderPageController::class, 'updateDocument'])->whereNumber('page');
+        Route::get('/pages/{page}/versions', [BuilderPageController::class, 'versions'])->whereNumber('page');
+        Route::post('/pages/{page}/versions/{version}/restore', [BuilderPageController::class, 'restoreVersion'])
+            ->whereNumber('page')
+            ->whereNumber('version');
+        Route::post('/pages/{page}/publish', [BuilderPageController::class, 'publish'])
+            ->middleware('can:builder.publish')
+            ->whereNumber('page');
+        Route::post('/pages/{page}/archive', [BuilderPageController::class, 'archive'])->whereNumber('page');
+        Route::post('/pages/{page}/unpublish', [BuilderPageController::class, 'unpublish'])->whereNumber('page');
+        Route::get('/pages/{page}/export', [BuilderPageController::class, 'export'])->whereNumber('page');
+        Route::post('/pages/{page}/import', [BuilderPageController::class, 'import'])->whereNumber('page');
+
+        Route::post('/pages/{page}/ai/propose', [BuilderAiController::class, 'propose'])
+            ->middleware(['can:builder.ai.use', 'throttle:builder-ai-minute'])
+            ->whereNumber('page');
+    });
 });
