@@ -3,78 +3,87 @@
 @section('title', $mode === 'create' ? 'New service' : 'Edit service')
 
 @section('content')
-<h1 class="h4 mb-3">{{ $mode === 'create' ? 'New service' : 'Edit service' }}</h1>
-<form method="post" action="{{ $mode === 'create' ? route('admin.services.store') : route('admin.services.update', $service) }}" class="card border-0 shadow-sm" id="resource-form">
-	@csrf
-	@if($mode === 'edit') @method('PUT') @endif
-	<div class="card-body">
-		<div class="row g-3">
-			<div class="col-md-6">
-				<label class="form-label">Title</label>
-				<input type="text" name="title" class="form-control" required value="{{ old('title', $service->title) }}">
+	<x-admin.page-header :title="$mode === 'create' ? 'New service' : 'Edit service'" />
+
+	<x-admin.card>
+		<form
+			method="post"
+			action="{{ $mode === 'create' ? route('admin.services.store') : route('admin.services.update', $service) }}"
+			class="space-y-6"
+			id="resource-form"
+		>
+			@csrf
+			@if ($mode === 'edit')
+				@method('PUT')
+			@endif
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<x-admin.input name="title" label="Title" value="{{ old('title', $service->title) }}" required />
+				<x-admin.input name="slug" label="Slug (optional)" value="{{ old('slug', $service->slug) }}" />
 			</div>
-			<div class="col-md-6">
-				<label class="form-label">Slug (optional)</label>
-				<input type="text" name="slug" class="form-control" value="{{ old('slug', $service->slug) }}">
+			<x-admin.input name="summary" label="Summary" value="{{ old('summary', $service->summary) }}" />
+			<x-admin.textarea name="body" label="Body (HTML ok)" rows="8" class="font-mono text-xs">{{ old('body', $service->body) }}</x-admin.textarea>
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+				<x-admin.input name="icon" label="Icon (Bootstrap Icons class)" value="{{ old('icon', $service->icon) }}" placeholder="bi bi-stack" />
+				<x-admin.input
+					name="featured_image_media_id"
+					label="Featured image media ID"
+					type="number"
+					value="{{ old('featured_image_media_id', $service->featured_image_media_id) }}"
+				/>
+				<x-admin.input
+					name="sort_order"
+					label="Sort order"
+					type="number"
+					value="{{ old('sort_order', $service->sort_order ?? 0) }}"
+				/>
 			</div>
-			<div class="col-12">
-				<label class="form-label">Summary</label>
-				<input type="text" name="summary" class="form-control" value="{{ old('summary', $service->summary) }}">
-			</div>
-			<div class="col-12">
-				<label class="form-label">Body (HTML ok)</label>
-				<textarea name="body" class="form-control font-monospace small" rows="8">{{ old('body', $service->body) }}</textarea>
-			</div>
-			<div class="col-md-4">
-				<label class="form-label">Icon (Bootstrap Icons class)</label>
-				<input type="text" name="icon" class="form-control" placeholder="bi bi-stack" value="{{ old('icon', $service->icon) }}">
-			</div>
-			<div class="col-md-4">
-				<label class="form-label">Featured image media ID</label>
-				<input type="number" name="featured_image_media_id" class="form-control" value="{{ old('featured_image_media_id', $service->featured_image_media_id) }}">
-			</div>
-			<div class="col-md-4">
-				<label class="form-label">Sort order</label>
-				<input type="number" name="sort_order" class="form-control" value="{{ old('sort_order', $service->sort_order ?? 0) }}">
-			</div>
-			<div class="col-md-4">
-				<label class="form-label">Status</label>
-				<select name="status" class="form-select">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<x-admin.select name="status" label="Status">
 					<option value="draft" @selected(old('status', $service->status) === 'draft')>draft</option>
 					<option value="published" @selected(old('status', $service->status) === 'published')>published</option>
-				</select>
+				</x-admin.select>
+				<div>
+					<label for="published_at" class="admin-field-label">Published at</label>
+					<input
+						id="published_at"
+						type="datetime-local"
+						name="published_at"
+						class="admin-field-input"
+						value="{{ old('published_at', optional($service->published_at)->format('Y-m-d\TH:i')) }}"
+					/>
+				</div>
 			</div>
-			<div class="col-md-4">
-				<label class="form-label">Published at</label>
-				<input type="datetime-local" name="published_at" class="form-control" value="{{ old('published_at', optional($service->published_at)->format('Y-m-d\TH:i')) }}">
+			<div class="flex flex-wrap items-center gap-3 border-t border-zinc-100 pt-6">
+				<x-admin.button variant="primary" type="submit">Save</x-admin.button>
+				<x-admin.button variant="ghost" :href="route('admin.services.index')">Cancel</x-admin.button>
 			</div>
-		</div>
-		<button type="submit" class="btn btn-primary mt-3">Save</button>
-		<a href="{{ route('admin.services.index') }}" class="btn btn-link">Cancel</a>
-	</div>
-</form>
+		</form>
+	</x-admin.card>
 @endsection
 
 @push('scripts')
-<script>
-$('#resource-form').on('submit', function (e) {
-	e.preventDefault();
-	var $f = $(this);
-	$.ajax({
-		url: $f.attr('action'),
-		type: 'POST',
-		data: $f.serialize(),
-		headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-		success: function (res) {
-			adminToast(res.message || 'Saved.', 'success');
-			setTimeout(function () { window.location = '{{ route('admin.services.index') }}'; }, 600);
-		},
-		error: function (xhr) {
-			var m = 'Could not save';
-			if (xhr.responseJSON && xhr.responseJSON.errors) m = Object.values(xhr.responseJSON.errors).flat().join(' ');
-			adminToast(m, 'error');
-		}
-	});
-});
-</script>
+	<script>
+		$('#resource-form').on('submit', function (e) {
+			e.preventDefault();
+			var $f = $(this);
+			$.ajax({
+				url: $f.attr('action'),
+				type: 'POST',
+				data: $f.serialize(),
+				headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' },
+				success: function (res) {
+					adminToast(res.message || 'Saved.', 'success');
+					setTimeout(function () {
+						window.location = '{{ route('admin.services.index') }}';
+					}, 600);
+				},
+				error: function (xhr) {
+					var m = 'Could not save';
+					if (xhr.responseJSON && xhr.responseJSON.errors)
+						m = Object.values(xhr.responseJSON.errors).flat().join(' ');
+					adminToast(m, 'error');
+				},
+			});
+		});
+	</script>
 @endpush

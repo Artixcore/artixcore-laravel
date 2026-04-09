@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Media\CreateMediaAssetFromUpload;
 use App\Http\Controllers\Controller;
 use App\Models\MediaAsset;
 use Illuminate\Http\RedirectResponse;
@@ -28,20 +29,11 @@ class MediaAdminController extends Controller
             'alt_text' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $uploaded = $request->file('file');
-        $path = $uploaded->store('media', 'public');
-
-        MediaAsset::query()->create([
-            'disk' => 'public',
-            'directory' => 'media',
-            'path' => $path,
-            'filename' => $uploaded->getClientOriginalName(),
-            'mime_type' => $uploaded->getClientMimeType(),
-            'size_bytes' => $uploaded->getSize(),
-            'alt_text' => $request->input('alt_text'),
-            'created_by' => $request->user()->id,
-            'updated_by' => $request->user()->id,
-        ]);
+        app(CreateMediaAssetFromUpload::class)->execute(
+            $request->file('file'),
+            $request->user(),
+            $request->input('alt_text')
+        );
 
         return redirect()->back()->with('status', 'File uploaded.');
     }

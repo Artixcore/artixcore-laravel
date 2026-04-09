@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             MicroToolCategoriesSeeder::class,
             MicroToolsSeeder::class,
             MarketingBladeSeeder::class,
+            SeoSettingsSeeder::class,
         ]);
     }
 }

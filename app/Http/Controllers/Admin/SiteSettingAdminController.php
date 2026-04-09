@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Media\CreateMediaAssetFromUpload;
 use App\Http\Controllers\Controller;
+use App\Models\MediaAsset;
 use App\Models\SiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -16,7 +18,7 @@ class SiteSettingAdminController extends Controller
         $this->authorize('update', SiteSetting::instance());
 
         return view('admin.site-settings.edit', [
-            'settings' => SiteSetting::instance(),
+            'settings' => SiteSetting::instance()->load(['logoMedia', 'faviconMedia', 'ogDefaultMedia']),
         ]);
     }
 
@@ -30,7 +32,14 @@ class SiteSettingAdminController extends Controller
             'default_meta_description' => ['nullable', 'string', 'max:2000'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'social_links_json' => ['nullable', 'string', 'max:10000'],
+            'logo' => ['nullable', 'image', 'max:10240'],
+            'favicon' => ['nullable', 'file', 'max:10240'],
+            'og_image' => ['nullable', 'image', 'max:10240'],
         ]);
+
+        if ($request->hasFile('logo') || $request->hasFile('favicon') || $request->hasFile('og_image')) {
+            $this->authorize('create', MediaAsset::class);
+        }
 
         $settings = SiteSetting::instance();
         $settings->fill([
@@ -45,10 +54,35 @@ class SiteSettingAdminController extends Controller
             $settings->social_links = is_array($decoded) ? $decoded : $settings->social_links;
         }
 
+        $action = app(CreateMediaAssetFromUpload::class);
+        $user = $request->user();
+
+        if ($request->hasFile('logo')) {
+            $asset = $action->execute($request->file('logo'), $user, 'Site logo');
+            $settings->logo_media_id = $asset->id;
+        }
+        if ($request->hasFile('favicon')) {
+            $asset = $action->execute($request->file('favicon'), $user, 'Site favicon');
+            $settings->favicon_media_id = $asset->id;
+        }
+        if ($request->hasFile('og_image')) {
+            $asset = $action->execute($request->file('og_image'), $user, 'Default Open Graph image');
+            $settings->og_default_media_id = $asset->id;
+        }
+
         $settings->save();
+        $settings->load(['logoMedia', 'faviconMedia', 'ogDefaultMedia']);
 
         if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'Site settings saved.']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Site settings saved.',
+                'previews' => [
+                    'logo' => $settings->logoMedia?->absoluteUrl(),
+                    'favicon' => $settings->faviconMedia?->absoluteUrl(),
+                    'og_image' => $settings->ogDefaultMedia?->absoluteUrl(),
+                ],
+            ]);
         }
 
         return redirect()->back()->with('status', 'Site settings saved.');

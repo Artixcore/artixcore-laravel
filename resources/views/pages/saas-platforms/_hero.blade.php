@@ -3,12 +3,6 @@
 	<div class="container-fluid pt-3 pt-xl-5">
 		<div class="row">
 			<div class="col-xxl-11 mx-auto">
-				<nav aria-label="breadcrumb" class="container px-3 px-sm-4 mb-3" data-aos="fade-up">
-					<ol class="breadcrumb mb-0">
-						<li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-						<li class="breadcrumb-item active" aria-current="page">SaaS Platforms</li>
-					</ol>
-				</nav>
 				<div class="bg-dark rounded position-relative overflow-hidden px-4 px-sm-6 pt-6 pt-xl-8 mx-2 mx-sm-3 mx-xl-4" data-bs-theme="dark">
 					<div class="position-absolute top-0 start-0 opacity-50">
 						<img src="{{ asset('theme/images/elements/bg-pattern-4.png') }}" alt="">

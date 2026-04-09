@@ -7,7 +7,17 @@
 	@if($description = trim($__env->yieldContent('meta_description', $site->default_meta_description ?? '')))
 		<meta name="description" content="{{ $description }}">
 	@endif
-	<link rel="shortcut icon" href="{{ $site->faviconMedia?->absoluteUrl() ?? asset('theme/images/favicon.ico') }}">
+	@include('partials.seo-head')
+	@include('partials.seo-gtm-head')
+	@php
+		$faviconUploaded = $site->faviconMedia?->absoluteUrl();
+	@endphp
+	@if($faviconUploaded)
+		<link rel="icon" href="{{ $faviconUploaded }}">
+	@else
+		<link rel="icon" type="image/svg+xml" href="{{ asset('logo.svg') }}">
+	@endif
+	<link rel="shortcut icon" href="{{ $faviconUploaded ?? asset('theme/images/favicon.ico') }}">
 	<link rel="preconnect" href="https://fonts.googleapis.com/">
 	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -19,6 +29,7 @@
 	@stack('styles')
 </head>
 <body>
+@include('partials.seo-gtm-body')
 @include('partials.header')
 
 <main>
@@ -27,6 +38,7 @@
 
 @include('partials.footer')
 @include('partials.scripts')
+@include('partials.seo-scripts')
 @stack('scripts')
 </body>
 </html>

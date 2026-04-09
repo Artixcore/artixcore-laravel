@@ -1,35 +1,118 @@
 @php
-	$nav = [
-		['Dashboard', route('admin.dashboard'), 'bi-speedometer2'],
-		['Site settings', route('admin.site-settings.edit'), 'bi-gear'],
-		['Marketing JSON', route('admin.marketing-content.edit'), 'bi-braces'],
-		['Services', route('admin.services.index'), 'bi-grid'],
-		['Testimonials', route('admin.testimonials.index'), 'bi-chat-quote'],
-		['FAQ', route('admin.faqs.index'), 'bi-question-circle'],
-		['Articles', route('admin.articles.index'), 'bi-journal-text'],
-		['Case studies', route('admin.case-studies.index'), 'bi-briefcase'],
-		['Legal pages', route('admin.legal-pages.index'), 'bi-file-earmark-text'],
-		['Job postings', route('admin.job-postings.index'), 'bi-people'],
-		['Contact inbox', route('admin.contact-messages.index'), 'bi-inbox'],
-		['Media', route('admin.media.index'), 'bi-image'],
-	];
+    $navPrimary = request()->route('nav_menu');
 @endphp
-<nav class="col-md-3 col-lg-2 d-md-block admin-sidebar bg-white py-4 px-3">
-	<div class="fw-bold mb-3">{{ $site->site_name ?? 'Artixcore' }}</div>
-	<ul class="nav flex-column gap-1 small">
-		@foreach($nav as [$label, $url, $icon])
-			<li class="nav-item">
-				<a class="nav-link rounded {{ request()->url() === $url ? 'active bg-primary text-white' : 'text-dark' }}" href="{{ $url }}">
-					<i class="bi {{ $icon }} me-2"></i>{{ $label }}
-				</a>
-			</li>
-		@endforeach
-	</ul>
-	<hr>
-	<a href="{{ url('/') }}" class="btn btn-outline-secondary btn-sm w-100 mb-2" target="_blank">View site</a>
-	<form method="post" action="{{ route('admin.logout') }}">
-		@csrf
-		<button type="submit" class="btn btn-outline-danger btn-sm w-100">Sign out</button>
-	</form>
-	<p class="small text-muted mt-3 mb-0"><a href="{{ url('/filament') }}" class="text-muted">Filament</a></p>
-</nav>
+<aside
+    id="admin-sidebar"
+    class="fixed left-0 top-0 z-50 flex h-full w-64 flex-col border-r border-zinc-200/80 bg-white shadow-[var(--shadow-admin)] transition-transform duration-200 -translate-x-full md:static md:z-auto md:h-screen md:w-[var(--admin-sidebar-w)] md:translate-x-0 md:border-r md:shadow-none"
+>
+    <div class="flex h-14 items-center gap-2 border-b border-zinc-100 px-4 md:h-[3.5rem]">
+        <span
+            class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-xs font-bold text-white"
+        >A</span>
+        <span class="admin-sidebar-brand-text truncate text-sm font-semibold text-zinc-900">{{ $site->site_name ?? 'Artixcore' }}</span>
+    </div>
+
+    <nav class="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-4">
+        <x-admin.sidebar-section title="Overview">
+            <x-admin.sidebar-item
+                :href="route('admin.dashboard')"
+                icon="layout-dashboard"
+                :active="request()->routeIs('admin.dashboard')"
+            >Dashboard</x-admin.sidebar-item>
+        </x-admin.sidebar-section>
+
+        <x-admin.sidebar-section title="Content">
+            <x-admin.sidebar-item
+                :href="route('admin.services.index')"
+                icon="squares-2x2"
+                :active="request()->routeIs('admin.services.*')"
+            >Services</x-admin.sidebar-item>
+            <x-admin.sidebar-item
+                :href="route('admin.testimonials.index')"
+                icon="chat-bubble-left-right"
+                :active="request()->routeIs('admin.testimonials.*')"
+            >Testimonials</x-admin.sidebar-item>
+            <x-admin.sidebar-item
+                :href="route('admin.faqs.index')"
+                icon="question-mark-circle"
+                :active="request()->routeIs('admin.faqs.*')"
+            >FAQ</x-admin.sidebar-item>
+            <x-admin.sidebar-item
+                :href="route('admin.articles.index')"
+                icon="newspaper"
+                :active="request()->routeIs('admin.articles.*')"
+            >Articles</x-admin.sidebar-item>
+            <x-admin.sidebar-item
+                :href="route('admin.case-studies.index')"
+                icon="briefcase"
+                :active="request()->routeIs('admin.case-studies.*')"
+            >Case studies</x-admin.sidebar-item>
+            <x-admin.sidebar-item
+                :href="route('admin.legal-pages.index')"
+                icon="document-text"
+                :active="request()->routeIs('admin.legal-pages.*')"
+            >Legal pages</x-admin.sidebar-item>
+            <x-admin.sidebar-item
+                :href="route('admin.job-postings.index')"
+                icon="user-group"
+                :active="request()->routeIs('admin.job-postings.*')"
+            >Job postings</x-admin.sidebar-item>
+        </x-admin.sidebar-section>
+
+        <x-admin.sidebar-section title="Inbox & media">
+            <x-admin.sidebar-item
+                :href="route('admin.contact-messages.index')"
+                icon="inbox"
+                :active="request()->routeIs('admin.contact-messages.*')"
+            >Contact inbox</x-admin.sidebar-item>
+            <x-admin.sidebar-item
+                :href="route('admin.media.index')"
+                icon="photo"
+                :active="request()->routeIs('admin.media.*')"
+            >Media</x-admin.sidebar-item>
+        </x-admin.sidebar-section>
+
+        <x-admin.sidebar-section title="Configuration">
+            <x-admin.sidebar-item
+                :href="route('admin.site-settings.edit')"
+                icon="cog-6-tooth"
+                :active="request()->routeIs('admin.site-settings.*')"
+            >Site settings</x-admin.sidebar-item>
+            <x-admin.sidebar-item
+                :href="route('admin.seo-settings.edit')"
+                icon="magnifying-glass"
+                :active="request()->routeIs('admin.seo-settings.*')"
+            >SEO settings</x-admin.sidebar-item>
+            <x-admin.sidebar-item
+                :href="route('admin.marketing-content.edit')"
+                icon="code-bracket"
+                :active="request()->routeIs('admin.marketing-content.*')"
+            >Marketing JSON</x-admin.sidebar-item>
+            <x-admin.sidebar-item
+                :href="route('admin.navigation.index', ['nav_menu' => 'web_primary'])"
+                icon="bars-3"
+                :active="request()->routeIs('admin.navigation.*') && $navPrimary === 'web_primary'"
+            >Navigation (header)</x-admin.sidebar-item>
+            <x-admin.sidebar-item
+                :href="route('admin.navigation.index', ['nav_menu' => 'footer'])"
+                icon="bars-3-bottom-left"
+                :active="request()->routeIs('admin.navigation.*') && $navPrimary === 'footer'"
+            >Navigation (footer)</x-admin.sidebar-item>
+        </x-admin.sidebar-section>
+    </nav>
+
+    <div class="mt-auto space-y-2 border-t border-zinc-100 p-3">
+        <a
+            href="{{ url('/') }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="admin-sidebar-footer-btn flex items-center justify-center gap-2 rounded-[10px] border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 md:justify-start"
+        >
+            <x-admin.icon name="arrow-top-right-on-square" class="size-4 shrink-0 text-zinc-500" />
+            <span class="admin-sidebar-footer-text">View site</span>
+        </a>
+        <p class="text-center text-[11px] text-zinc-400 md:text-left">
+            <a href="{{ url('/filament') }}" class="hover:text-zinc-600">Filament</a>
+        </p>
+    </div>
+</aside>

@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\JobPostingAdminController;
 use App\Http\Controllers\Admin\LegalPageAdminController;
 use App\Http\Controllers\Admin\MarketingContentAdminController;
 use App\Http\Controllers\Admin\MediaAdminController;
+use App\Http\Controllers\Admin\NavItemAdminController;
+use App\Http\Controllers\Admin\SeoSettingAdminController;
 use App\Http\Controllers\Admin\ServiceAdminController;
 use App\Http\Controllers\Admin\SiteSettingAdminController;
 use App\Http\Controllers\Admin\TestimonialAdminController;
@@ -57,8 +59,18 @@ Route::middleware(['auth', 'blade.admin'])->prefix('admin')->name('admin.')->gro
     Route::get('/site-settings', [SiteSettingAdminController::class, 'edit'])->name('site-settings.edit');
     Route::put('/site-settings', [SiteSettingAdminController::class, 'update'])->name('site-settings.update');
 
+    Route::get('/seo-settings', [SeoSettingAdminController::class, 'edit'])->name('seo-settings.edit');
+    Route::put('/seo-settings', [SeoSettingAdminController::class, 'update'])->name('seo-settings.update');
+
     Route::get('/marketing-content', [MarketingContentAdminController::class, 'edit'])->name('marketing-content.edit');
     Route::put('/marketing-content', [MarketingContentAdminController::class, 'update'])->name('marketing-content.update');
+
+    Route::get('/navigation/{nav_menu}', [NavItemAdminController::class, 'index'])->name('navigation.index');
+    Route::get('/navigation/{nav_menu}/create', [NavItemAdminController::class, 'create'])->name('navigation.create');
+    Route::post('/navigation/{nav_menu}', [NavItemAdminController::class, 'store'])->name('navigation.store');
+    Route::get('/navigation/{nav_menu}/{nav_item}/edit', [NavItemAdminController::class, 'edit'])->name('navigation.edit');
+    Route::put('/navigation/{nav_menu}/{nav_item}', [NavItemAdminController::class, 'update'])->name('navigation.update');
+    Route::delete('/navigation/{nav_menu}/{nav_item}', [NavItemAdminController::class, 'destroy'])->name('navigation.destroy');
 
     Route::resource('services', ServiceAdminController::class)->except(['show']);
     Route::resource('testimonials', TestimonialAdminController::class)->except(['show']);

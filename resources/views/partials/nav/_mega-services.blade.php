@@ -1,6 +1,6 @@
 @php
 	$services = $headerMegaContext['services'] ?? collect();
-	$articles = $headerMegaContext['articles'] ?? collect();
+	$caseStudies = $headerMegaContext['caseStudies'] ?? collect();
 	$count = $services->count();
 	$half = $count > 0 ? (int) ceil($count / 2) : 0;
 	$col1 = $half > 0 ? $services->take($half) : collect();
@@ -49,13 +49,6 @@
 					</div>
 				</div>
 				<div class="dropdown-item d-flex bg-light-hover position-relative text-wrap py-3">
-					<div class="icon-md border bg-body rounded flex-shrink-0"><i class="bi bi-rocket heading-color fs-6"></i></div>
-					<div class="ms-2">
-						<a class="stretched-link heading-color fw-bold mb-0" href="{{ route('careers') }}">Careers</a>
-						<p class="mb-0 text-body small">Open roles and how to join Artixcore.</p>
-					</div>
-				</div>
-				<div class="dropdown-item d-flex bg-light-hover position-relative text-wrap py-3">
 					<div class="icon-md border bg-body rounded flex-shrink-0"><i class="bi bi-kanban heading-color fs-6"></i></div>
 					<div class="ms-2">
 						<a class="stretched-link heading-color fw-bold mb-0" href="{{ route('portfolio.index') }}">Work</a>
@@ -64,18 +57,18 @@
 				</div>
 			</div>
 			<div class="col-md-6 col-xl-3">
-				<span class="dropdown-header h6 mb-2">Recent articles</span>
-				@forelse($articles as $i => $article)
+				<span class="dropdown-header h6 mb-2">Case studies</span>
+				@forelse($caseStudies as $i => $study)
 					@php $placeholderImg = asset('theme/images/blog/4by4/0'.(($i % 3) + 1).'.jpg'); @endphp
 					<div class="dropdown-item bg-light-hover d-flex align-items-sm-center gap-2 position-relative {{ $loop->last ? '' : 'mb-3' }}">
 						<img src="{{ $placeholderImg }}" class="rounded icon-lg object-fit-cover" width="56" height="56" alt="">
 						<p class="text-wrap fw-bold mb-0">
-							<a href="{{ route('blog.show', $article->slug) }}" class="stretched-link heading-color text-primary-hover">{{ $article->title }}</a>
+							<a href="{{ route('portfolio.show', $study->slug) }}" class="stretched-link heading-color text-primary-hover">{{ $study->title }}</a>
 						</p>
 					</div>
 				@empty
 					<div class="dropdown-item small text-muted mb-0">
-						<a href="{{ route('blog.index') }}" class="fw-bold">Browse the blog</a>
+						<a href="{{ route('portfolio.index') }}" class="fw-bold">View portfolio</a>
 					</div>
 				@endforelse
 			</div>
@@ -87,7 +80,9 @@
 					<h6 class="mb-2 mb-sm-0">Need a tailored scope?</h6>
 					<small class="mb-0">Tell us about your product—we will map the right services and timeline.</small>
 				</div>
-				<a href="{{ route('contact') }}" class="btn btn-sm btn-primary">Get in touch</a>
+				@if($site->contact_email ?? null)
+					<a href="mailto:{{ $site->contact_email }}" class="btn btn-sm btn-primary">Email us</a>
+				@endif
 			</div>
 		</div>
 	</div>

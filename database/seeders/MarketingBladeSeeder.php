@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Faq;
 use App\Models\JobPosting;
 use App\Models\LegalPage;
+use App\Models\MediaAsset;
 use App\Models\NavItem;
 use App\Models\NavMenu;
 use App\Models\Service;
@@ -12,8 +13,16 @@ use App\Models\SiteSetting;
 use App\Models\Testimonial;
 use App\Support\MarketingContent;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+/**
+ * Marketing header nav (`web_primary`) and default content.
+ *
+ * Refresh header links after IA changes: `php artisan db:seed --class=MarketingBladeSeeder`
+ * Footer menu (`footer`): `php artisan db:seed --class=ContentSeeder` or edit via Admin → Navigation (footer).
+ */
 class MarketingBladeSeeder extends Seeder
 {
     public function run(): void
@@ -31,6 +40,8 @@ class MarketingBladeSeeder extends Seeder
         ]);
         $settings->save();
 
+        $this->seedBrandLogoFromPublicIfPresent($settings);
+
         $menu = NavMenu::query()->firstOrCreate(
             ['key' => 'web_primary'],
             ['name' => 'Marketing header']
@@ -44,11 +55,7 @@ class MarketingBladeSeeder extends Seeder
                 ['Services', '/services', 1, ['mega' => 'services']],
                 ['SaaS Platforms', '/saas-platforms', 2, null],
                 ['Portfolio', '/portfolio', 3, ['mega' => 'portfolio']],
-                ['Blog', '/blog', 4, null],
-                ['About', '/about', 5, null],
-                ['Careers', '/careers', 6, null],
-                ['FAQ', '/faq', 7, null],
-                ['Contact', '/contact', 8, null],
+                ['About', '/about', 4, null],
             ] as [$label, $url, $order, $featurePayload]
         ) {
             NavItem::query()->create([
@@ -147,5 +154,40 @@ class MarketingBladeSeeder extends Seeder
                 'is_published' => true,
             ]
         );
+    }
+
+    private function seedBrandLogoFromPublicIfPresent(SiteSetting $settings): void
+    {
+        $src = null;
+        foreach ([public_path('logo.png'), public_path('logo.PNG')] as $path) {
+            if (is_file($path)) {
+                $src = $path;
+                break;
+            }
+        }
+        if ($src === null) {
+            return;
+        }
+
+        Storage::disk('public')->makeDirectory('media/brand');
+        $destRelative = 'media/brand/'.basename($src);
+        Storage::disk('public')->put($destRelative, File::get($src));
+
+        $mime = @mime_content_type($src) ?: 'image/png';
+        $media = MediaAsset::query()->updateOrCreate(
+            ['path' => $destRelative],
+            [
+                'disk' => 'public',
+                'directory' => 'media/brand',
+                'filename' => basename($src),
+                'mime_type' => $mime,
+                'size_bytes' => (int) filesize($src),
+                'alt_text' => ($settings->site_name ?: 'Site').' logo',
+            ]
+        );
+
+        if ($settings->logo_media_id === null) {
+            $settings->forceFill(['logo_media_id' => $media->id])->save();
+        }
     }
 }

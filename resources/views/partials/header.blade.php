@@ -1,7 +1,7 @@
 @php
-	$logoDefault = asset('theme/images/logo.svg');
+	$logoDefault = asset('logo.svg');
 	$logoLight = $site->logoMedia?->absoluteUrl() ?? $logoDefault;
-	$logoDark = $site->logoMedia?->absoluteUrl() ?? asset('theme/images/logo-light.svg');
+	$logoDark = $site->logoMedia?->absoluteUrl() ?? $logoDefault;
 @endphp
 <header class="header-sticky header-absolute">
 	<nav class="navbar navbar-expand-xl">
@@ -61,9 +61,11 @@
 						</li>
 					</ul>
 				</li>
-				<li class="nav-item d-none d-sm-block">
-					<a href="{{ route('contact') }}" class="btn btn-sm btn-primary mb-0">Get started</a>
-				</li>
+				@if($site->contact_email ?? null)
+					<li class="nav-item d-none d-sm-block">
+						<a href="mailto:{{ $site->contact_email }}" class="btn btn-sm btn-primary mb-0">Get started</a>
+					</li>
+				@endif
 				<li class="nav-item">
 					<button class="navbar-toggler ms-sm-3 p-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
 						<span class="navbar-toggler-animation"><span></span><span></span><span></span></span>

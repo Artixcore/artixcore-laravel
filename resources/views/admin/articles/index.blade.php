@@ -1,27 +1,43 @@
 @extends('layouts.admin')
 @section('title', 'Articles')
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-3">
-	<h1 class="h4 mb-0">Articles</h1>
-	<a href="{{ route('admin.articles.create') }}" class="btn btn-sm btn-primary">Add</a>
-</div>
-<div class="table-responsive card border-0 shadow-sm">
-	<table class="table table-hover mb-0 small">
-		<thead><tr><th>Title</th><th>Status</th><th>Updated</th><th></th></tr></thead>
-		<tbody>
-			@foreach($articles as $article)
-				<tr data-admin-row>
-					<td>{{ $article->title }}</td>
-					<td>{{ $article->status }}</td>
-					<td>{{ $article->updated_at->format('Y-m-d') }}</td>
-					<td class="text-end">
-						<a href="{{ route('admin.articles.edit', $article) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
-						<button type="button" class="btn btn-sm btn-outline-danger" data-admin-delete="{{ route('admin.articles.destroy', $article) }}">Delete</button>
-					</td>
+	<x-admin.page-header title="Articles">
+		<x-slot:actions>
+			<x-admin.button variant="primary" :href="route('admin.articles.create')">Add article</x-admin.button>
+		</x-slot:actions>
+	</x-admin.page-header>
+
+	<x-admin.card :noPadding="true">
+		<x-admin.table>
+			<thead class="border-b border-zinc-100 bg-zinc-50/90 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+				<tr>
+					<th class="px-4 py-3 font-semibold">Title</th>
+					<th class="px-4 py-3 font-semibold">Status</th>
+					<th class="px-4 py-3 font-semibold">Updated</th>
+					<th class="w-px px-4 py-3 font-semibold"><span class="sr-only">Actions</span></th>
 				</tr>
-			@endforeach
-		</tbody>
-	</table>
-</div>
-{{ $articles->links() }}
+			</thead>
+			<tbody class="divide-y divide-zinc-100 bg-white">
+				@foreach ($articles as $article)
+					<tr data-admin-row class="transition hover:bg-zinc-50/80">
+						<td class="px-4 py-3 font-medium text-zinc-900">{{ $article->title }}</td>
+						<td class="px-4 py-3">
+							<x-admin.status-badge :value="$article->status" />
+						</td>
+						<td class="px-4 py-3 text-sm text-zinc-600">{{ $article->updated_at->format('Y-m-d') }}</td>
+						<td class="px-4 py-3 text-right">
+							<x-admin.dropdown-menu>
+								<x-admin.dropdown-link :href="route('admin.articles.edit', $article)">Edit</x-admin.dropdown-link>
+								<x-admin.dropdown-link
+									danger
+									data-admin-delete="{{ route('admin.articles.destroy', $article) }}"
+								>Delete</x-admin.dropdown-link>
+							</x-admin.dropdown-menu>
+						</td>
+					</tr>
+				@endforeach
+			</tbody>
+		</x-admin.table>
+	</x-admin.card>
+	{{ $articles->links('pagination.admin') }}
 @endsection

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-hidden="true">
+	<defs>
+		<linearGradient id="artixcore-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+			<stop offset="0%" stop-color="#2c3e50"/>
+			<stop offset="100%" stop-color="#34495e"/>
+		</linearGradient>
+	</defs>
+	<path fill="url(#artixcore-logo-grad)" fill-rule="evenodd" d="M24 4 6 42h6.2l3.4-7h16.8l3.4 7H42L24 4zm-7.8 23L24 14l7.8 13H16.2z"/>
+</svg>

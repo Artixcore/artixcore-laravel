@@ -8,6 +8,7 @@ use App\Models\SiteSetting;
 use App\Models\User;
 use App\Observers\AiRunObserver;
 use App\Observers\MicroToolObserver;
+use App\Services\SeoSettingsService;
 use App\Services\WebNavigationService;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
@@ -48,6 +49,14 @@ class AppServiceProvider extends ServiceProvider
             $view->with('primaryNavLinks', $primaryNavLinks);
             $view->with('headerMegaContext', $nav->megaMenuContext($primaryNavLinks));
             $view->with('footerNavLinks', $nav->footerLinks());
+
+            $site = $view->getData()['site'] ?? SiteSetting::instance();
+            if ($site instanceof SiteSetting) {
+                $site->loadMissing('ogDefaultMedia');
+            }
+            $seo = app(SeoSettingsService::class);
+            $view->with('seoHead', $seo->resolvedHeadMeta($site));
+            $view->with('seoScripts', $seo->resolvedScripts());
         });
     }
 }

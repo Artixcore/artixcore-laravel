@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\Portal\ProfileController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\RelatedContentController;
 use App\Http\Controllers\Api\V1\ResearchPaperController;
+use App\Http\Controllers\Api\V1\SeoSettingController;
 use App\Http\Controllers\Api\V1\SiteController;
 use App\Http\Controllers\Api\V1\TeamProfileController;
 use App\Http\Controllers\Api\V1\Tools\ToolCatalogController;
@@ -50,6 +51,11 @@ Route::prefix('v1')->group(function (): void {
     Route::get('/health', fn () => ['status' => 'ok', 'timestamp' => now()->toIso8601String()]);
 
     Route::get('/site', [SiteController::class, 'show'])->name('api.v1.site.show');
+
+    Route::get('/seo-settings', [SeoSettingController::class, 'show'])->name('api.v1.seo-settings.show');
+    Route::put('/seo-settings', [SeoSettingController::class, 'update'])
+        ->middleware('auth:sanctum')
+        ->name('api.v1.seo-settings.update');
 
     Route::get('/meta/block-types', [MetaController::class, 'blockTypes'])
         ->name('api.v1.meta.block-types');

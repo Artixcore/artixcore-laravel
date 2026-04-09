@@ -19,37 +19,71 @@ class ContentSeeder extends Seeder
 {
     public function run(): void
     {
-        $cat = Taxonomy::query()->create(['slug' => 'categories', 'name' => 'Categories']);
-        $topic = Taxonomy::query()->create(['slug' => 'topics', 'name' => 'Topics']);
-        $tag = Taxonomy::query()->create(['slug' => 'tags', 'name' => 'Tags']);
+        $cat = Taxonomy::query()->updateOrCreate(
+            ['slug' => 'categories'],
+            ['name' => 'Categories']
+        );
+        $topic = Taxonomy::query()->updateOrCreate(
+            ['slug' => 'topics'],
+            ['name' => 'Topics']
+        );
+        $tag = Taxonomy::query()->updateOrCreate(
+            ['slug' => 'tags'],
+            ['name' => 'Tags']
+        );
 
-        $tSaaS = Term::query()->create(['taxonomy_id' => $cat->id, 'slug' => 'saas', 'name' => 'SaaS', 'sort_order' => 1]);
-        $tChain = Term::query()->create(['taxonomy_id' => $cat->id, 'slug' => 'blockchain', 'name' => 'Blockchain', 'sort_order' => 2]);
-        $tQuantum = Term::query()->create(['taxonomy_id' => $cat->id, 'slug' => 'quantum', 'name' => 'Quantum', 'sort_order' => 3]);
+        $tSaaS = Term::query()->updateOrCreate(
+            ['taxonomy_id' => $cat->id, 'slug' => 'saas'],
+            ['name' => 'SaaS', 'sort_order' => 1]
+        );
+        $tChain = Term::query()->updateOrCreate(
+            ['taxonomy_id' => $cat->id, 'slug' => 'blockchain'],
+            ['name' => 'Blockchain', 'sort_order' => 2]
+        );
+        Term::query()->updateOrCreate(
+            ['taxonomy_id' => $cat->id, 'slug' => 'quantum'],
+            ['name' => 'Quantum', 'sort_order' => 3]
+        );
 
-        Term::query()->create(['taxonomy_id' => $topic->id, 'slug' => 'innovation', 'name' => 'Innovation', 'sort_order' => 1]);
-        Term::query()->create(['taxonomy_id' => $topic->id, 'slug' => 'engineering', 'name' => 'Engineering', 'sort_order' => 2]);
+        Term::query()->updateOrCreate(
+            ['taxonomy_id' => $topic->id, 'slug' => 'innovation'],
+            ['name' => 'Innovation', 'sort_order' => 1]
+        );
+        Term::query()->updateOrCreate(
+            ['taxonomy_id' => $topic->id, 'slug' => 'engineering'],
+            ['name' => 'Engineering', 'sort_order' => 2]
+        );
 
-        Term::query()->create(['taxonomy_id' => $tag->id, 'slug' => 'solana', 'name' => 'Solana', 'sort_order' => 1]);
-        Term::query()->create(['taxonomy_id' => $tag->id, 'slug' => 'spl-token', 'name' => 'SPL Token', 'sort_order' => 2]);
+        Term::query()->updateOrCreate(
+            ['taxonomy_id' => $tag->id, 'slug' => 'solana'],
+            ['name' => 'Solana', 'sort_order' => 1]
+        );
+        Term::query()->updateOrCreate(
+            ['taxonomy_id' => $tag->id, 'slug' => 'spl-token'],
+            ['name' => 'SPL Token', 'sort_order' => 2]
+        );
 
-        $home = Page::query()->create([
-            'parent_id' => null,
-            'path' => 'home',
-            'title' => 'Home',
-            'meta_title' => 'Artixcore — Technology that scales',
-            'meta_description' => 'SaaS, blockchain, quantum, and research-driven software.',
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
+        $home = Page::query()->updateOrCreate(
+            ['path' => 'home'],
+            [
+                'parent_id' => null,
+                'title' => 'Home',
+                'meta_title' => 'Artixcore — Technology that scales',
+                'meta_description' => 'SaaS, blockchain, quantum, and research-driven software.',
+                'status' => 'published',
+                'published_at' => now(),
+            ]
+        );
 
-        $products = Page::query()->create([
-            'parent_id' => null,
-            'path' => 'products',
-            'title' => 'Products',
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
+        $products = Page::query()->updateOrCreate(
+            ['path' => 'products'],
+            [
+                'parent_id' => null,
+                'title' => 'Products',
+                'status' => 'published',
+                'published_at' => now(),
+            ]
+        );
 
         foreach (
             [
@@ -58,22 +92,26 @@ class ContentSeeder extends Seeder
                 ['quantum', 'Quantum computing'],
             ] as [$slug, $title]
         ) {
-            Page::query()->create([
-                'parent_id' => $products->id,
-                'path' => 'products/'.$slug,
-                'title' => $title,
-                'status' => 'published',
-                'published_at' => now(),
-            ]);
+            Page::query()->updateOrCreate(
+                ['path' => 'products/'.$slug],
+                [
+                    'parent_id' => $products->id,
+                    'title' => $title,
+                    'status' => 'published',
+                    'published_at' => now(),
+                ]
+            );
         }
 
-        $solutions = Page::query()->create([
-            'parent_id' => null,
-            'path' => 'solutions',
-            'title' => 'Solutions',
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
+        $solutionsPage = Page::query()->updateOrCreate(
+            ['path' => 'solutions'],
+            [
+                'parent_id' => null,
+                'title' => 'Solutions',
+                'status' => 'published',
+                'published_at' => now(),
+            ]
+        );
 
         foreach (
             [
@@ -82,13 +120,15 @@ class ContentSeeder extends Seeder
                 ['research-platforms', 'R&D platforms'],
             ] as [$slug, $title]
         ) {
-            Page::query()->create([
-                'parent_id' => $solutions->id,
-                'path' => 'solutions/'.$slug,
-                'title' => $title,
-                'status' => 'published',
-                'published_at' => now(),
-            ]);
+            Page::query()->updateOrCreate(
+                ['path' => 'solutions/'.$slug],
+                [
+                    'parent_id' => $solutionsPage->id,
+                    'title' => $title,
+                    'status' => 'published',
+                    'published_at' => now(),
+                ]
+            );
         }
 
         foreach (
@@ -98,13 +138,15 @@ class ContentSeeder extends Seeder
                 ['company', 'Company'],
             ] as [$path, $title]
         ) {
-            Page::query()->create([
-                'parent_id' => null,
-                'path' => $path,
-                'title' => $title,
-                'status' => 'published',
-                'published_at' => now(),
-            ]);
+            Page::query()->updateOrCreate(
+                ['path' => $path],
+                [
+                    'parent_id' => null,
+                    'title' => $title,
+                    'status' => 'published',
+                    'published_at' => now(),
+                ]
+            );
         }
 
         foreach (
@@ -114,110 +156,138 @@ class ContentSeeder extends Seeder
                 ['contact', 'Contact'],
             ] as [$path, $title]
         ) {
-            Page::query()->create([
+            Page::query()->updateOrCreate(
+                ['path' => $path],
+                [
+                    'parent_id' => null,
+                    'title' => $title,
+                    'status' => 'published',
+                    'published_at' => now(),
+                ]
+            );
+        }
+
+        Page::query()->updateOrCreate(
+            ['path' => 'resources/articles'],
+            [
                 'parent_id' => null,
-                'path' => $path,
-                'title' => $title,
+                'title' => 'Articles & insights',
                 'status' => 'published',
                 'published_at' => now(),
-            ]);
-        }
+            ]
+        );
 
-        Page::query()->create([
-            'parent_id' => null,
-            'path' => 'resources/articles',
-            'title' => 'Articles & insights',
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
-
-        Page::query()->create([
-            'parent_id' => null,
-            'path' => 'resources/case-studies',
-            'title' => 'Case studies',
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
-
-        Page::query()->create([
-            'parent_id' => null,
-            'path' => 'research/papers',
-            'title' => 'Research papers',
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
-
-        PageBlock::query()->create([
-            'page_id' => $home->id,
-            'sort_order' => 0,
-            'type' => 'hero',
-            'data' => [
-                'eyebrow' => 'Artixcore',
-                'title' => 'Software that scales with ambition',
-                'subtitle' => 'SaaS platforms, blockchain systems, quantum-ready tooling, and research-led engineering.',
-                'primaryCta' => ['label' => 'Book a call', 'href' => '/contact'],
-                'secondaryCta' => ['label' => 'Explore products', 'href' => '/products'],
-            ],
-        ]);
-
-        PageBlock::query()->create([
-            'page_id' => $home->id,
-            'sort_order' => 1,
-            'type' => 'feature_grid',
-            'data' => [
-                'heading' => 'What we build',
-                'items' => [
-                    ['title' => 'SaaS platforms', 'description' => 'Multi-tenant products with enterprise reliability.', 'href' => '/products/saas'],
-                    ['title' => 'Blockchain', 'description' => 'Including Solana SPL token programs and integrations.', 'href' => '/products/blockchain'],
-                    ['title' => 'Quantum-ready tools', 'description' => 'Pipelines and interfaces for emerging quantum workloads.', 'href' => '/products/quantum'],
-                ],
-            ],
-        ]);
-
-        PageBlock::query()->create([
-            'page_id' => $home->id,
-            'sort_order' => 2,
-            'type' => 'cta',
-            'data' => [
-                'title' => 'Ready to ship?',
-                'body' => 'Tell us about your product, research goals, or infrastructure needs.',
-                'buttonLabel' => 'Contact us',
-                'href' => '/contact',
-            ],
-        ]);
-
-        $primary = NavMenu::query()->create(['key' => 'primary', 'name' => 'Primary header']);
-        $footerMenu = NavMenu::query()->create(['key' => 'footer', 'name' => 'Footer']);
-
-        foreach (
+        Page::query()->updateOrCreate(
+            ['path' => 'resources/case-studies'],
             [
-                ['Products', '/products'],
-                ['Solutions', '/solutions'],
-                ['Research', '/research'],
-                ['Articles', '/resources/articles'],
-                ['Case studies', '/resources/case-studies'],
-                ['About', '/about'],
-                ['Team', '/team'],
-                ['Contact', '/contact'],
-            ] as $i => [$label, $url]
-        ) {
-            NavItem::query()->create([
-                'nav_menu_id' => $footerMenu->id,
                 'parent_id' => null,
-                'label' => $label,
-                'url' => $url,
-                'sort_order' => $i,
-            ]);
-        }
+                'title' => 'Case studies',
+                'status' => 'published',
+                'published_at' => now(),
+            ]
+        );
 
-        $microToolsItem = NavItem::query()->create([
-            'nav_menu_id' => $primary->id,
-            'parent_id' => null,
-            'label' => 'Micro Tools',
-            'url' => '/micro-tools',
-            'page_id' => null,
-            'sort_order' => 0,
-        ]);
+        Page::query()->updateOrCreate(
+            ['path' => 'research/papers'],
+            [
+                'parent_id' => null,
+                'title' => 'Research papers',
+                'status' => 'published',
+                'published_at' => now(),
+            ]
+        );
+
+        PageBlock::query()->updateOrCreate(
+            ['page_id' => $home->id, 'sort_order' => 0],
+            [
+                'type' => 'hero',
+                'data' => [
+                    'eyebrow' => 'Artixcore',
+                    'title' => 'Software that scales with ambition',
+                    'subtitle' => 'SaaS platforms, blockchain systems, quantum-ready tooling, and research-led engineering.',
+                    'primaryCta' => ['label' => 'Book a call', 'href' => '/contact'],
+                    'secondaryCta' => ['label' => 'Explore products', 'href' => '/products'],
+                ],
+            ]
+        );
+
+        PageBlock::query()->updateOrCreate(
+            ['page_id' => $home->id, 'sort_order' => 1],
+            [
+                'type' => 'feature_grid',
+                'data' => [
+                    'heading' => 'What we build',
+                    'items' => [
+                        ['title' => 'SaaS platforms', 'description' => 'Multi-tenant products with enterprise reliability.', 'href' => '/products/saas'],
+                        ['title' => 'Blockchain', 'description' => 'Including Solana SPL token programs and integrations.', 'href' => '/products/blockchain'],
+                        ['title' => 'Quantum-ready tools', 'description' => 'Pipelines and interfaces for emerging quantum workloads.', 'href' => '/products/quantum'],
+                    ],
+                ],
+            ]
+        );
+
+        PageBlock::query()->updateOrCreate(
+            ['page_id' => $home->id, 'sort_order' => 2],
+            [
+                'type' => 'cta',
+                'data' => [
+                    'title' => 'Ready to ship?',
+                    'body' => 'Tell us about your product, research goals, or infrastructure needs.',
+                    'buttonLabel' => 'Contact us',
+                    'href' => '/contact',
+                ],
+            ]
+        );
+
+        $primary = NavMenu::query()->updateOrCreate(
+            ['key' => 'primary'],
+            ['name' => 'Primary header']
+        );
+        $footerMenu = NavMenu::query()->updateOrCreate(
+            ['key' => 'footer'],
+            ['name' => 'Footer']
+        );
+
+        $footerLinkRows = [
+            ['Products', '/products'],
+            ['Solutions', '/solutions'],
+            ['Research', '/research'],
+            ['Articles', '/resources/articles'],
+            ['Case studies', '/resources/case-studies'],
+            ['About', '/about'],
+            ['Team', '/team'],
+        ];
+        foreach ($footerLinkRows as $i => [$label, $url]) {
+            NavItem::query()->updateOrCreate(
+                [
+                    'nav_menu_id' => $footerMenu->id,
+                    'parent_id' => null,
+                    'sort_order' => $i,
+                ],
+                [
+                    'label' => $label,
+                    'url' => $url,
+                ]
+            );
+        }
+        NavItem::query()
+            ->where('nav_menu_id', $footerMenu->id)
+            ->whereNull('parent_id')
+            ->where('sort_order', '>', count($footerLinkRows) - 1)
+            ->delete();
+
+        $microToolsItem = NavItem::query()->updateOrCreate(
+            [
+                'nav_menu_id' => $primary->id,
+                'parent_id' => null,
+                'label' => 'Micro Tools',
+            ],
+            [
+                'url' => '/micro-tools',
+                'page_id' => null,
+                'sort_order' => 0,
+            ]
+        );
 
         foreach (
             [
@@ -232,28 +302,36 @@ class ContentSeeder extends Seeder
                 ['Favorites & history', '/micro-tools/me'],
             ] as $i => [$label, $url]
         ) {
-            NavItem::query()->create([
-                'nav_menu_id' => $primary->id,
-                'parent_id' => $microToolsItem->id,
-                'label' => $label,
-                'url' => $url,
-                'sort_order' => $i,
-            ]);
+            NavItem::query()->updateOrCreate(
+                [
+                    'nav_menu_id' => $primary->id,
+                    'parent_id' => $microToolsItem->id,
+                    'sort_order' => $i,
+                ],
+                [
+                    'label' => $label,
+                    'url' => $url,
+                ]
+            );
         }
 
-        $productsItem = NavItem::query()->create([
-            'nav_menu_id' => $primary->id,
-            'parent_id' => null,
-            'label' => 'Products',
-            'url' => null,
-            'page_id' => Page::query()->where('path', 'products')->value('id'),
-            'sort_order' => 1,
-            'feature_payload' => [
-                'title' => 'Product portfolio',
-                'description' => 'Platforms and tools across SaaS, chain, and quantum.',
-                'href' => '/products',
+        $productsItem = NavItem::query()->updateOrCreate(
+            [
+                'nav_menu_id' => $primary->id,
+                'parent_id' => null,
+                'label' => 'Products',
             ],
-        ]);
+            [
+                'url' => null,
+                'page_id' => Page::query()->where('path', 'products')->value('id'),
+                'sort_order' => 1,
+                'feature_payload' => [
+                    'title' => 'Product portfolio',
+                    'description' => 'Platforms and tools across SaaS, chain, and quantum.',
+                    'href' => '/products',
+                ],
+            ]
+        );
 
         foreach (
             [
@@ -262,22 +340,30 @@ class ContentSeeder extends Seeder
                 ['Quantum', 'products/quantum'],
             ] as $i => [$label, $path]
         ) {
-            NavItem::query()->create([
-                'nav_menu_id' => $primary->id,
-                'parent_id' => $productsItem->id,
-                'label' => $label,
-                'page_id' => Page::query()->where('path', $path)->value('id'),
-                'sort_order' => $i,
-            ]);
+            NavItem::query()->updateOrCreate(
+                [
+                    'nav_menu_id' => $primary->id,
+                    'parent_id' => $productsItem->id,
+                    'sort_order' => $i,
+                ],
+                [
+                    'label' => $label,
+                    'page_id' => Page::query()->where('path', $path)->value('id'),
+                ]
+            );
         }
 
-        $solutions = NavItem::query()->create([
-            'nav_menu_id' => $primary->id,
-            'parent_id' => null,
-            'label' => 'Solutions',
-            'page_id' => Page::query()->where('path', 'solutions')->value('id'),
-            'sort_order' => 2,
-        ]);
+        $solutionsNav = NavItem::query()->updateOrCreate(
+            [
+                'nav_menu_id' => $primary->id,
+                'parent_id' => null,
+                'label' => 'Solutions',
+            ],
+            [
+                'page_id' => Page::query()->where('path', 'solutions')->value('id'),
+                'sort_order' => 2,
+            ]
+        );
 
         foreach (
             [
@@ -286,38 +372,54 @@ class ContentSeeder extends Seeder
                 ['R&D platforms', '/solutions/research-platforms'],
             ] as $i => [$label, $url]
         ) {
-            NavItem::query()->create([
-                'nav_menu_id' => $primary->id,
-                'parent_id' => $solutions->id,
-                'label' => $label,
-                'url' => $url,
-                'sort_order' => $i,
-            ]);
+            NavItem::query()->updateOrCreate(
+                [
+                    'nav_menu_id' => $primary->id,
+                    'parent_id' => $solutionsNav->id,
+                    'sort_order' => $i,
+                ],
+                [
+                    'label' => $label,
+                    'url' => $url,
+                ]
+            );
         }
 
-        $research = NavItem::query()->create([
-            'nav_menu_id' => $primary->id,
-            'parent_id' => null,
-            'label' => 'Research',
-            'page_id' => Page::query()->where('path', 'research')->value('id'),
-            'sort_order' => 3,
-        ]);
+        $research = NavItem::query()->updateOrCreate(
+            [
+                'nav_menu_id' => $primary->id,
+                'parent_id' => null,
+                'label' => 'Research',
+            ],
+            [
+                'page_id' => Page::query()->where('path', 'research')->value('id'),
+                'sort_order' => 3,
+            ]
+        );
 
-        NavItem::query()->create([
-            'nav_menu_id' => $primary->id,
-            'parent_id' => $research->id,
-            'label' => 'Papers',
-            'page_id' => Page::query()->where('path', 'research/papers')->value('id'),
-            'sort_order' => 0,
-        ]);
+        NavItem::query()->updateOrCreate(
+            [
+                'nav_menu_id' => $primary->id,
+                'parent_id' => $research->id,
+                'sort_order' => 0,
+            ],
+            [
+                'label' => 'Papers',
+                'page_id' => Page::query()->where('path', 'research/papers')->value('id'),
+            ]
+        );
 
-        $company = NavItem::query()->create([
-            'nav_menu_id' => $primary->id,
-            'parent_id' => null,
-            'label' => 'Company',
-            'page_id' => Page::query()->where('path', 'company')->value('id'),
-            'sort_order' => 4,
-        ]);
+        $company = NavItem::query()->updateOrCreate(
+            [
+                'nav_menu_id' => $primary->id,
+                'parent_id' => null,
+                'label' => 'Company',
+            ],
+            [
+                'page_id' => Page::query()->where('path', 'company')->value('id'),
+                'sort_order' => 4,
+            ]
+        );
 
         foreach (
             [
@@ -326,72 +428,94 @@ class ContentSeeder extends Seeder
                 ['Contact', 'contact'],
             ] as $i => [$label, $path]
         ) {
-            NavItem::query()->create([
-                'nav_menu_id' => $primary->id,
-                'parent_id' => $company->id,
-                'label' => $label,
-                'page_id' => Page::query()->where('path', $path)->value('id'),
-                'sort_order' => $i,
-            ]);
+            NavItem::query()->updateOrCreate(
+                [
+                    'nav_menu_id' => $primary->id,
+                    'parent_id' => $company->id,
+                    'sort_order' => $i,
+                ],
+                [
+                    'label' => $label,
+                    'page_id' => Page::query()->where('path', $path)->value('id'),
+                ]
+            );
         }
 
-        $resources = NavItem::query()->create([
-            'nav_menu_id' => $primary->id,
-            'parent_id' => null,
-            'label' => 'Resources',
-            'page_id' => Page::query()->where('path', 'resources')->value('id'),
-            'sort_order' => 5,
-        ]);
+        $resources = NavItem::query()->updateOrCreate(
+            [
+                'nav_menu_id' => $primary->id,
+                'parent_id' => null,
+                'label' => 'Resources',
+            ],
+            [
+                'page_id' => Page::query()->where('path', 'resources')->value('id'),
+                'sort_order' => 5,
+            ]
+        );
 
-        NavItem::query()->create([
-            'nav_menu_id' => $primary->id,
-            'parent_id' => $resources->id,
-            'label' => 'Articles',
-            'page_id' => Page::query()->where('path', 'resources/articles')->value('id'),
-            'sort_order' => 0,
-        ]);
+        NavItem::query()->updateOrCreate(
+            [
+                'nav_menu_id' => $primary->id,
+                'parent_id' => $resources->id,
+                'sort_order' => 0,
+            ],
+            [
+                'label' => 'Articles',
+                'page_id' => Page::query()->where('path', 'resources/articles')->value('id'),
+            ]
+        );
 
-        NavItem::query()->create([
-            'nav_menu_id' => $primary->id,
-            'parent_id' => $resources->id,
-            'label' => 'Case studies',
-            'page_id' => Page::query()->where('path', 'resources/case-studies')->value('id'),
-            'sort_order' => 1,
-        ]);
+        NavItem::query()->updateOrCreate(
+            [
+                'nav_menu_id' => $primary->id,
+                'parent_id' => $resources->id,
+                'sort_order' => 1,
+            ],
+            [
+                'label' => 'Case studies',
+                'page_id' => Page::query()->where('path', 'resources/case-studies')->value('id'),
+            ]
+        );
 
-        $article = Article::query()->create([
-            'slug' => 'building-spl-token-programs',
-            'title' => 'Building reliable SPL token programs',
-            'summary' => 'Patterns we use for Solana token lifecycle, metadata, and upgrades.',
-            'body' => "## Overview\n\nArtixcore ships SPL-compatible programs with clear authority models and test coverage.",
-            'status' => 'published',
-            'featured' => true,
-            'trending_score' => 10,
-            'published_at' => now(),
-        ]);
-        $article->terms()->attach([$tChain->id, $tSaaS->id]);
+        $article = Article::query()->updateOrCreate(
+            ['slug' => 'building-spl-token-programs'],
+            [
+                'title' => 'Building reliable SPL token programs',
+                'summary' => 'Patterns we use for Solana token lifecycle, metadata, and upgrades.',
+                'body' => "## Overview\n\nArtixcore ships SPL-compatible programs with clear authority models and test coverage.",
+                'status' => 'published',
+                'featured' => true,
+                'trending_score' => 10,
+                'published_at' => now(),
+            ]
+        );
+        $article->terms()->sync([$tChain->id, $tSaaS->id]);
 
-        ResearchPaper::query()->create([
-            'slug' => 'quantum-orchestration-note',
-            'title' => 'Note on quantum workload orchestration',
-            'summary' => 'Draft framework for hybrid classical-quantum pipelines.',
-            'body' => 'Abstract: we outline scheduling constraints for near-term devices.',
-            'status' => 'published',
-            'featured' => true,
-            'trending_score' => 5,
-            'published_at' => now(),
-        ]);
+        ResearchPaper::query()->updateOrCreate(
+            ['slug' => 'quantum-orchestration-note'],
+            [
+                'title' => 'Note on quantum workload orchestration',
+                'summary' => 'Draft framework for hybrid classical-quantum pipelines.',
+                'body' => 'Abstract: we outline scheduling constraints for near-term devices.',
+                'status' => 'published',
+                'featured' => true,
+                'trending_score' => 5,
+                'published_at' => now(),
+            ]
+        );
 
-        CaseStudy::query()->create([
-            'slug' => 'fintech-saas-rollout',
-            'title' => 'Multi-tenant SaaS for a fintech scale-up',
-            'client_name' => 'Example FinCo',
-            'summary' => 'Latency, compliance, and onboarding in eight weeks.',
-            'body' => 'We delivered core billing APIs, admin console, and audit trails.',
-            'status' => 'published',
-            'featured' => true,
-            'published_at' => now(),
-        ]);
+        CaseStudy::query()->updateOrCreate(
+            ['slug' => 'fintech-saas-rollout'],
+            [
+                'title' => 'Multi-tenant SaaS for a fintech scale-up',
+                'client_name' => 'Example FinCo',
+                'summary' => 'Latency, compliance, and onboarding in eight weeks.',
+                'body' => 'We delivered core billing APIs, admin console, and audit trails.',
+                'status' => 'published',
+                'featured' => true,
+                'published_at' => now(),
+            ]
+        );
 
         foreach (
             [
@@ -400,26 +524,30 @@ class ContentSeeder extends Seeder
                 ['q-pipeline', 'Q-Pipeline', 'Research-oriented quantum job interfaces'],
             ] as [$slug, $title, $tagline]
         ) {
-            Product::query()->create([
-                'slug' => $slug,
-                'title' => $title,
-                'tagline' => $tagline,
-                'summary' => 'Product summary placeholder.',
-                'body' => 'Details managed in CMS.',
-                'status' => 'published',
-                'featured' => true,
-                'published_at' => now(),
-            ]);
+            Product::query()->updateOrCreate(
+                ['slug' => $slug],
+                [
+                    'title' => $title,
+                    'tagline' => $tagline,
+                    'summary' => 'Product summary placeholder.',
+                    'body' => 'Details managed in CMS.',
+                    'status' => 'published',
+                    'featured' => true,
+                    'published_at' => now(),
+                ]
+            );
         }
 
-        TeamProfile::query()->create([
-            'slug' => 'jane-doe',
-            'name' => 'Jane Doe',
-            'role' => 'CTO',
-            'bio' => 'Leads platform architecture and research partnerships.',
-            'status' => 'published',
-            'sort_order' => 0,
-            'published_at' => now(),
-        ]);
+        TeamProfile::query()->updateOrCreate(
+            ['slug' => 'jane-doe'],
+            [
+                'name' => 'Jane Doe',
+                'role' => 'CTO',
+                'bio' => 'Leads platform architecture and research partnerships.',
+                'status' => 'published',
+                'sort_order' => 0,
+                'published_at' => now(),
+            ]
+        );
     }
 }

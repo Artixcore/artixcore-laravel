@@ -6,8 +6,8 @@
 		<div class="row g-4 justify-content-between">
 			<div class="col-lg-3">
 				<a class="me-0" href="{{ url('/') }}">
-					<img class="light-mode-item h-40px" src="{{ $site->logoMedia?->absoluteUrl() ?? asset('theme/images/logo.svg') }}" alt="">
-					<img class="dark-mode-item h-40px" src="{{ $site->logoMedia?->absoluteUrl() ?? asset('theme/images/logo-light.svg') }}" alt="">
+					<img class="light-mode-item h-40px" src="{{ $site->logoMedia?->absoluteUrl() ?? asset('logo.svg') }}" alt="{{ $site->site_name ?? 'Artixcore' }}">
+					<img class="dark-mode-item h-40px" src="{{ $site->logoMedia?->absoluteUrl() ?? asset('logo.svg') }}" alt="{{ $site->site_name ?? 'Artixcore' }}">
 				</a>
 				<p class="mt-4 mb-2">{{ $site->default_meta_description ?? 'Artixcore delivers SaaS, AI, mobile, Web3, and automation solutions for ambitious teams.' }}</p>
 			</div>
@@ -19,7 +19,6 @@
 							@foreach($footerNavLinks as $link)
 								<li class="nav-item"><a class="nav-link pt-0" href="{{ url($link['url']) }}">{{ $link['label'] }}</a></li>
 							@endforeach
-							<li class="nav-item"><a class="nav-link" href="{{ route('faq') }}">FAQ</a></li>
 							<li class="nav-item"><a class="nav-link" href="{{ route('privacy') }}">Privacy</a></li>
 							<li class="nav-item"><a class="nav-link" href="{{ route('terms') }}">Terms</a></li>
 						</ul>

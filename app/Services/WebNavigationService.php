@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Article;
 use App\Models\CaseStudy;
 use App\Models\NavItem;
 use App\Models\NavMenu;
@@ -36,7 +35,7 @@ class WebNavigationService
 
     /**
      * @param  list<array{label: string, url: string, children?: list<array{label: string, url: string}>, mega?: ?string}>  $primaryLinks
-     * @return array{services: Collection<int, Service>, articles: Collection<int, Article>, caseStudies: Collection<int, CaseStudy>}
+     * @return array{services: Collection<int, Service>, articles: Collection<int, mixed>, caseStudies: Collection<int, CaseStudy>}
      */
     public function megaMenuContext(array $primaryLinks): array
     {
@@ -63,20 +62,14 @@ class WebNavigationService
                 ->orderBy('sort_order')
                 ->orderBy('title')
                 ->get();
-
-            $articles = Article::query()
-                ->published()
-                ->orderByDesc('published_at')
-                ->take(3)
-                ->get();
         }
 
-        if ($needsPortfolio) {
+        if ($needsServices || $needsPortfolio) {
             $caseStudies = CaseStudy::query()
                 ->published()
                 ->orderByDesc('featured')
                 ->orderByDesc('published_at')
-                ->take(2)
+                ->take(3)
                 ->get();
         }
 
@@ -177,12 +170,9 @@ class WebNavigationService
         return [
             ['label' => 'Home', 'url' => '/', 'children' => [], 'mega' => null],
             ['label' => 'Services', 'url' => '/services', 'children' => [], 'mega' => 'services'],
+            ['label' => 'SaaS Platforms', 'url' => '/saas-platforms', 'children' => [], 'mega' => null],
             ['label' => 'Portfolio', 'url' => '/portfolio', 'children' => [], 'mega' => 'portfolio'],
-            ['label' => 'Blog', 'url' => '/blog', 'children' => [], 'mega' => null],
             ['label' => 'About', 'url' => '/about', 'children' => [], 'mega' => null],
-            ['label' => 'Careers', 'url' => '/careers', 'children' => [], 'mega' => null],
-            ['label' => 'FAQ', 'url' => '/faq', 'children' => [], 'mega' => null],
-            ['label' => 'Contact', 'url' => '/contact', 'children' => [], 'mega' => null],
         ];
     }
 }
