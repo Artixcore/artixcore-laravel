@@ -1,4 +1,7 @@
-@props(['href' => null, 'danger' => false])
+@props([
+    'href' => null,
+    'danger' => false,
+])
 @php
     $base =
         'block w-full px-3 py-2 text-left text-sm font-medium transition-colors ' .

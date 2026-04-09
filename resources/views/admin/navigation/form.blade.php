@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('title', $mode === 'create' ? 'New nav item' : 'Edit nav item')
 @section('content')
-	<x-admin.page-header :title="$menu->name.' — '.($mode === 'create' ? 'New item' : 'Edit item')" />
+	<x-admin.page-header title="{{ $menu->name }} — {{ $mode === 'create' ? 'New item' : 'Edit item' }}" />
 
 	<x-admin.card>
 		<form
