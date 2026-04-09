@@ -13,5 +13,6 @@ final class LlmCompletionResult
         public ?string $model = null,
         public ?int $promptTokens = null,
         public ?int $completionTokens = null,
+        public ?int $aiProviderId = null,
     ) {}
 }

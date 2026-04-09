@@ -21,7 +21,15 @@ class PagePolicy
             return true;
         }
 
+        if ($page->archived_at !== null) {
+            return false;
+        }
+
         if ($page->status !== 'published') {
+            return false;
+        }
+
+        if ($page->scheduled_publish_at !== null && $page->scheduled_publish_at->gt(now())) {
             return false;
         }
 

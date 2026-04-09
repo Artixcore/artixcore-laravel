@@ -27,6 +27,9 @@ class RolePermissionSeeder extends Seeder
         return array_values(array_unique(array_merge(
             [
                 'filament.access',
+                'builder.access',
+                'builder.publish',
+                'builder.ai.use',
                 'users.manage_roles',
                 'portal.access',
                 'micro_tool_analytics.view',
@@ -105,7 +108,7 @@ class RolePermissionSeeder extends Seeder
             'master_admin' => $internalAll,
             'admin' => $internalAll,
             'content_admin' => $pick(array_merge(
-                ['filament.access'],
+                ['filament.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
                 $crud('pages'),
                 $crud('page_blocks'),
                 $crud('nav_menus'),
@@ -127,7 +130,7 @@ class RolePermissionSeeder extends Seeder
                 ['micro_tool_analytics.view', 'micro_tool_runs.view_any', 'micro_tool_runs.view'],
             )),
             'marketing_admin' => $pick(array_merge(
-                ['filament.access'],
+                ['filament.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
                 $crud('pages'),
                 $crud('page_blocks'),
                 $crud('nav_menus'),
@@ -158,7 +161,7 @@ class RolePermissionSeeder extends Seeder
                 ['articles.view_any', 'articles.view', 'pages.view_any', 'pages.view'],
             )),
             'designer_admin' => $pick(array_merge(
-                ['filament.access'],
+                ['filament.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
                 $crud('pages'),
                 $crud('page_blocks'),
                 $crud('nav_menus'),

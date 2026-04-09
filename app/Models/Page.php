@@ -16,9 +16,15 @@ class Page extends Model
         'title',
         'meta_title',
         'meta_description',
+        'meta_og_media_id',
         'meta',
+        'custom_head_html',
+        'custom_body_html',
+        'builder_settings_json',
         'status',
         'published_at',
+        'archived_at',
+        'scheduled_publish_at',
         'primary_entity_type',
         'primary_entity_id',
     ];
@@ -27,7 +33,10 @@ class Page extends Model
     {
         return [
             'meta' => 'array',
+            'builder_settings_json' => 'array',
             'published_at' => 'datetime',
+            'archived_at' => 'datetime',
+            'scheduled_publish_at' => 'datetime',
         ];
     }
 
@@ -53,6 +62,22 @@ class Page extends Model
     public function blocks(): HasMany
     {
         return $this->hasMany(PageBlock::class)->orderBy('sort_order');
+    }
+
+    /**
+     * @return HasMany<PageVersion, $this>
+     */
+    public function versions(): HasMany
+    {
+        return $this->hasMany(PageVersion::class)->orderByDesc('id');
+    }
+
+    /**
+     * @return BelongsTo<MediaAsset, $this>
+     */
+    public function metaOgMedia(): BelongsTo
+    {
+        return $this->belongsTo(MediaAsset::class, 'meta_og_media_id');
     }
 
     /**

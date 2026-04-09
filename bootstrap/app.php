@@ -9,6 +9,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('micro-tools:aggregate-daily-stats')->dailyAt('01:00');
+        $schedule->command('pages:publish-scheduled')->everyMinute();
     })
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'optional.sanctum' => OptionalSanctumAuth::class,
             'blade.admin' => \App\Http\Middleware\EnsureBladeAdminAccess::class,
+            'builder.access' => \App\Http\Middleware\EnsureBuilderAccess::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login'));

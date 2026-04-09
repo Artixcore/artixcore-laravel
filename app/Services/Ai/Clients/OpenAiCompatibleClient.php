@@ -36,6 +36,14 @@ class OpenAiCompatibleClient implements LlmClientInterface
             $payload['max_tokens'] = $maxOutputTokens;
         }
 
+        $meta = is_array($provider->metadata) ? $provider->metadata : [];
+        if (isset($meta['temperature']) && is_numeric($meta['temperature'])) {
+            $payload['temperature'] = (float) $meta['temperature'];
+        }
+        if (isset($meta['top_p']) && is_numeric($meta['top_p'])) {
+            $payload['top_p'] = (float) $meta['top_p'];
+        }
+
         $timeout = max(5, (int) $provider->timeout_seconds);
 
         $response = Http::withToken($key)
@@ -64,6 +72,7 @@ class OpenAiCompatibleClient implements LlmClientInterface
             model: is_string($data['model'] ?? null) ? $data['model'] : $model,
             promptTokens: isset($usage['prompt_tokens']) ? (int) $usage['prompt_tokens'] : null,
             completionTokens: isset($usage['completion_tokens']) ? (int) $usage['completion_tokens'] : null,
+            aiProviderId: $provider->id,
         );
     }
 

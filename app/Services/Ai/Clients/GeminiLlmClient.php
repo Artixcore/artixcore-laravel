@@ -56,8 +56,19 @@ class GeminiLlmClient implements LlmClientInterface
             $body['systemInstruction'] = ['parts' => $systemParts];
         }
 
+        $genConfig = [];
         if ($maxOutputTokens !== null && $maxOutputTokens > 0) {
-            $body['generationConfig'] = ['maxOutputTokens' => $maxOutputTokens];
+            $genConfig['maxOutputTokens'] = $maxOutputTokens;
+        }
+        $meta = is_array($provider->metadata) ? $provider->metadata : [];
+        if (isset($meta['temperature']) && is_numeric($meta['temperature'])) {
+            $genConfig['temperature'] = (float) $meta['temperature'];
+        }
+        if (isset($meta['top_p']) && is_numeric($meta['top_p'])) {
+            $genConfig['topP'] = (float) $meta['top_p'];
+        }
+        if ($genConfig !== []) {
+            $body['generationConfig'] = array_merge($body['generationConfig'] ?? [], $genConfig);
         }
 
         $response = Http::timeout($timeout)
@@ -96,6 +107,7 @@ class GeminiLlmClient implements LlmClientInterface
             model: $model,
             promptTokens: isset($usage['promptTokenCount']) ? (int) $usage['promptTokenCount'] : null,
             completionTokens: isset($usage['candidatesTokenCount']) ? (int) $usage['candidatesTokenCount'] : null,
+            aiProviderId: $provider->id,
         );
     }
 }

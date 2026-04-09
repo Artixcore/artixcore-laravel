@@ -9,6 +9,7 @@ class PlatformSecuritySetting extends Model
     protected $fillable = [
         'chat_rate_limit_per_minute',
         'chat_rate_limit_per_day',
+        'builder_ai_rate_limit_per_minute',
         'internal_notes',
     ];
 
@@ -19,6 +20,7 @@ class PlatformSecuritySetting extends Model
             [
                 'chat_rate_limit_per_minute' => 20,
                 'chat_rate_limit_per_day' => 200,
+                'builder_ai_rate_limit_per_minute' => 30,
             ]
         );
 
