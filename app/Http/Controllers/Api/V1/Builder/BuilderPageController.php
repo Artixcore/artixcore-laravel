@@ -66,7 +66,8 @@ class BuilderPageController extends Controller
                     'latest_version_id' => $latest?->id,
                 ], 409);
             }
-            throw $e;
+
+            return response()->json(['message' => $e->getMessage()], 422);
         }
 
         $this->activityLogger->log('builder.document_saved', $page, [
@@ -124,7 +125,11 @@ class BuilderPageController extends Controller
         $scheduled = $request->validated('scheduled_at');
         $dt = $scheduled !== null ? new \DateTimeImmutable($scheduled) : null;
 
-        $this->state->publish($page, $dt);
+        try {
+            $this->state->publish($page, $dt);
+        } catch (InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
         $this->activityLogger->log('builder.page_published', $page, [
             'scheduled' => $dt !== null,
         ], $request);
@@ -178,13 +183,17 @@ class BuilderPageController extends Controller
     {
         $this->authorize('update', $page);
 
-        $version = $this->state->saveDraft(
-            $page,
-            $request->validated('document'),
-            $request->user(),
-            'import',
-            null,
-        );
+        try {
+            $version = $this->state->saveDraft(
+                $page,
+                $request->validated('document'),
+                $request->user(),
+                'import',
+                null,
+            );
+        } catch (InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
 
         $this->activityLogger->log('builder.document_imported', $page, [
             'version_id' => $version->id,

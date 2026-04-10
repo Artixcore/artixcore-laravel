@@ -13,7 +13,7 @@ class PageBuilderController extends Controller
     {
         $this->authorize('update', $page);
 
-        return view('builder.page', [
+        return view('layouts.builder', [
             'pageId' => $page->id,
             'pageTitle' => $page->title,
             'pagePath' => $page->path,

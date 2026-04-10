@@ -8,6 +8,7 @@ use App\Models\AiConversation;
 use App\Models\PlatformSecuritySetting;
 use App\Services\Ai\AiChatService;
 use App\Services\Ai\Exceptions\LlmTransportException;
+use App\Services\Lead\LeadQualificationMerger;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
@@ -17,7 +18,10 @@ use Throwable;
 
 class AiChatController extends Controller
 {
-    public function __construct(private AiChatService $chat) {}
+    public function __construct(
+        private AiChatService $chat,
+        private LeadQualificationMerger $qualificationMerger,
+    ) {}
 
     public function profile(Request $request, string $slug): JsonResponse
     {
@@ -64,6 +68,12 @@ class AiChatController extends Controller
 
         if ($conversation !== null && $result['lead_hint'] !== null) {
             $this->chat->persistLeadFromHints($conversation, $result['lead_hint']);
+            $conversation->refresh();
+        }
+
+        $conversation?->load('lead');
+        if ($conversation?->lead !== null) {
+            $this->qualificationMerger->mergeFromUserMessage($conversation->lead, $validated['message']);
         }
 
         return response()->json([

@@ -18,12 +18,15 @@ class PageResource extends JsonResource
         /** @var Page $page */
         $page = $this->resource;
 
+        $page->loadMissing('metaOgMedia');
+
         return [
             'path' => $page->path,
             'href' => PagePath::toHref($page->path),
             'title' => $page->title,
             'meta_title' => $page->meta_title,
             'meta_description' => $page->meta_description,
+            'meta_og_image_url' => $page->metaOgMedia?->absoluteUrl(),
             'meta' => $page->meta,
             'blocks' => PageBlockResource::collection($page->blocks),
         ];

@@ -29,6 +29,7 @@ class Lead extends Model
         'service_interest',
         'notes',
         'custom_fields',
+        'visitor_context',
         'conversation_summary',
         'internal_notes',
         'assigned_to',
@@ -39,6 +40,7 @@ class Lead extends Model
     {
         return [
             'custom_fields' => 'array',
+            'visitor_context' => 'array',
         ];
     }
 

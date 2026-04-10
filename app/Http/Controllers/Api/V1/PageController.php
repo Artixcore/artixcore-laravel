@@ -13,7 +13,10 @@ class PageController extends Controller
     {
         $page = Page::query()
             ->where('path', $path)
-            ->with(['blocks' => fn ($q) => $q->orderBy('sort_order')])
+            ->with([
+                'blocks' => fn ($q) => $q->orderBy('sort_order'),
+                'metaOgMedia',
+            ])
             ->firstOrFail();
 
         $this->authorize('view', $page);

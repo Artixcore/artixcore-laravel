@@ -5,8 +5,8 @@ namespace App\Filament\Resources\Pages\Schemas;
 use App\Filament\Support\JsonTextarea;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class PageForm
@@ -32,6 +32,7 @@ class PageForm
                     ->options([
                         'draft' => 'Draft',
                         'published' => 'Published',
+                        'archived' => 'Archived',
                     ])
                     ->required()
                     ->default('draft'),

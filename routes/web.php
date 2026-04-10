@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogAdminController;
-use App\Http\Controllers\Admin\AiBuilderBusinessProfileAdminController;
 use App\Http\Controllers\Admin\AiAgentAdminController;
+use App\Http\Controllers\Admin\AiBuilderBusinessProfileAdminController;
 use App\Http\Controllers\Admin\AiConversationAdminController;
 use App\Http\Controllers\Admin\AiProviderAdminController;
 use App\Http\Controllers\Admin\ArticleAdminController;
@@ -22,19 +22,20 @@ use App\Http\Controllers\Admin\ServiceAdminController;
 use App\Http\Controllers\Admin\SiteSettingAdminController;
 use App\Http\Controllers\Admin\TestimonialAdminController;
 use App\Http\Controllers\Admin\UserAdminController;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Builder\BuilderAiController;
 use App\Http\Controllers\Api\V1\Builder\BuilderPageController;
 use App\Http\Controllers\Api\V1\Builder\BuilderSavedSectionController;
 use App\Http\Controllers\Api\V1\Builder\BuilderTemplateController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Web\AboutController;
-use App\Http\Controllers\Web\PageBuilderController;
 use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\CareerController;
 use App\Http\Controllers\Web\ContactController;
 use App\Http\Controllers\Web\FaqController;
+use App\Http\Controllers\Web\GetStartedController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LegalPageController;
+use App\Http\Controllers\Web\PageBuilderController;
 use App\Http\Controllers\Web\PortfolioController;
 use App\Http\Controllers\Web\SaaSPlatformsController;
 use App\Http\Controllers\Web\ServiceController;
@@ -54,6 +55,11 @@ Route::get('/contact', [ContactController::class, 'create'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('contact.store');
+
+Route::get('/get-started', [GetStartedController::class, 'show'])->name('get-started');
+Route::post('/get-started', [GetStartedController::class, 'store'])
+    ->middleware('throttle:intake-minute')
+    ->name('get-started.store');
 Route::get('/careers', [CareerController::class, 'index'])->name('careers');
 Route::get('/faq', [FaqController::class, 'index'])->name('faq');
 Route::get('/privacy-policy', [LegalPageController::class, 'show'])->defaults('slug', 'privacy-policy')->name('privacy');
@@ -121,10 +127,12 @@ Route::middleware(['auth', 'blade.admin'])->prefix('admin')->name('admin.')->gro
     Route::get('/users/{user}/edit', [UserAdminController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}/roles', [UserAdminController::class, 'updateRoles'])->name('users.roles');
 
-    Route::get('/ai-builder-context', [AiBuilderBusinessProfileAdminController::class, 'edit'])
-        ->name('ai-builder-context.edit');
-    Route::put('/ai-builder-context', [AiBuilderBusinessProfileAdminController::class, 'update'])
-        ->name('ai-builder-context.update');
+    Route::middleware('can:builder.access')->group(function (): void {
+        Route::get('/ai-builder-context', [AiBuilderBusinessProfileAdminController::class, 'edit'])
+            ->name('ai-builder-context.edit');
+        Route::put('/ai-builder-context', [AiBuilderBusinessProfileAdminController::class, 'update'])
+            ->name('ai-builder-context.update');
+    });
 });
 
 Route::middleware(['web', 'auth', 'builder.access'])->group(function (): void {

@@ -33,6 +33,16 @@
 					@endforeach
 				</x-admin.select>
 				<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+					<div class="md:col-span-2 rounded-lg border border-zinc-100 bg-zinc-50/50 px-3 py-2 text-sm">
+						<p class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Source</p>
+						<p class="mt-1 font-medium text-zinc-800">{{ $lead->source ?: '—' }}</p>
+					</div>
+					@if ($lead->visitor_context)
+						<div class="md:col-span-2 rounded-lg border border-zinc-100 bg-zinc-50/50 px-3 py-2">
+							<p class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Visitor context</p>
+							<pre class="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-words font-mono text-xs text-zinc-700">{{ json_encode($lead->visitor_context, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}</pre>
+						</div>
+					@endif
 					<x-admin.input name="name" label="Name" value="{{ old('name', $lead->name) }}" />
 					<x-admin.input name="email" label="Email" type="email" value="{{ old('email', $lead->email) }}" />
 					<x-admin.input name="phone" label="Phone" value="{{ old('phone', $lead->phone) }}" />

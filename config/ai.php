@@ -6,6 +6,8 @@ return [
 
     'widget_agent_slug' => env('AI_WIDGET_AGENT_SLUG'),
 
+    'intake_agent_slug' => env('AI_INTAKE_AGENT_SLUG'),
+
     'max_message_length' => (int) env('AI_CHAT_MAX_MESSAGE_LENGTH', 8000),
 
     'default_openai_base' => 'https://api.openai.com/v1',

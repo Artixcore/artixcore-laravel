@@ -44,10 +44,12 @@ class AiChatService
             $channel
         );
 
+        $conversation->loadMissing(['lead', 'agent']);
+
         $messages = $this->buildTranscript($conversation);
         $messages[] = ['role' => 'user', 'content' => $userMessage];
 
-        $systemPrompt = $this->composeSystemPrompt($agent);
+        $systemPrompt = $this->composeSystemPrompt($agent, $conversation);
         $fullMessages = array_merge(
             [['role' => 'system', 'content' => $systemPrompt]],
             $messages
@@ -82,6 +84,46 @@ class AiChatService
             'conversation_public_id' => $conversation->public_id,
             'lead_hint' => $leadHint,
         ];
+    }
+
+    /**
+     * Generates and persists the first assistant message after an intake user message already exists.
+     *
+     * @throws LlmTransportException
+     */
+    public function generateOpeningAssistantReply(AiConversation $conversation): string
+    {
+        if (! config('ai.chat_enabled', true)) {
+            throw new LlmTransportException('AI chat is disabled.');
+        }
+
+        $conversation->loadMissing(['lead', 'agent']);
+        $agent = $conversation->agent;
+        if ($agent === null) {
+            throw new LlmTransportException('Agent is missing for this conversation.');
+        }
+
+        $messages = $this->buildTranscript($conversation);
+        $systemPrompt = $this->composeSystemPrompt($agent, $conversation);
+        $fullMessages = array_merge(
+            [['role' => 'system', 'content' => $systemPrompt]],
+            $messages
+        );
+
+        $result = $this->router->complete($fullMessages, $agent);
+
+        AiMessage::query()->create([
+            'ai_conversation_id' => $conversation->id,
+            'role' => 'assistant',
+            'content' => $result->content,
+            'provider_driver' => $result->providerDriver,
+            'prompt_tokens' => $result->promptTokens,
+            'completion_tokens' => $result->completionTokens,
+        ]);
+
+        $conversation->forceFill(['last_message_at' => now()])->save();
+
+        return $result->content;
     }
 
     /**
@@ -188,7 +230,7 @@ class AiChatService
         return $out;
     }
 
-    private function composeSystemPrompt(AiAgent $agent): string
+    private function composeSystemPrompt(AiAgent $agent, ?AiConversation $conversation = null): string
     {
         $parts = [
             'You are a professional business assistant for a website chat.',
@@ -221,6 +263,34 @@ class AiChatService
             $parts[] = 'Avoid discussing: '.$agent->forbidden_topics;
         }
         $parts[] = 'Focus mode: '.$agent->focus;
+
+        $lead = $conversation?->lead;
+        if ($lead !== null) {
+            $known = array_filter([
+                'Name' => $lead->name,
+                'Email' => $lead->email,
+                'Phone' => $lead->phone,
+            ], fn ($v) => is_string($v) && $v !== '');
+
+            if ($known !== []) {
+                $lines = [];
+                foreach ($known as $label => $value) {
+                    $lines[] = $label.': '.$value;
+                }
+                $parts[] = "The visitor already provided the following contact details—do not ask for them again unless they want to update:\n".implode("\n", $lines);
+            }
+
+            $schema = $agent->lead_capture_schema;
+            if (is_array($schema) && $schema !== []) {
+                $parts[] = 'Lead capture topics to explore naturally over the conversation (one at a time, conversational tone): '
+                    .json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            }
+        }
+
+        $meta = $conversation?->metadata;
+        if (is_array($meta) && ! empty($meta['intake'])) {
+            $parts[] = 'The visitor arrived from the website intake flow. Be calm, warm, and consultative—like a senior consultant. Ask one focused question at a time when exploring their needs.';
+        }
 
         return implode("\n\n", $parts);
     }

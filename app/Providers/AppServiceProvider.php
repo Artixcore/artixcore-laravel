@@ -49,6 +49,12 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute($perMinute)->by(sha1($request->ip().'|'.$token));
         });
 
+        RateLimiter::for('intake-minute', function (Request $request) {
+            $perMinute = max(1, min(120, (int) config('intake.per_minute', 8)));
+
+            return Limit::perMinute($perMinute)->by(sha1($request->ip()));
+        });
+
         RateLimiter::for('builder-ai-minute', function (Request $request) {
             $perMinute = 30;
             try {

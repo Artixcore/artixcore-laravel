@@ -13,6 +13,8 @@ export default defineConfig({
                 'resources/js/admin.js',
                 'resources/css/builder.css',
                 'resources/js/builder/main.jsx',
+                'resources/css/intake.css',
+                'resources/js/intake/main.jsx',
             ],
             refresh: true,
         }),

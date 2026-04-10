@@ -29,6 +29,7 @@
 					<th class="px-4 py-3 font-semibold">ID</th>
 					<th class="px-4 py-3 font-semibold">Name</th>
 					<th class="px-4 py-3 font-semibold">Email</th>
+					<th class="px-4 py-3 font-semibold">Source</th>
 					<th class="px-4 py-3 font-semibold">Status</th>
 					<th class="px-4 py-3 font-semibold">Created</th>
 					<th class="w-px px-4 py-3 font-semibold"><span class="sr-only">Actions</span></th>
@@ -40,6 +41,7 @@
 						<td class="px-4 py-3 font-mono text-xs">#{{ $lead->id }}</td>
 						<td class="px-4 py-3 text-sm">{{ $lead->name ?: '—' }}</td>
 						<td class="px-4 py-3 text-sm">{{ $lead->email ?: '—' }}</td>
+						<td class="px-4 py-3 text-xs text-zinc-600">{{ $lead->source ?: '—' }}</td>
 						<td class="px-4 py-3"><span class="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium capitalize">{{ $lead->status }}</span></td>
 						<td class="px-4 py-3 text-sm text-zinc-600">{{ $lead->created_at->diffForHumans() }}</td>
 						<td class="px-4 py-3 text-right">

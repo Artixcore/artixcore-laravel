@@ -206,7 +206,7 @@ class RolePermissionSeeder extends Seeder
                 'analytics_events.view',
             ]),
             'agentic_ai_admin' => $pick(array_merge(
-                ['filament.access'],
+                ['filament.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
                 $crud('ai_agents'),
                 $crud('ai_workflows'),
                 $crud('ai_runs'),
