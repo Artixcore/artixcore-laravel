@@ -66,7 +66,7 @@
 				<img
 					src="{{ asset('theme/images/bg/01.jpg') }}"
 					class="rounded artix-hero-photo"
-					alt=""
+					alt="{{ $site->site_name ?? 'Artixcore' }} — product engineering"
 					width="776"
 					height="582"
 					fetchpriority="high"
