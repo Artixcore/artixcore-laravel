@@ -1,0 +1,141 @@
+# DigitalOcean App Platform spec — import in control panel or deploy via doctl / GitHub Action.
+# Repo: https://github.com/Artixcore/artixcore-laravel
+#
+# After first deploy, set these in the control panel (Secrets):
+#   APP_KEY — php artisan key:generate --show (or generate in UI)
+#   (Optional) any OpenAI/AI, mail, Spaces keys
+#
+# Database bindables use the component name `artixcore-mysql` below. If you rename it, update
+# the DB_* values accordingly.
+#
+# App Platform scheduled jobs can run at most every 15 minutes. Laravel scheduler is invoked
+# on that cadence; do not expect true per-minute resolution for everyMinute() tasks on DO jobs.
+
+name: artixcore
+region: nyc
+features:
+  - buildpack-stack=ubuntu-22
+
+databases:
+  - name: artixcore-mysql
+    engine: MYSQL
+    version: "8"
+    production: false
+    db_name: artixcore
+    db_user: artixcore
+
+envs:
+  - key: APP_ENV
+    value: production
+    scope: RUN_TIME
+    type: GENERAL
+  - key: APP_DEBUG
+    value: "false"
+    scope: RUN_TIME
+    type: GENERAL
+  - key: APP_URL
+    value: ${APP_URL}
+    scope: RUN_AND_BUILD_TIME
+    type: GENERAL
+  - key: LOG_CHANNEL
+    value: stderr
+    scope: RUN_TIME
+    type: GENERAL
+  - key: TRUSTED_PROXIES
+    value: "*"
+    scope: RUN_TIME
+    type: GENERAL
+  - key: DB_CONNECTION
+    value: mysql
+    scope: RUN_TIME
+    type: GENERAL
+  # MySQL connection string (see DO bindable variables if this name differs for your engine version)
+  - key: DB_URL
+    value: ${artixcore-mysql.DATABASE_URL}
+    scope: RUN_TIME
+    type: GENERAL
+  - key: SESSION_DRIVER
+    value: database
+    scope: RUN_TIME
+    type: GENERAL
+  - key: CACHE_STORE
+    value: database
+    scope: RUN_TIME
+    type: GENERAL
+  - key: QUEUE_CONNECTION
+    value: database
+    scope: RUN_TIME
+    type: GENERAL
+  - key: SANCTUM_STATEFUL_DOMAINS
+    value: ${APP_DOMAIN}
+    scope: RUN_TIME
+    type: GENERAL
+  - key: FRONTEND_URL
+    value: ${APP_URL}
+    scope: RUN_TIME
+    type: GENERAL
+
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
+
+services:
+  - name: web
+    dockerfile_path: Dockerfile
+    github:
+      repo: Artixcore/artixcore-laravel
+      branch: main
+      deploy_on_push: true
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    run_command: sh -c "php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+    health_check:
+      http_path: /up
+      initial_delay_seconds: 45
+      period_seconds: 15
+      timeout_seconds: 5
+      failure_threshold: 5
+
+ingress:
+  rules:
+    - component:
+        name: web
+      match:
+        path:
+          prefix: /
+
+workers:
+  - name: queue
+    dockerfile_path: Dockerfile
+    github:
+      repo: Artixcore/artixcore-laravel
+      branch: main
+      deploy_on_push: true
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    run_command: php artisan queue:work database --sleep=3 --tries=3
+
+jobs:
+  - name: migrate
+    kind: PRE_DEPLOY
+    dockerfile_path: Dockerfile
+    github:
+      repo: Artixcore/artixcore-laravel
+      branch: main
+      deploy_on_push: true
+    instance_size_slug: basic-xxs
+    run_command: sh -c "php artisan migrate --force && (php artisan storage:link || true)"
+
+  - name: schedule
+    kind: SCHEDULED
+    schedule:
+      cron: "*/15 * * * *"
+      time_zone: UTC
+    dockerfile_path: Dockerfile
+    github:
+      repo: Artixcore/artixcore-laravel
+      branch: main
+      deploy_on_push: true
+    instance_size_slug: basic-xxs
+    run_command: php artisan schedule:run

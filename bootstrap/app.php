@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureBladeAdminAccess;
+use App\Http\Middleware\EnsureBuilderAccess;
 use App\Http\Middleware\OptionalSanctumAuth;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
@@ -18,10 +20,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $proxies = env('TRUSTED_PROXIES', '*');
+        $at = is_string($proxies) && $proxies !== '' && $proxies !== '*'
+            ? array_map(trim(...), explode(',', $proxies))
+            : '*';
+        $middleware->trustProxies(at: $at);
+
         $middleware->alias([
             'optional.sanctum' => OptionalSanctumAuth::class,
-            'blade.admin' => \App\Http\Middleware\EnsureBladeAdminAccess::class,
-            'builder.access' => \App\Http\Middleware\EnsureBuilderAccess::class,
+            'blade.admin' => EnsureBladeAdminAccess::class,
+            'builder.access' => EnsureBuilderAccess::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login'));

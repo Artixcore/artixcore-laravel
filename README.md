@@ -2,6 +2,8 @@
 
 A modern, high-performance Single Page Application (SPA) architecture for the Artixcore ecosystem. This project transforms a traditional Laravel-based UI into a scalable, responsive, and futuristic frontend powered by Next.js, TypeScript, and Tailwind CSS.
 
+For **how this repository is actually laid out today** (Laravel monolith, routes, admin surfaces, API), see [CONTEXT.md](CONTEXT.md).
+
 ---
 
 ## 📌 Overview
