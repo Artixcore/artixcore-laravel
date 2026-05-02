@@ -30,8 +30,8 @@ class MarketingBladeSeeder extends Seeder
         $settings = SiteSetting::instance();
         $settings->fill([
             'site_name' => $settings->site_name ?: 'Artixcore',
-            'default_meta_title' => $settings->default_meta_title ?: 'Artixcore — SaaS, AI, Web3 & custom software',
-            'default_meta_description' => $settings->default_meta_description ?: 'We build SaaS platforms, AI agent systems, mobile apps, Web3 integrations, and business automation for teams that need velocity and quality.',
+            'default_meta_title' => $settings->default_meta_title ?: config('marketing.homepage.meta_title'),
+            'default_meta_description' => $settings->default_meta_description ?: config('marketing.homepage.meta_description'),
             'contact_email' => $settings->contact_email ?: 'hello@artixcore.test',
             'homepage_content' => MarketingContent::mergeHomepage($settings->homepage_content),
             'about_content' => MarketingContent::mergeAbout($settings->about_content),

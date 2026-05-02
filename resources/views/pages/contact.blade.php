@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@section('meta_title', 'Contact — '.($site->site_name ?? 'Artixcore'))
+@section('meta_title', config('marketing.contact.meta_title'))
+@section('meta_description', config('marketing.contact.meta_description'))
+@section('og_title', config('marketing.contact.meta_title'))
+@section('og_description', config('marketing.contact.meta_description'))
 
 @section('content')
 <section class="pt-8 pb-5">

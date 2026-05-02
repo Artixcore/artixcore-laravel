@@ -10,7 +10,7 @@
 							<p class="mb-4">“{{ $t->body }}”</p>
 							<div class="d-flex align-items-center mt-auto">
 								@if($t->avatarMedia)
-									<img src="{{ $t->avatarMedia->absoluteUrl() }}" class="avatar avatar-md rounded-circle" alt="">
+									<img src="{{ $t->avatarMedia->absoluteUrl() }}" class="avatar avatar-md rounded-circle" alt="" loading="lazy" width="48" height="48">
 								@else
 									<div class="avatar avatar-md bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">{{ strtoupper(substr($t->author_name, 0, 1)) }}</div>
 								@endif

@@ -1,8 +1,10 @@
 @extends('layouts.app')
 
 @php $sp = $servicesPage; @endphp
-@section('meta_title', $sp['meta_title'] ?? ('Services — '.($site->site_name ?? 'Artixcore')))
-@section('meta_description', $sp['meta_description'] ?? ($site->default_meta_description ?? ''))
+@section('meta_title', $sp['meta_title'] ?? config('marketing.services.meta_title'))
+@section('meta_description', $sp['meta_description'] ?? config('marketing.services.meta_description'))
+@section('og_title', $sp['og_title'] ?? ($sp['meta_title'] ?? config('marketing.services.meta_title')))
+@section('og_description', $sp['og_description'] ?? ($sp['meta_description'] ?? config('marketing.services.meta_description')))
 
 @push('vendor_styles')
 <link rel="stylesheet" href="{{ asset('theme/vendor/aos/aos.css') }}">

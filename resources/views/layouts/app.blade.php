@@ -7,7 +7,22 @@
 	@if($description = trim($__env->yieldContent('meta_description', $site->default_meta_description ?? '')))
 		<meta name="description" content="{{ $description }}">
 	@endif
+	@php
+		$robots = trim($__env->yieldContent('meta_robots', 'index, follow'));
+	@endphp
+	@if($robots !== '')
+		<meta name="robots" content="{{ $robots }}">
+	@endif
+	@php
+		$keywords = $__env->hasSection('meta_keywords')
+			? trim($__env->yieldContent('meta_keywords'))
+			: trim((string) config('marketing.default_keywords', ''));
+	@endphp
+	@if($keywords !== '')
+		<meta name="keywords" content="{{ $keywords }}">
+	@endif
 	@include('partials.seo-head')
+	@include('partials.seo-jsonld')
 	@include('partials.seo-gtm-head')
 	@php
 		$faviconUploaded = $site->faviconMedia?->absoluteUrl();

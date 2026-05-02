@@ -5,7 +5,7 @@
 			<div class="col-lg-7" data-aos="fade-up">
 				<div class="row pe-xl-5">
 					<div class="col-sm-6">
-						<img src="{{ asset('theme/images/about/02.jpg') }}" class="rounded" alt="">
+						<img src="{{ asset('theme/images/about/02.jpg') }}" class="rounded w-100" alt="" loading="lazy" width="600" height="400">
 					</div>
 					<div class="col-sm-6">
 						<div class="row mb-4">
@@ -22,7 +22,7 @@
 								</div>
 							</div>
 						</div>
-						<img src="{{ asset('theme/images/about/01.jpg') }}" class="rounded" alt="">
+						<img src="{{ asset('theme/images/about/01.jpg') }}" class="rounded w-100" alt="" loading="lazy" width="600" height="400">
 					</div>
 				</div>
 			</div>

@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@section('meta_title', 'Portfolio — '.($site->site_name ?? 'Artixcore'))
+@section('meta_title', config('marketing.portfolio.meta_title'))
+@section('meta_description', config('marketing.portfolio.meta_description'))
+@section('og_title', config('marketing.portfolio.meta_title'))
+@section('og_description', config('marketing.portfolio.meta_description'))
 
 @section('content')
 <section class="pt-8 pb-5">

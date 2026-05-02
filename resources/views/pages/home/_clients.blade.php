@@ -9,7 +9,7 @@
 					<div class="swiper-wrapper align-items-center">
 						@foreach(['01','02','03','04','05'] as $c)
 							<div class="swiper-slide">
-								<img src="{{ asset('theme/images/client/'.$c.'.svg') }}" class="grayscale" alt="">
+								<img src="{{ asset('theme/images/client/'.$c.'.svg') }}" class="grayscale" alt="" loading="lazy" width="160" height="48">
 							</div>
 						@endforeach
 					</div>

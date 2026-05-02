@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
-@section('meta_title', trim(($site->site_name ?? 'Artixcore').' — Home'))
-@section('meta_description', $site->default_meta_description)
+@section('meta_title', config('marketing.homepage.meta_title'))
+@section('meta_description', config('marketing.homepage.meta_description'))
+@section('og_title', config('marketing.homepage.og_title'))
+@section('og_description', config('marketing.homepage.og_description'))
 
 @push('vendor_styles')
 <link rel="stylesheet" href="{{ asset('theme/vendor/aos/aos.css') }}">

@@ -1,0 +1,26 @@
+# Prevent directory listing & content negotiation
+Options -Indexes -MultiViews
+
+# --- Deny access to sensitive files ---
+<FilesMatch "(?i)^(\.env.*|\.git.*|\.htaccess|\.htpasswd|\.editorconfig|\.dockerignore|\.gitattributes|\.gitignore|composer\.(json|lock|phar)|package(-lock)?\.json|phpunit\.xml(\.dist)?|Dockerfile|artisan|.*\.(md|lock|ya?ml|sql|sh|log|cache|bak|old|swp|swo|tmp|orig|save|dist|example))$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Block any hidden dotfile/dir except .well-known
+RedirectMatch 403 ^/\.(?!well-known)
+
+# --- Block direct access to framework/app/config dirs ---
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor|node_modules|docs|\.do|\.git)(/|$) - [F,L]
+
+    # Forward everything else to /public (shared-hosting pattern)
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

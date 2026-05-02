@@ -3,6 +3,20 @@
         Options -MultiViews -Indexes
     </IfModule>
 
+    # Deny sensitive files inside the web root (defense in depth)
+    <FilesMatch "(?i)\.(md|lock|ya?ml|sql|sh|log|cache|bak|old|swp|swo|tmp|orig|save|dist|env|example)$">
+        <IfModule mod_authz_core.c>
+            Require all denied
+        </IfModule>
+        <IfModule !mod_authz_core.c>
+            Order allow,deny
+            Deny from all
+        </IfModule>
+    </FilesMatch>
+
+    # Block hidden dotfiles except .well-known (ACME challenges)
+    RedirectMatch 403 ^/\.(?!well-known)
+
     RewriteEngine On
 
     # Handle Authorization Header

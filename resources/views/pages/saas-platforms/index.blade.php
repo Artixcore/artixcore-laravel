@@ -1,8 +1,10 @@
 @extends('layouts.app')
 
 @php $p = $saasPage; @endphp
-@section('meta_title', $p['meta_title'] ?? ('SaaS Platforms — '.($site->site_name ?? 'Artixcore')))
-@section('meta_description', $p['meta_description'] ?? ($site->default_meta_description ?? ''))
+@section('meta_title', $p['meta_title'] ?? config('marketing.saas.meta_title'))
+@section('meta_description', $p['meta_description'] ?? config('marketing.saas.meta_description'))
+@section('og_title', $p['og_title'] ?? ($p['meta_title'] ?? config('marketing.saas.meta_title')))
+@section('og_description', $p['og_description'] ?? ($p['meta_description'] ?? config('marketing.saas.meta_description')))
 
 @push('vendor_styles')
 <link rel="stylesheet" href="{{ asset('theme/vendor/aos/aos.css') }}">
