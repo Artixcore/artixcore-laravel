@@ -1,7 +1,20 @@
 # syntax=docker/dockerfile:1
 # Production-oriented image for DigitalOcean App Platform (or any container host).
 # Serves the app with `php artisan serve` on the platform-provided $PORT (default 8080).
-
+#
+# -----------------------------------------------------------------------------
+# APP_KEY belongs in runtime environment variables (DigitalOcean Secrets), NOT in the image build
+#
+# Laravel uses APP_KEY for encryption (sessions, cookies, etc.). Generating it inside `docker build`
+# would bake a key into the image layer history, tie all replicas to one leaked/static key, and
+# prevent independent rotation per environment. DigitalOcean injects env at runtime; set APP_KEY there.
+#
+# Generate locally once per environment: `php artisan key:generate --show`
+# Paste the full `base64:...` value into App Platform as an encrypted SECRET named APP_KEY.
+#
+# Never run `php artisan` before `composer install`: artisan bootstraps via vendor/autoload.php.
+# -----------------------------------------------------------------------------
+#
 FROM node:20-bookworm-slim AS assets
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -26,13 +39,25 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# 1) Install Composer dependencies first so vendor/autoload.php exists before any artisan usage.
+#    --no-scripts skips post-install hooks that call `php artisan` before the full app tree is copied.
+COPY composer.json composer.lock ./
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction \
+    --prefer-dist \
+    --no-scripts
+
+# 2) Application source (see .dockerignore: vendor/, node_modules/, public/build excluded).
 COPY . .
+
+# 3) Vite production assets from the Node stage.
 COPY --from=assets /app/public/build ./public/build
 
-RUN cp .env.example .env \
-    && php artisan key:generate --force --no-interaction
-
-RUN composer install --no-dev --no-interaction --prefer-dist
+# 4) Regenerate optimized autoload now that app/, routes/, etc. are present (still no artisan).
+RUN composer dump-autoload --optimize --no-dev --no-interaction --no-scripts
 
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwx storage bootstrap/cache

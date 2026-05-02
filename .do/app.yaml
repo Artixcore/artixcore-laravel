@@ -1,9 +1,14 @@
 # DigitalOcean App Platform spec — import in control panel or deploy via doctl / GitHub Action.
 # Repo: https://github.com/Artixcore/artixcore-laravel
 #
-# After first deploy, set these in the control panel (Secrets):
-#   APP_KEY — php artisan key:generate --show (or generate in UI)
+# After first deploy, set these in the control panel (Secrets / encrypted env vars):
+#   APP_KEY (required) — base64 application key; generate locally: php artisan key:generate --show
+#     Do NOT rely on generating APP_KEY during Docker build; the Dockerfile does not run key:generate.
+#     Web service, queue worker, migrate job, and scheduler all need APP_KEY at RUN_TIME.
 #   (Optional) any OpenAI/AI, mail, Spaces keys
+#
+# Docker builds use only `docker build` from Dockerfile — there is no separate build_command that
+# runs artisan before Composer; avoid adding commands like `php artisan key:generate` before vendor/.
 #
 # Database bindables use the component name `artixcore-mysql` below. If you rename it, update
 # the DB_* values accordingly.
