@@ -24,6 +24,7 @@ RUN npm run build
 
 FROM php:8.3-cli-bookworm
 
+# exif: required by spatie/image / spatie/laravel-medialibrary (orientation/metadata).
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     libicu-dev \
@@ -31,7 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     zip \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install -j"$(nproc)" intl pdo_mysql opcache zip gd \
+    && docker-php-ext-install -j"$(nproc)" intl pdo_mysql opcache zip gd exif \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
