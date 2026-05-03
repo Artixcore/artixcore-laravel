@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\SeoSetting;
 use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class SeoSettingsService
@@ -70,9 +71,11 @@ class SeoSettingsService
     }
 
     /**
+     * Empty snapshot shaped like {@see snapshotFromDatabase()} for graceful degradation.
+     *
      * @return array<string, array<string, array{value: string, is_active: bool}>>
      */
-    public function snapshotFromDatabase(): array
+    private function emptyStructuredSnapshot(): array
     {
         $schema = self::keySchema();
         $out = [];
@@ -83,14 +86,32 @@ class SeoSettingsService
             }
         }
 
-        foreach (SeoSetting::query()->orderBy('platform')->orderBy('key')->get() as $row) {
-            if (! isset($out[$row->platform][$row->key])) {
-                continue;
+        return $out;
+    }
+
+    /**
+     * @return array<string, array<string, array{value: string, is_active: bool}>>
+     */
+    public function snapshotFromDatabase(): array
+    {
+        $out = $this->emptyStructuredSnapshot();
+
+        try {
+            if (! Schema::hasTable('seo_settings')) {
+                return $out;
             }
-            $out[$row->platform][$row->key] = [
-                'value' => (string) ($row->value ?? ''),
-                'is_active' => (bool) $row->is_active,
-            ];
+
+            foreach (SeoSetting::query()->orderBy('platform')->orderBy('key')->get() as $row) {
+                if (! isset($out[$row->platform][$row->key])) {
+                    continue;
+                }
+                $out[$row->platform][$row->key] = [
+                    'value' => (string) ($row->value ?? ''),
+                    'is_active' => (bool) $row->is_active,
+                ];
+            }
+        } catch (\Throwable) {
+            return $this->emptyStructuredSnapshot();
         }
 
         return $out;
@@ -103,12 +124,30 @@ class SeoSettingsService
      */
     public function cachedSnapshot(): array
     {
-        return Cache::remember(self::CACHE_KEY, self::CACHE_TTL_SECONDS, fn () => $this->snapshotFromDatabase());
+        try {
+            if (! Schema::hasTable('cache')) {
+                return $this->snapshotFromDatabase();
+            }
+
+            return Cache::remember(self::CACHE_KEY, self::CACHE_TTL_SECONDS, fn () => $this->snapshotFromDatabase());
+        } catch (\Throwable) {
+            try {
+                return $this->snapshotFromDatabase();
+            } catch (\Throwable) {
+                return $this->emptyStructuredSnapshot();
+            }
+        }
     }
 
     public function forgetCache(): void
     {
-        Cache::forget(self::CACHE_KEY);
+        try {
+            if (Schema::hasTable('cache')) {
+                Cache::forget(self::CACHE_KEY);
+            }
+        } catch (\Throwable) {
+            //
+        }
     }
 
     /**

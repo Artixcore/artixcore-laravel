@@ -16,7 +16,7 @@ class SaaSPlatformsController extends Controller
 {
     public function index(): View
     {
-        $settings = SiteSetting::instance();
+        $settings = SiteSetting::safeInstance();
         $saasPage = MarketingContent::mergeSaaSPage($settings->saas_page_content);
 
         $testimonials = collect();

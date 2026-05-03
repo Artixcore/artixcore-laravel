@@ -13,7 +13,7 @@ class ServiceController extends Controller
 {
     public function index(): View
     {
-        $settings = SiteSetting::instance();
+        $settings = SiteSetting::safeInstance();
         $servicesPage = MarketingContent::mergeServicesPage($settings->services_page_content);
 
         $testimonials = collect();

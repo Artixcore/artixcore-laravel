@@ -7,6 +7,7 @@ use App\Models\NavItem;
 use App\Models\NavMenu;
 use App\Models\Service;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class WebNavigationService
 {
@@ -15,22 +16,30 @@ class WebNavigationService
      */
     public function primaryLinks(): array
     {
-        $menu = NavMenu::query()->where('key', 'web_primary')->first();
-        if ($menu === null) {
+        try {
+            if (! Schema::hasTable('nav_menus') || ! Schema::hasTable('nav_items')) {
+                return $this->fallbackPrimary();
+            }
+
+            $menu = NavMenu::query()->where('key', 'web_primary')->first();
+            if ($menu === null) {
+                return $this->fallbackPrimary();
+            }
+
+            $roots = NavItem::query()
+                ->where('nav_menu_id', $menu->id)
+                ->whereNull('parent_id')
+                ->with(['children' => fn ($q) => $q->orderBy('sort_order')])
+                ->orderBy('sort_order')
+                ->get();
+
+            return $this->filterPublicTree($roots)
+                ->map(fn (NavItem $item): array => $this->toLinkArray($item))
+                ->values()
+                ->all();
+        } catch (\Throwable) {
             return $this->fallbackPrimary();
         }
-
-        $roots = NavItem::query()
-            ->where('nav_menu_id', $menu->id)
-            ->whereNull('parent_id')
-            ->with(['children' => fn ($q) => $q->orderBy('sort_order')])
-            ->orderBy('sort_order')
-            ->get();
-
-        return $this->filterPublicTree($roots)
-            ->map(fn (NavItem $item): array => $this->toLinkArray($item))
-            ->values()
-            ->all();
     }
 
     /**
@@ -39,45 +48,55 @@ class WebNavigationService
      */
     public function megaMenuContext(array $primaryLinks): array
     {
-        $needsServices = false;
-        $needsPortfolio = false;
-        foreach ($primaryLinks as $link) {
-            $mega = $link['mega'] ?? null;
-            if ($mega === 'services') {
-                $needsServices = true;
-            }
-            if ($mega === 'portfolio') {
-                $needsPortfolio = true;
-            }
-        }
-
-        $services = collect();
-        $articles = collect();
-        $caseStudies = collect();
-
-        if ($needsServices) {
-            $services = Service::query()
-                ->published()
-                ->with('featuredImageMedia')
-                ->orderBy('sort_order')
-                ->orderBy('title')
-                ->get();
-        }
-
-        if ($needsServices || $needsPortfolio) {
-            $caseStudies = CaseStudy::query()
-                ->published()
-                ->orderByDesc('featured')
-                ->orderByDesc('published_at')
-                ->take(3)
-                ->get();
-        }
-
-        return [
-            'services' => $services,
-            'articles' => $articles,
-            'caseStudies' => $caseStudies,
+        $empty = [
+            'services' => collect(),
+            'articles' => collect(),
+            'caseStudies' => collect(),
         ];
+
+        try {
+            $needsServices = false;
+            $needsPortfolio = false;
+            foreach ($primaryLinks as $link) {
+                $mega = $link['mega'] ?? null;
+                if ($mega === 'services') {
+                    $needsServices = true;
+                }
+                if ($mega === 'portfolio') {
+                    $needsPortfolio = true;
+                }
+            }
+
+            $services = collect();
+            $articles = collect();
+            $caseStudies = collect();
+
+            if ($needsServices && Schema::hasTable('services')) {
+                $services = Service::query()
+                    ->published()
+                    ->with('featuredImageMedia')
+                    ->orderBy('sort_order')
+                    ->orderBy('title')
+                    ->get();
+            }
+
+            if (($needsServices || $needsPortfolio) && Schema::hasTable('case_studies')) {
+                $caseStudies = CaseStudy::query()
+                    ->published()
+                    ->orderByDesc('featured')
+                    ->orderByDesc('published_at')
+                    ->take(3)
+                    ->get();
+            }
+
+            return [
+                'services' => $services,
+                'articles' => $articles,
+                'caseStudies' => $caseStudies,
+            ];
+        } catch (\Throwable) {
+            return $empty;
+        }
     }
 
     /**
@@ -85,29 +104,37 @@ class WebNavigationService
      */
     public function footerLinks(): array
     {
-        $menu = NavMenu::query()->where('key', 'footer')->first();
-        if ($menu === null) {
+        try {
+            if (! Schema::hasTable('nav_menus') || ! Schema::hasTable('nav_items')) {
+                return [];
+            }
+
+            $menu = NavMenu::query()->where('key', 'footer')->first();
+            if ($menu === null) {
+                return [];
+            }
+
+            $roots = NavItem::query()
+                ->where('nav_menu_id', $menu->id)
+                ->whereNull('parent_id')
+                ->orderBy('sort_order')
+                ->get();
+
+            return $this->filterPublicTree($roots)
+                ->map(function (NavItem $item): ?array {
+                    $url = $item->resolvedPath();
+                    if ($url === null || $url === '') {
+                        return null;
+                    }
+
+                    return ['label' => $item->label, 'url' => $url];
+                })
+                ->filter()
+                ->values()
+                ->all();
+        } catch (\Throwable) {
             return [];
         }
-
-        $roots = NavItem::query()
-            ->where('nav_menu_id', $menu->id)
-            ->whereNull('parent_id')
-            ->orderBy('sort_order')
-            ->get();
-
-        return $this->filterPublicTree($roots)
-            ->map(function (NavItem $item): ?array {
-                $url = $item->resolvedPath();
-                if ($url === null || $url === '') {
-                    return null;
-                }
-
-                return ['label' => $item->label, 'url' => $url];
-            })
-            ->filter()
-            ->values()
-            ->all();
     }
 
     /**

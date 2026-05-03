@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Schema;
 
 class SiteSetting extends Model
 {
@@ -44,6 +45,38 @@ class SiteSetting extends Model
         );
 
         return static::query()->whereKey(1)->firstOrFail();
+    }
+
+    /**
+     * Read-only safe singleton for public views: never throws when the table is missing or DB errors occur.
+     */
+    public static function safeInstance(): self
+    {
+        try {
+            if (! Schema::hasTable('site_settings')) {
+                return self::fallbackInstance();
+            }
+
+            return self::instance();
+        } catch (\Throwable) {
+            return self::fallbackInstance();
+        }
+    }
+
+    /**
+     * Unsaved defaults so Blade can use $site without null checks when CMS rows are unavailable.
+     */
+    private static function fallbackInstance(): self
+    {
+        $email = (string) config('app.contact_email', 'hello@artixcore.com');
+
+        return new self([
+            'site_name' => config('app.name', 'Artixcore'),
+            'default_meta_title' => config('marketing.homepage.meta_title'),
+            'default_meta_description' => config('marketing.homepage.meta_description'),
+            'contact_email' => $email,
+            'theme_default' => 'system',
+        ]);
     }
 
     /**

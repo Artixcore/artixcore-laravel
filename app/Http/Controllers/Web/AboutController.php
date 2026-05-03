@@ -11,7 +11,7 @@ class AboutController extends Controller
 {
     public function show(): View
     {
-        $settings = SiteSetting::instance();
+        $settings = SiteSetting::safeInstance();
         $about = MarketingContent::mergeAbout($settings->about_content);
 
         return view('pages.about', [

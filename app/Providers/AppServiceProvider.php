@@ -107,19 +107,35 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('*', function ($view): void {
-            $view->with('site', SiteSetting::instance());
+            $view->with('site', SiteSetting::safeInstance());
         });
 
         View::composer('layouts.app', function ($view): void {
-            $nav = app(WebNavigationService::class);
-            $primaryNavLinks = $nav->primaryLinks();
+            $primaryNavLinks = [];
+            $footerNavLinks = [];
+            $headerMegaContext = [
+                'services' => collect(),
+                'articles' => collect(),
+                'caseStudies' => collect(),
+            ];
+            try {
+                $nav = app(WebNavigationService::class);
+                $primaryNavLinks = $nav->primaryLinks();
+                $headerMegaContext = $nav->megaMenuContext($primaryNavLinks);
+                $footerNavLinks = $nav->footerLinks();
+            } catch (\Throwable) {
+                //
+            }
             $view->with('primaryNavLinks', $primaryNavLinks);
-            $view->with('headerMegaContext', $nav->megaMenuContext($primaryNavLinks));
-            $view->with('footerNavLinks', $nav->footerLinks());
+            $view->with('headerMegaContext', $headerMegaContext);
+            $view->with('footerNavLinks', $footerNavLinks);
 
-            $site = $view->getData()['site'] ?? SiteSetting::instance();
-            if ($site instanceof SiteSetting) {
+            /** @var SiteSetting $site */
+            $site = $view->getData()['site'] ?? SiteSetting::safeInstance();
+            try {
                 $site->loadMissing('ogDefaultMedia');
+            } catch (\Throwable) {
+                //
             }
             $seo = app(SeoSettingsService::class);
             $view->with('seoHead', $seo->resolvedHeadMeta($site));
