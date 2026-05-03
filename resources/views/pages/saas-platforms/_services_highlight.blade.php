@@ -13,9 +13,18 @@
 				<div class="col" data-aos="fade-up" data-aos-delay="{{ min($i * 50, 400) }}">
 					<div class="card card-hover-shadow border h-100 p-4 position-relative">
 						<div class="card-body p-0 d-flex flex-column">
+							@php $saasImgFallback = asset('theme/images/services/4by3/01.jpg'); @endphp
 							@if($service->featuredImageMedia)
 								<div class="mb-4 rounded overflow-hidden ratio ratio-16x9">
-									<img src="{{ $service->featuredImageMedia->absoluteUrl() }}" class="w-100 h-100 object-fit-cover" alt="">
+									<img
+										src="{{ $service->featuredImageMedia->absoluteUrl() }}"
+										class="w-100 h-100 object-fit-cover"
+										alt="{{ $service->title }}"
+										loading="lazy"
+										width="1200"
+										height="675"
+										onerror="this.onerror=null;this.src='{{ $saasImgFallback }}'"
+									>
 								</div>
 							@else
 								<figure class="text-primary mb-4">

@@ -31,6 +31,7 @@ class ProductionContentRepairSeeder extends Seeder
     {
         $settings = SiteSetting::instance();
 
+        $this->repairContactEmail($settings);
         $this->repairSiteMetaDefaults($settings);
         $settings->homepage_content = $this->repairedHomepage($settings->homepage_content);
         $settings->about_content = $this->repairedAbout($settings->about_content);
@@ -38,6 +39,14 @@ class ProductionContentRepairSeeder extends Seeder
         $settings->saas_page_content = $this->repairedSaaSPage($settings->saas_page_content);
 
         $settings->save();
+    }
+
+    private function repairContactEmail(SiteSetting $settings): void
+    {
+        $email = trim((string) ($settings->contact_email ?? ''));
+        if ($email === '' || str_ends_with($email, '@artixcore.test')) {
+            $settings->contact_email = 'hello@artixcore.com';
+        }
     }
 
     private function repairSiteMetaDefaults(SiteSetting $settings): void

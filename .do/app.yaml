@@ -94,7 +94,7 @@ services:
     http_port: 8080
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
-    run_command: sh -c "php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+    run_command: sh -c "php artisan storage:link --force >/dev/null 2>&1 || true; php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
     health_check:
       http_path: /up
       initial_delay_seconds: 45
@@ -119,7 +119,7 @@ workers:
       deploy_on_push: true
     instance_count: 1
     instance_size_slug: basic-xxs
-    run_command: php artisan queue:work database --sleep=3 --tries=3
+    run_command: sh -c "php artisan storage:link --force >/dev/null 2>&1 || true; php artisan queue:work database --sleep=3 --tries=3"
 
 jobs:
   - name: migrate
@@ -130,7 +130,7 @@ jobs:
       branch: main
       deploy_on_push: true
     instance_size_slug: basic-xxs
-    run_command: sh -c "php artisan migrate --force && (php artisan storage:link || true)"
+    run_command: sh -c "php artisan migrate --force && (php artisan storage:link --force || true)"
 
   - name: schedule
     kind: SCHEDULED

@@ -32,7 +32,7 @@ class MarketingBladeSeeder extends Seeder
             'site_name' => $settings->site_name ?: 'Artixcore',
             'default_meta_title' => $settings->default_meta_title ?: config('marketing.homepage.meta_title'),
             'default_meta_description' => $settings->default_meta_description ?: config('marketing.homepage.meta_description'),
-            'contact_email' => $settings->contact_email ?: 'hello@artixcore.test',
+            'contact_email' => $settings->contact_email ?: 'hello@artixcore.com',
             'homepage_content' => MarketingContent::mergeHomepage($settings->homepage_content),
             'about_content' => MarketingContent::mergeAbout($settings->about_content),
             'services_page_content' => MarketingContent::mergeServicesPage($settings->services_page_content),

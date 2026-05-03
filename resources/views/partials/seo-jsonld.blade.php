@@ -19,6 +19,17 @@
 		'url' => $homeUrl,
 		'description' => (string) config('marketing.organization.description', ''),
 	];
+	$contactEmail = trim((string) ($site->contact_email ?? ''));
+	if ($contactEmail !== '' && filter_var($contactEmail, FILTER_VALIDATE_EMAIL)) {
+		$organization['email'] = $contactEmail;
+		$organization['contactPoint'] = [[
+			'@type' => 'ContactPoint',
+			'contactType' => 'customer support',
+			'email' => $contactEmail,
+			'areaServed' => 'Worldwide',
+			'availableLanguage' => ['English'],
+		]];
+	}
 	if ($sameAs !== []) {
 		$organization['sameAs'] = $sameAs;
 	}
