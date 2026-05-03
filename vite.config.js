@@ -12,6 +12,8 @@ export default defineConfig({
                 'resources/js/lead.js',
                 'resources/css/admin.css',
                 'resources/js/admin.js',
+                'resources/js/auth-web.js',
+                'resources/js/master.js',
                 'resources/css/builder.css',
                 'resources/js/builder/main.jsx',
                 'resources/css/intake.css',

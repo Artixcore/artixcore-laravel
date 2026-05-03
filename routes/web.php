@@ -30,7 +30,13 @@ use App\Http\Controllers\Api\V1\Builder\BuilderAiController;
 use App\Http\Controllers\Api\V1\Builder\BuilderPageController;
 use App\Http\Controllers\Api\V1\Builder\BuilderSavedSectionController;
 use App\Http\Controllers\Api\V1\Builder\BuilderTemplateController;
-use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\Auth\EndUserAuthController;
+use App\Http\Controllers\Auth\MasterAuthController;
+use App\Http\Controllers\Master\MasterDashboardController;
+use App\Http\Controllers\Master\SecurityAccessControlController;
+use App\Http\Controllers\Web\FilamentLegacyController;
+use App\Http\Controllers\Web\PortalController;
 use App\Http\Controllers\Web\AboutController;
 use App\Http\Controllers\Web\ArticlePublicController;
 use App\Http\Controllers\Web\BlogController;
@@ -49,6 +55,9 @@ use App\Http\Controllers\Web\ServiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::any('/filament', FilamentLegacyController::class)->name('filament.legacy');
+Route::any('/filament/{path}', FilamentLegacyController::class)->where('path', '.*')->name('filament.legacy.sub');
 
 Route::redirect('/resources/articles', '/articles', 301);
 Route::redirect('/resources/case-studies', '/case-studies', 301);
@@ -96,13 +105,37 @@ Route::get('/privacy-policy', [LegalPageController::class, 'show'])->defaults('s
 Route::get('/terms-and-conditions', [LegalPageController::class, 'show'])->defaults('slug', 'terms-and-conditions')->name('terms');
 Route::get('/legal/{slug}', [LegalPageController::class, 'show'])->name('legal.show');
 
-Route::middleware('guest')->group(function (): void {
-    Route::get('/login', [LoginController::class, 'show'])->name('login');
-    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login-web');
+Route::middleware('login.guest')->group(function (): void {
+    Route::get('/login', [EndUserAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [EndUserAuthController::class, 'login'])->middleware('throttle:login-web')->name('login.submit');
 });
 
-Route::middleware(['auth', 'blade.admin'])->prefix('admin')->name('admin.')->group(function (): void {
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::middleware(['login.guest', 'admin.ip'])->group(function (): void {
+    Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
+    Route::post('/admin/login', [AdminAuthController::class, 'login'])
+        ->middleware('throttle:admin-login-web')
+        ->name('admin.login.submit');
+});
+
+Route::middleware(['login.guest', 'master.ip'])->group(function (): void {
+    Route::get('/master/login', [MasterAuthController::class, 'showLogin'])->name('master.login');
+    Route::post('/master/login', [MasterAuthController::class, 'login'])
+        ->middleware('throttle:master-login-web')
+        ->name('master.login.submit');
+});
+
+Route::middleware('auth')->group(function (): void {
+    Route::post('/logout', [EndUserAuthController::class, 'logout'])->name('logout');
+});
+
+Route::get('/dashboard', fn () => redirect()->route('portal'))->middleware('auth')->name('dashboard');
+
+Route::middleware(['auth', 'portal.user'])->group(function (): void {
+    Route::get('/portal', [PortalController::class, 'index'])->name('portal');
+});
+
+Route::middleware(['admin.ip', 'auth', 'blade.admin'])->prefix('admin')->name('admin.')->group(function (): void {
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/site-settings', [SiteSettingAdminController::class, 'edit'])->name('site-settings.edit');
@@ -174,6 +207,22 @@ Route::middleware(['auth', 'blade.admin'])->prefix('admin')->name('admin.')->gro
             ->name('ai-builder-context.edit');
         Route::put('/ai-builder-context', [AiBuilderBusinessProfileAdminController::class, 'update'])
             ->name('ai-builder-context.update');
+    });
+});
+
+Route::middleware(['master.ip', 'auth', 'master.panel'])->prefix('master')->name('master.')->group(function (): void {
+    Route::post('/logout', [MasterAuthController::class, 'logout'])->name('logout');
+    Route::get('/dashboard', [MasterDashboardController::class, 'index'])->name('dashboard');
+
+    Route::middleware('can:security.manage')->group(function (): void {
+        Route::get('/security/access-control', [SecurityAccessControlController::class, 'index'])
+            ->name('security.access-control');
+        Route::post('/security/access-control/ip-rules', [SecurityAccessControlController::class, 'store'])
+            ->name('security.ip-rules.store');
+        Route::patch('/security/access-control/ip-rules/{rule}', [SecurityAccessControlController::class, 'update'])
+            ->name('security.ip-rules.update');
+        Route::delete('/security/access-control/ip-rules/{rule}', [SecurityAccessControlController::class, 'destroy'])
+            ->name('security.ip-rules.destroy');
     });
 });
 

@@ -134,7 +134,48 @@ window.adminToast = function (message, type) {
     showToast(message, type === 'error' ? 'error' : 'success');
 };
 
+function initAdminAjaxForms() {
+    document.querySelectorAll('form[data-admin-ajax-form]').forEach((form) => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('[type="submit"]');
+            if (btn) btn.disabled = true;
+            try {
+                const fd = new FormData(form);
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': getCsrfToken(),
+                    },
+                    body: fd,
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.status === 422) {
+                    const msg = data.message || 'Validation failed.';
+                    showToast(msg, 'error');
+                    return;
+                }
+                if (!res.ok) {
+                    showToast(data.message || 'Request failed.', 'error');
+                    return;
+                }
+                showToast(data.message || 'Saved.', 'success');
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            } catch {
+                showToast('Network error.', 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
     initAdminDelete();
+    initAdminAjaxForms();
 });

@@ -18,7 +18,7 @@
 	<div class="grid gap-6 lg:grid-cols-2">
 		<x-admin.card>
 			<h3 class="mb-4 text-sm font-semibold text-zinc-900">Details</h3>
-			<form method="post" action="{{ route('admin.leads.update', $lead) }}" id="lead-form" class="space-y-4">
+			<form method="post" action="{{ route('admin.leads.update', $lead) }}" id="lead-form" class="space-y-4" data-admin-ajax-form>
 				@csrf
 				@method('PUT')
 				<x-admin.select name="status" label="Status" required>
@@ -111,25 +111,3 @@
 		</x-admin.card>
 	</div>
 @endsection
-
-@push('scripts')
-	<script>
-		$('#lead-form').on('submit', function (e) {
-			e.preventDefault();
-			var $f = $(this);
-			$.ajax({
-				url: $f.attr('action'),
-				type: 'POST',
-				data: $f.serialize(),
-				headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' },
-				success: function (res) {
-					adminToast(res.message || 'Saved.', 'success');
-				},
-				error: function (xhr) {
-					var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Could not save.';
-					adminToast(msg, 'error');
-				},
-			});
-		});
-	</script>
-@endpush

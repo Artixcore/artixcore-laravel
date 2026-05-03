@@ -69,8 +69,7 @@
 				</form>
 
 				<p class="mt-6 text-center text-xs text-slate-500">
-					Filament panel:
-					<a href="{{ url('/filament') }}" class="font-medium text-amber-400/90 underline-offset-2 hover:text-amber-300 hover:underline">/filament</a>
+					<a href="{{ route('home') }}" class="font-medium text-amber-400/90 underline-offset-2 hover:text-amber-300 hover:underline">Back to site</a>
 				</p>
 			</div>
 		</div>

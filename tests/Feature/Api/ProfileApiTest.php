@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
@@ -14,7 +15,7 @@ class ProfileApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function portalToken(string $email = 'client@artixcore.com', string $password = 'password123'): string
+    private function portalToken(string $email = 'client@artixcore.com', string $password = UserSeeder::PASSWORD): string
     {
         $this->seed();
 
@@ -93,7 +94,7 @@ class ProfileApiTest extends TestCase
         $token = $this->portalToken();
 
         $this->putJson('/api/v1/portal/profile/password', [
-            'current_password' => 'password123',
+            'current_password' => UserSeeder::PASSWORD,
             'password' => 'newpassword1',
             'password_confirmation' => 'newpassword1',
         ], [

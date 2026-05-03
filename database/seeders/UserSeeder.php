@@ -34,7 +34,8 @@ use Illuminate\Support\Str;
 class UserSeeder extends Seeder
 {
     /** @see docblock above — matches bootstrap accounts used in feature tests */
-    private const PASSWORD = 'Aws342hfskjdhrw##$%32432';
+    /** @internal Used by feature tests; matches seeded accounts */
+    public const PASSWORD = 'Aws342hfskjdhrw##$%32432';
 
     public function run(): void
     {

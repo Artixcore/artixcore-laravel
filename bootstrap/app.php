@@ -1,7 +1,12 @@
 <?php
 
+use App\Http\Middleware\EnsureAdminIpAllowed;
 use App\Http\Middleware\EnsureBladeAdminAccess;
 use App\Http\Middleware\EnsureBuilderAccess;
+use App\Http\Middleware\EnsureMasterAdmin;
+use App\Http\Middleware\EnsureMasterIpAllowed;
+use App\Http\Middleware\EnsurePortalUser;
+use App\Http\Middleware\RedirectAuthenticatedFromLoginPages;
 use App\Http\Middleware\OptionalSanctumAuth;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\ThrottleApiGuestOrUser;
@@ -10,6 +15,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -36,15 +42,42 @@ return Application::configure(basePath: dirname(__DIR__))
             'optional.sanctum' => OptionalSanctumAuth::class,
             'blade.admin' => EnsureBladeAdminAccess::class,
             'builder.access' => EnsureBuilderAccess::class,
+            'admin.ip' => EnsureAdminIpAllowed::class,
+            'master.ip' => EnsureMasterIpAllowed::class,
+            'master.panel' => EnsureMasterAdmin::class,
+            'portal.user' => EnsurePortalUser::class,
+            'login.guest' => RedirectAuthenticatedFromLoginPages::class,
         ]);
 
-        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectGuestsTo(function (Request $request): string {
+            if ($request->is('admin') || $request->is('admin/*')) {
+                return route('admin.login');
+            }
+
+            if ($request->is('master') || $request->is('master/*')) {
+                return route('master.login');
+            }
+
+            return route('login');
+        });
 
         $middleware->redirectUsersTo(function (): string {
             $user = Auth::user();
 
-            if ($user !== null && $user->can('filament.access')) {
+            if ($user === null) {
+                return Route::has('home') ? route('home') : '/';
+            }
+
+            if ($user->hasRole('master_admin')) {
+                return route('master.dashboard');
+            }
+
+            if ($user->can('admin.access')) {
                 return route('admin.dashboard');
+            }
+
+            if ($user->can('portal.access')) {
+                return route('portal');
             }
 
             return Route::has('home') ? route('home') : '/';

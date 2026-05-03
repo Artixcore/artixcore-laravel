@@ -30,6 +30,7 @@ class ThrottlePublicWebRequests
             'filament',
             'livewire',
             'admin',
+            'master',
             'builder',
             'builder-api',
             'sanctum',
@@ -41,7 +42,7 @@ class ThrottlePublicWebRequests
             }
         }
 
-        if ($path === 'up' || $path === 'health' || $path === 'login') {
+        if ($path === 'up' || $path === 'health' || $path === 'login' || $path === 'portal') {
             return true;
         }
 

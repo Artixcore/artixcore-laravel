@@ -27,6 +27,9 @@ class RolePermissionSeeder extends Seeder
         return array_values(array_unique(array_merge(
             [
                 'filament.access',
+                'admin.access',
+                'master.access',
+                'security.manage',
                 'builder.access',
                 'builder.publish',
                 'builder.ai.use',
@@ -100,6 +103,11 @@ class RolePermissionSeeder extends Seeder
             static fn (string $name): bool => $name !== 'portal.access'
         ));
 
+        $adminInternal = array_values(array_filter(
+            $internalAll,
+            static fn (string $name): bool => ! in_array($name, ['master.access', 'security.manage'], true)
+        ));
+
         $pick = static function (array $names) use ($all): array {
             return array_values(array_intersect($all, $names));
         };
@@ -114,9 +122,9 @@ class RolePermissionSeeder extends Seeder
 
         $roles = [
             'master_admin' => $internalAll,
-            'admin' => $internalAll,
+            'admin' => $adminInternal,
             'content_admin' => $pick(array_merge(
-                ['filament.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
+                ['admin.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
                 $crud('pages'),
                 $crud('page_blocks'),
                 $crud('nav_menus'),
@@ -148,7 +156,7 @@ class RolePermissionSeeder extends Seeder
                 ],
             )),
             'marketing_admin' => $pick(array_merge(
-                ['filament.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
+                ['admin.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
                 $crud('pages'),
                 $crud('page_blocks'),
                 $crud('nav_menus'),
@@ -184,12 +192,12 @@ class RolePermissionSeeder extends Seeder
                 ],
             )),
             'researcher_admin' => $pick(array_merge(
-                ['filament.access'],
+                ['admin.access'],
                 $crud('research_papers'),
                 ['articles.view_any', 'articles.view', 'pages.view_any', 'pages.view'],
             )),
             'designer_admin' => $pick(array_merge(
-                ['filament.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
+                ['admin.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
                 $crud('pages'),
                 $crud('page_blocks'),
                 $crud('nav_menus'),
@@ -198,26 +206,26 @@ class RolePermissionSeeder extends Seeder
                 $crud('media'),
             )),
             'developer_admin' => $pick(array_merge(
-                ['filament.access'],
+                ['admin.access'],
                 $crud('analytics_events'),
                 $crud('taxonomies'),
                 $crud('terms'),
                 ['pages.view_any', 'pages.view'],
             )),
             'engineer_admin' => $pick(array_merge(
-                ['filament.access'],
+                ['admin.access'],
                 $crud('analytics_events'),
                 $crud('taxonomies'),
                 $crud('terms'),
                 ['pages.view_any', 'pages.view'],
             )),
             'hr_admin' => $pick(array_merge(
-                ['filament.access'],
+                ['admin.access'],
                 $crud('team_profiles'),
                 ['pages.view_any', 'pages.view'],
             )),
             'support_admin' => $pick([
-                'filament.access',
+                'admin.access',
                 'users.view_any',
                 'users.view',
                 'analytics_events.view_any',
@@ -229,12 +237,12 @@ class RolePermissionSeeder extends Seeder
                 'ai_conversations.view',
             ]),
             'finance_admin' => $pick([
-                'filament.access',
+                'admin.access',
                 'analytics_events.view_any',
                 'analytics_events.view',
             ]),
             'agentic_ai_admin' => $pick(array_merge(
-                ['filament.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
+                ['admin.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
                 $crud('ai_agents'),
                 $crud('ai_workflows'),
                 $crud('ai_runs'),
@@ -249,7 +257,7 @@ class RolePermissionSeeder extends Seeder
             'end_user' => $pick(['portal.access']),
             'client' => $pick(['portal.access']),
             'article_writer' => $pick(array_merge(
-                ['filament.access', 'portal.access'],
+                ['admin.access', 'portal.access'],
                 $crud('articles'),
                 $crud('case_studies'),
                 $crud('market_updates'),

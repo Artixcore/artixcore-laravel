@@ -7,6 +7,19 @@
 		<x-slot:subtitle>Overview of your content and inbox</x-slot:subtitle>
 	</x-admin.page-header>
 
+	@if (! empty($overview))
+		<div class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+			<x-admin.card><p class="text-sm font-medium text-zinc-500">Leads</p><p class="mt-2 text-3xl font-semibold text-zinc-900">{{ $overview['leads_total'] }}</p></x-admin.card>
+			<x-admin.card><p class="text-sm font-medium text-zinc-500">New leads</p><p class="mt-2 text-3xl font-semibold text-zinc-900">{{ $overview['leads_new'] }}</p></x-admin.card>
+			<x-admin.card><p class="text-sm font-medium text-zinc-500">Services</p><p class="mt-2 text-3xl font-semibold text-zinc-900">{{ $overview['services'] }}</p></x-admin.card>
+			<x-admin.card><p class="text-sm font-medium text-zinc-500">Case studies</p><p class="mt-2 text-3xl font-semibold text-zinc-900">{{ $overview['case_studies'] }}</p></x-admin.card>
+			<x-admin.card><p class="text-sm font-medium text-zinc-500">Testimonials</p><p class="mt-2 text-3xl font-semibold text-zinc-900">{{ $overview['testimonials'] }}</p></x-admin.card>
+			<x-admin.card><p class="text-sm font-medium text-zinc-500">FAQs</p><p class="mt-2 text-3xl font-semibold text-zinc-900">{{ $overview['faqs'] }}</p></x-admin.card>
+			<x-admin.card><p class="text-sm font-medium text-zinc-500">Users</p><p class="mt-2 text-3xl font-semibold text-zinc-900">{{ $overview['users'] }}</p></x-admin.card>
+			<x-admin.card><p class="text-sm font-medium text-zinc-500">Articles (published / draft)</p><p class="mt-2 text-3xl font-semibold text-zinc-900">{{ $overview['articles_published'] }} / {{ $overview['articles_draft'] }}</p></x-admin.card>
+		</div>
+	@endif
+
 	<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
 		<x-admin.card>
 			<p class="text-sm font-medium text-zinc-500">Draft articles</p>

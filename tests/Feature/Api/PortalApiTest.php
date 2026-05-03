@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,7 +17,7 @@ class PortalApiTest extends TestCase
 
         $login = $this->postJson('/api/v1/auth/login', [
             'email' => 'client@artixcore.com',
-            'password' => 'password123',
+            'password' => UserSeeder::PASSWORD,
         ]);
 
         $login->assertOk()
@@ -47,7 +48,7 @@ class PortalApiTest extends TestCase
 
         $this->postJson('/api/v1/auth/login', [
             'email' => 'master@artixcore.com',
-            'password' => 'password123',
+            'password' => UserSeeder::PASSWORD,
         ])->assertStatus(403);
     }
 
@@ -61,7 +62,7 @@ class PortalApiTest extends TestCase
 
         $login = $this->postJson('/api/v1/auth/login', [
             'email' => 'master@artixcore.com',
-            'password' => 'password123',
+            'password' => UserSeeder::PASSWORD,
         ]);
 
         $login->assertOk();

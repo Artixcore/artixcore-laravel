@@ -10,7 +10,8 @@ class EnsureBladeAdminAccess
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user()?->can('filament.access')) {
+        $user = $request->user();
+        if ($user === null || ! $user->can('admin.access')) {
             abort(403);
         }
 

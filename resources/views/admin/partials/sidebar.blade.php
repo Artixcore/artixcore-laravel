@@ -210,8 +210,10 @@
             <x-admin.icon name="arrow-top-right-on-square" class="size-4 shrink-0 text-zinc-500" />
             <span class="admin-sidebar-footer-text">View site</span>
         </a>
-        <p class="text-center text-[11px] text-zinc-400 md:text-left">
-            <a href="{{ url('/filament') }}" class="hover:text-zinc-600">Filament</a>
-        </p>
+        @if (Route::has('master.dashboard') && auth()->user()?->hasRole('master_admin'))
+            <p class="text-center text-[11px] text-zinc-400 md:text-left">
+                <a href="{{ route('master.dashboard') }}" class="hover:text-zinc-600">Master admin</a>
+            </p>
+        @endif
     </div>
 </aside>

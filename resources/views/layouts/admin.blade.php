@@ -46,16 +46,7 @@
 		</main>
 	</div>
 </div>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script src="{{ asset('theme/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
-<script>
-(function () {
-	var token = document.querySelector('meta[name="csrf-token"]');
-	if (token && window.jQuery) {
-		jQuery.ajaxSetup({ headers: { 'X-CSRF-TOKEN': token.getAttribute('content') } });
-	}
-})();
-</script>
 @stack('scripts')
 </body>
 </html>

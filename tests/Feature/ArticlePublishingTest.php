@@ -111,7 +111,7 @@ class ArticlePublishingTest extends TestCase
 
     public function test_guest_cannot_access_article_admin(): void
     {
-        $this->get(route('admin.articles.index'))->assertRedirect(route('login'));
+        $this->get(route('admin.articles.index'))->assertRedirect(route('admin.login'));
     }
 
     public function test_admin_can_open_article_index(): void

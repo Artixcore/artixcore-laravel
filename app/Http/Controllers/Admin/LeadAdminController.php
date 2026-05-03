@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\Concerns\RespondsWithAdminJson;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\UpdateLeadRequest;
+use App\Http\Requests\Admin\LeadStatusUpdateRequest;
 use App\Models\Lead;
 use App\Models\User;
 use App\Services\Audit\ActivityLogger;
@@ -93,7 +93,7 @@ class LeadAdminController extends Controller
         ]);
     }
 
-    public function update(UpdateLeadRequest $request, Lead $lead): JsonResponse|RedirectResponse
+    public function update(LeadStatusUpdateRequest $request, Lead $lead): JsonResponse|RedirectResponse
     {
         $data = $request->validated();
         $lead->update($data);
