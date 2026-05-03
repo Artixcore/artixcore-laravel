@@ -26,7 +26,7 @@ class MarketUpdatePolicy
             return false;
         }
 
-        return ! $marketUpdate->published_at || $marketUpdate->published_at->lte(now());
+        return $marketUpdate->published_at !== null && $marketUpdate->published_at->lte(now());
     }
 
     public function publish(User $user, MarketUpdate $marketUpdate): bool

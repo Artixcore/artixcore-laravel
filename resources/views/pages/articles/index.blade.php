@@ -7,7 +7,7 @@
 
 @section('content')
 @php
-	$heroTitle = 'Insights for builders';
+	$heroTitle = 'Artixcore Articles';
 	$heroSub = 'Practical articles on AI, SaaS, engineering, and digital strategy.';
 @endphp
 <section class="position-relative overflow-hidden pt-8 pb-6 border-bottom">
@@ -96,7 +96,7 @@
 
 		@if($articles->isEmpty())
 			<div class="text-center py-5">
-				<h2 class="h5 mb-2">No articles yet</h2>
+				<h2 class="h5 mb-2">No articles have been published yet. Please check back soon.</h2>
 				<p class="text-muted mb-0">Try clearing filters or searching with different keywords.</p>
 			</div>
 		@else

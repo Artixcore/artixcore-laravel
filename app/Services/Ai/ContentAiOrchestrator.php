@@ -22,6 +22,7 @@ class ContentAiOrchestrator
         ?string $articleType,
         ?string $topic,
         bool $forceIntervals,
+        ?int $articleBatchLimit = null,
     ): array {
         $out = [
             'articles_created' => 0,
@@ -35,7 +36,7 @@ class ContentAiOrchestrator
         $runMarket = $only === null || $only === 'market-updates';
 
         if ($runArticles) {
-            $this->runArticles($dryRun, $articleType, $topic, $out);
+            $this->runArticles($dryRun, $articleType, $topic, $articleBatchLimit, $out);
         }
 
         if ($runCaseStudies) {
@@ -52,7 +53,7 @@ class ContentAiOrchestrator
     /**
      * @param  array{articles_created: int, case_studies_created: int, market_updates_created: int, errors: list<string>}  $out
      */
-    private function runArticles(bool $dryRun, ?string $articleType, ?string $topic, array &$out): void
+    private function runArticles(bool $dryRun, ?string $articleType, ?string $topic, ?int $articleBatchLimit, array &$out): void
     {
         if (! $this->articles->providerConfigured()) {
             ArticleGenerationLog::query()->create([
@@ -70,13 +71,16 @@ class ContentAiOrchestrator
         }
 
         $remaining = $this->articles->remainingDailySlots();
-        if ($remaining <= 0) {
+        $batchCap = $articleBatchLimit !== null ? max(0, $articleBatchLimit) : $remaining;
+        $toGenerate = min($remaining, $batchCap);
+
+        if ($toGenerate <= 0) {
             ArticleGenerationLog::query()->create([
                 'log_date' => now()->toDateString(),
                 'status' => 'skipped',
                 'content_type' => 'articles',
                 'article_type' => $articleType,
-                'error_message' => 'Daily limit reached.',
+                'error_message' => $remaining <= 0 ? 'Daily limit reached.' : 'Article batch limit is zero.',
                 'articles_created' => 0,
                 'records_created' => 0,
                 'metadata' => ['runner' => 'content:generate-ai'],
@@ -90,7 +94,7 @@ class ContentAiOrchestrator
         }
 
         $lastError = null;
-        for ($i = 0; $i < $remaining; $i++) {
+        for ($i = 0; $i < $toGenerate; $i++) {
             if ($this->articles->remainingDailySlots() <= 0) {
                 break;
             }

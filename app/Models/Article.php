@@ -150,10 +150,8 @@ class Article extends Model implements HasMedia
     {
         return $query
             ->where('status', self::STATUS_PUBLISHED)
-            ->where(function (Builder $q): void {
-                $q->whereNull('published_at')
-                    ->orWhere('published_at', '<=', now());
-            });
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now());
     }
 
     /**

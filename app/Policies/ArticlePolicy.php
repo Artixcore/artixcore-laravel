@@ -26,7 +26,7 @@ class ArticlePolicy
             return false;
         }
 
-        return ! $article->published_at || $article->published_at->lte(now());
+        return $article->published_at !== null && $article->published_at->lte(now());
     }
 
     public function publish(User $user, Article $article): bool

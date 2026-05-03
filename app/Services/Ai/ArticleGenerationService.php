@@ -123,8 +123,17 @@ class ArticleGenerationService
         $factCheckNotes = (string) ($payload['fact_check_notes'] ?? '');
         $readingMinutes = isset($payload['reading_time_minutes']) ? (int) $payload['reading_time_minutes'] : Article::estimateReadingMinutes($body);
 
-        $status = config('ai_articles.auto_publish', false) ? Article::STATUS_PUBLISHED : Article::STATUS_PENDING_REVIEW;
-        $publishedAt = $status === Article::STATUS_PUBLISHED ? now() : null;
+        $autoPublish = filter_var(config('ai_articles.auto_publish', false), FILTER_VALIDATE_BOOLEAN);
+        if ($autoPublish) {
+            $status = Article::STATUS_PUBLISHED;
+            $publishedAt = now();
+        } else {
+            $candidate = (string) config('ai_articles.default_status', Article::STATUS_PENDING_REVIEW);
+            $status = in_array($candidate, [Article::STATUS_DRAFT, Article::STATUS_PENDING_REVIEW], true)
+                ? $candidate
+                : Article::STATUS_PENDING_REVIEW;
+            $publishedAt = null;
+        }
 
         $article = Article::query()->create([
             'slug' => $slug,

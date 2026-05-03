@@ -16,6 +16,7 @@ class ArticleCategorySeeder extends Seeder
 {
     /**
      * Parent category name => child term names (optional).
+     * Slugs must be unique per taxonomy (global), including terms created by CaseStudyMarketTaxonomySeeder.
      *
      * @var array<string, list<string>>
      */
@@ -38,6 +39,19 @@ class ArticleCategorySeeder extends Seeder
         ];
     }
 
+    /**
+     * Display labels that would collide with existing category slugs (e.g. case study children).
+     *
+     * @var array<string, string>
+     */
+    private function parentSlugOverrides(): array
+    {
+        return [
+            'Quantum Computing' => 'quantum-computing-insights',
+            'Physics & Advanced Science' => 'physics-advanced-science-insights',
+        ];
+    }
+
     public function run(): void
     {
         $categoriesTax = Taxonomy::query()->updateOrCreate(
@@ -45,9 +59,12 @@ class ArticleCategorySeeder extends Seeder
             ['name' => 'Categories']
         );
 
+        $overrides = $this->parentSlugOverrides();
+
         foreach ($this->categoryTree() as $parentName => $children) {
+            $parentSlug = $overrides[$parentName] ?? Str::slug($parentName);
             $parent = Term::query()->updateOrCreate(
-                ['taxonomy_id' => $categoriesTax->id, 'slug' => Str::slug($parentName)],
+                ['taxonomy_id' => $categoriesTax->id, 'slug' => $parentSlug],
                 ['name' => $parentName, 'sort_order' => 0, 'parent_id' => null]
             );
 

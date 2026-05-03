@@ -15,6 +15,7 @@ class GenerateAiContentCommand extends Command
         {--only= : Limit to articles|case-studies|market-updates}
         {--type= : Article bucket (latest_discovery|today_trends|latest_tech) when generating articles}
         {--topic= : Optional topic hint}
+        {--count= : When generating articles, max drafts this run (capped by daily limit)}
         {--force-intervals : Ignore case study / market update spacing rules}';
 
     protected $description = 'Run Ali 1.0 schedulers: articles (daily cap), case studies & market updates (interval).';
@@ -26,6 +27,10 @@ class GenerateAiContentCommand extends Command
         $topic = $this->option('topic') ? (string) $this->option('topic') : null;
         $forcedType = $this->option('type') ? (string) $this->option('type') : null;
         $forceIntervals = (bool) $this->option('force-intervals');
+        $countOpt = $this->option('count');
+        $articleBatchLimit = ($only === null || $only === 'articles') && $countOpt !== null && $countOpt !== ''
+            ? max(0, (int) $countOpt)
+            : null;
 
         if ($only !== null && ! in_array($only, ['articles', 'case-studies', 'market-updates'], true)) {
             $this->error('Invalid --only value. Use articles, case-studies, or market-updates.');
@@ -39,7 +44,10 @@ class GenerateAiContentCommand extends Command
             $market = app(MarketUpdateGenerationService::class);
 
             if ($only === null || $only === 'articles') {
-                $this->info('Articles: remaining daily slots '.$articles->remainingDailySlots().' (provider '.($articles->providerConfigured() ? 'ok' : 'missing').').');
+                $rem = $articles->remainingDailySlots();
+                $cap = $articleBatchLimit !== null ? min($rem, $articleBatchLimit) : $rem;
+                $this->info('Articles: remaining daily slots '.$rem.' (provider '.($articles->providerConfigured() ? 'ok' : 'missing').').'
+                    .($articleBatchLimit !== null ? " Batch cap: {$cap}." : ''));
             }
             if ($only === null || $only === 'case-studies') {
                 $this->info('Case studies: enabled='.(config('ai_content.case_study.enabled') ? 'yes' : 'no')
@@ -55,7 +63,7 @@ class GenerateAiContentCommand extends Command
             return self::SUCCESS;
         }
 
-        $result = $orchestrator->run(false, $only, $forcedType, $topic, $forceIntervals);
+        $result = $orchestrator->run(false, $only, $forcedType, $topic, $forceIntervals, $articleBatchLimit);
 
         $this->info(sprintf(
             'Done — articles: %d, case studies: %d, market updates: %d.',

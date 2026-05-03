@@ -61,6 +61,23 @@ class ArticlePublishingTest extends TestCase
         $this->get(route('articles.show', 'secret-draft'))->assertNotFound();
     }
 
+    public function test_published_without_publish_timestamp_not_public(): void
+    {
+        Article::query()->create([
+            'slug' => 'scheduled-ish',
+            'title' => 'No timestamp',
+            'summary' => 'S',
+            'body' => '<p>X</p>',
+            'status' => Article::STATUS_PUBLISHED,
+            'published_at' => null,
+            'author_name' => 'Human',
+            'author_type' => Article::AUTHOR_TYPE_HUMAN,
+        ]);
+
+        $this->get(route('articles.show', 'scheduled-ish'))->assertNotFound();
+        $this->get(route('articles.index'))->assertOk();
+    }
+
     public function test_archived_article_not_public(): void
     {
         Article::query()->create([
@@ -106,5 +123,6 @@ class ArticlePublishingTest extends TestCase
     public function test_generate_ai_command_dry_run_does_not_require_api_key(): void
     {
         $this->artisan('articles:generate-ai', ['--dry-run' => true])->assertExitCode(0);
+        $this->artisan('articles:generate-ai', ['--dry-run' => true, '--count' => 2])->assertExitCode(0);
     }
 }

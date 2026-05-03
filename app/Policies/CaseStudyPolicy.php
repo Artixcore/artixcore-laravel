@@ -26,7 +26,7 @@ class CaseStudyPolicy
             return false;
         }
 
-        return ! $caseStudy->published_at || $caseStudy->published_at->lte(now());
+        return $caseStudy->published_at !== null && $caseStudy->published_at->lte(now());
     }
 
     public function publish(User $user, CaseStudy $caseStudy): bool
