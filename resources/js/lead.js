@@ -1,7 +1,12 @@
 /**
- * Lead form: AJAX submit + Turnstile explicit render (scoped reset; public marketing page only).
+ * Lead form: AJAX submit. Turnstile uses implicit rendering (.cf-turnstile); do not call turnstile.ready().
  */
 document.addEventListener('DOMContentLoaded', function () {
+    if (window.__artixcoreLeadFormBound) {
+        return;
+    }
+    window.__artixcoreLeadFormBound = true;
+
     const form = document.getElementById('lead-form');
     if (!form) {
         return;
@@ -23,51 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
         'cf-turnstile-response',
         'captcha',
     ];
-
-    initLeadTurnstileExplicit(captchaEl);
-
-    function initLeadTurnstileExplicit(el) {
-        if (!el || el.classList.contains('g-recaptcha') || !el.dataset.sitekey) {
-            return;
-        }
-
-        function renderWhenReady() {
-            if (el.dataset.turnstileWidgetId) {
-                return;
-            }
-            if (typeof window.turnstile === 'undefined' || typeof window.turnstile.ready !== 'function') {
-                return;
-            }
-            window.turnstile.ready(function () {
-                if (el.dataset.turnstileWidgetId) {
-                    return;
-                }
-                try {
-                    const wid = window.turnstile.render(el, {
-                        sitekey: el.dataset.sitekey,
-                        theme: el.dataset.theme || 'light',
-                    });
-                    if (wid) {
-                        el.dataset.turnstileWidgetId = String(wid);
-                    }
-                } catch (_) {
-                    /* ignore */
-                }
-            });
-        }
-
-        renderWhenReady();
-        if (!el.dataset.turnstileWidgetId) {
-            let attempts = 0;
-            const timer = window.setInterval(function () {
-                attempts += 1;
-                renderWhenReady();
-                if (el.dataset.turnstileWidgetId || attempts > 150) {
-                    window.clearInterval(timer);
-                }
-            }, 100);
-        }
-    }
 
     function clearErrors() {
         form.querySelectorAll('[data-error-for]').forEach((el) => {
@@ -150,22 +110,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         if (
-            captchaEl.dataset.sitekey &&
-            !captchaEl.classList.contains('g-recaptcha') &&
-            typeof window.turnstile !== 'undefined' &&
-            typeof window.turnstile.reset === 'function'
-        ) {
-            const wid = captchaEl.dataset.turnstileWidgetId;
-            try {
-                if (wid) {
-                    window.turnstile.reset(wid);
-                }
-            } catch (_) {
-                /* ignore */
-            }
-            return;
-        }
-        if (
             captchaEl.classList.contains('g-recaptcha') &&
             typeof window.grecaptcha !== 'undefined' &&
             typeof window.grecaptcha.reset === 'function'
@@ -175,6 +119,24 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (_) {
                 /* ignore */
             }
+            return;
+        }
+        if (
+            typeof window.turnstile === 'undefined' ||
+            typeof window.turnstile.reset !== 'function'
+        ) {
+            return;
+        }
+        const wid =
+            captchaEl.getAttribute('data-cf-widget-id') ||
+            captchaEl.getAttribute('cf-turnstile-widget-id') ||
+            captchaEl.dataset.cfWidgetId;
+        try {
+            if (wid) {
+                window.turnstile.reset(wid);
+            }
+        } catch (_) {
+            /* ignore */
         }
     }
 

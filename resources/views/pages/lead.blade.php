@@ -82,7 +82,18 @@
 						<div class="mb-3">
 							<span class="form-label d-block" id="lead-captcha-label">Verification <span class="text-danger">*</span></span>
 							@if ($captchaDriver === 'turnstile' && $turnstileSiteKey)
-								<div id="lead-captcha" data-sitekey="{{ $turnstileSiteKey }}" data-theme="light"></div>
+								<div
+									id="lead-captcha"
+									class="cf-turnstile"
+									data-sitekey="{{ $turnstileSiteKey }}"
+									data-theme="light"
+								></div>
+							@elseif ($captchaDriver === 'turnstile' && ! $turnstileSiteKey)
+								@if (app()->environment('local'))
+									<div class="alert alert-warning small mb-0" role="status">Set <code class="user-select-all">TURNSTILE_SITE_KEY</code> in <code>.env</code> for the captcha widget to appear.</div>
+								@else
+									<p class="text-muted small mb-0">Verification is temporarily unavailable. Please use the email above or try again later.</p>
+								@endif
 							@elseif ($captchaDriver === 'recaptcha_v2' && $recaptchaSiteKey)
 								<div id="lead-captcha" class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}"></div>
 							@else
@@ -107,12 +118,8 @@
 @endsection
 
 @push('scripts')
-@if (! $captchaBypass)
-	@if ($captchaDriver === 'turnstile' && $turnstileSiteKey)
-		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-	@elseif ($captchaDriver === 'recaptcha_v2' && $recaptchaSiteKey)
-		<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-	@endif
+@if (! $captchaBypass && $captchaDriver === 'recaptcha_v2' && $recaptchaSiteKey)
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 @endif
 @vite(['resources/js/lead.js'])
 @endpush

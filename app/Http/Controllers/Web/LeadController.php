@@ -24,6 +24,13 @@ class LeadController extends Controller
     {
         session()->put('lead_form_loaded_at', time());
 
+        $siteKey = (string) (config('services.turnstile.site_key') ?: config('captcha.turnstile.site_key', ''));
+        if (config('captcha.driver', 'turnstile') === 'turnstile'
+            && $siteKey === ''
+            && ! $this->captchaVerifier->allowsBypass()) {
+            Log::warning('Lead form: TURNSTILE_SITE_KEY is not configured; captcha widget will not render.');
+        }
+
         return view('pages.lead', [
             'captchaDriver' => config('captcha.driver', 'turnstile'),
             'turnstileSiteKey' => (string) (config('services.turnstile.site_key') ?: config('captcha.turnstile.site_key', '')),

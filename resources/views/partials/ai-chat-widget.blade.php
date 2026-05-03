@@ -156,7 +156,4 @@
 			});
 		})();
 	</script>
-	@if (config('captcha.driver') === 'turnstile' && $turnstileSiteKey !== '')
-		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-	@endif
 @endif
