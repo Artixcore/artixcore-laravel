@@ -39,6 +39,10 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
             ])
+            /*
+             * Filament login uses Livewire rate limiting (5 attempts / minute per IP on authenticate).
+             * Blade /login uses the login-web limiter in routes/web.php.
+             */
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

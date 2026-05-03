@@ -17,7 +17,7 @@ const QUICK_REPLIES = [
     "I'm exploring options — not sure where to start",
 ];
 
-function IntakeApp({ storeUrl, chatUrl }) {
+function IntakeApp({ storeUrl, chatUrl, captchaDriver, turnstileSiteKey }) {
     const visitorToken = useMemo(() => randomVisitorToken(), []);
     const [phase, setPhase] = useState('form');
     const [name, setName] = useState('');
@@ -68,6 +68,8 @@ function IntakeApp({ storeUrl, chatUrl }) {
                         locale: locale || null,
                     },
                     address_line_2: honeypot,
+                    'cf-turnstile-response':
+                        document.querySelector('[name="cf-turnstile-response"]')?.value ?? '',
                 }),
             });
             const json = await res.json().catch(() => ({}));
@@ -108,6 +110,8 @@ function IntakeApp({ storeUrl, chatUrl }) {
                         message: trimmed,
                         conversation_public_id: conversationId,
                         visitor_token: visitorToken,
+                        'cf-turnstile-response':
+                            document.querySelector('[name="cf-turnstile-response"]')?.value ?? '',
                     }),
                 });
                 const json = await res.json().catch(() => ({}));
@@ -209,6 +213,14 @@ function IntakeApp({ storeUrl, chatUrl }) {
                             />
                         </label>
                     </div>
+                    {captchaDriver === 'turnstile' && turnstileSiteKey ? (
+                        <div
+                            id="intake-form-turnstile"
+                            className="cf-turnstile mt-6 flex justify-center"
+                            data-sitekey={turnstileSiteKey}
+                            data-theme="light"
+                        />
+                    ) : null}
                     {error && phase === 'form' ? (
                         <p className="mt-4 text-sm text-red-600" role="alert">
                             {error}
@@ -332,5 +344,14 @@ const el = document.getElementById('intake-root');
 if (el) {
     const storeUrl = el.dataset.storeUrl ?? '';
     const chatUrl = el.dataset.chatUrl ?? '';
-    createRoot(el).render(<IntakeApp storeUrl={storeUrl} chatUrl={chatUrl} />);
+    const captchaDriver = el.dataset.captchaDriver ?? 'turnstile';
+    const turnstileSiteKey = el.dataset.turnstileSiteKey ?? '';
+    createRoot(el).render(
+        <IntakeApp
+            storeUrl={storeUrl}
+            chatUrl={chatUrl}
+            captchaDriver={captchaDriver}
+            turnstileSiteKey={turnstileSiteKey}
+        />
+    );
 }

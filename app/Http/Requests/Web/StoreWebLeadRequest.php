@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Web;
 
+use App\Http\Requests\Concerns\ValidatesTurnstileCaptcha;
 use App\Models\Lead;
-use App\Services\Captcha\CaptchaVerifier;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,9 +12,18 @@ use Illuminate\Validation\Rule;
 
 class StoreWebLeadRequest extends FormRequest
 {
+    use ValidatesTurnstileCaptcha;
+
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('website')) {
+            $this->throwDecoyLeadSuccess();
+        }
     }
 
     /**
@@ -22,57 +31,70 @@ class StoreWebLeadRequest extends FormRequest
      */
     public function rules(): array
     {
-        /** @var CaptchaVerifier $verifier */
-        $verifier = app(CaptchaVerifier::class);
-        $bypass = $verifier->allowsBypass();
-        $driver = (string) config('captcha.driver', 'turnstile');
-
-        $rules = [
+        return array_merge([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email:rfc,dns', 'max:190'],
             'phone' => ['nullable', 'string', 'max:40'],
             'service_type' => ['required', 'string', 'max:120', Rule::in(Lead::SERVICE_TYPES)],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
             'source' => ['nullable', 'string', 'max:64'],
-            'website' => ['prohibited'],
-            'captcha' => ['nullable', 'string', 'max:2000'],
-        ];
-
-        if (! $bypass) {
-            if ($driver === 'turnstile') {
-                $rules['cf-turnstile-response'] = ['required', 'string', 'max:2000'];
-            } else {
-                $rules['cf-turnstile-response'] = ['nullable', 'string', 'max:2000'];
-            }
-            if ($driver === 'recaptcha_v2') {
-                $rules['g-recaptcha-response'] = ['required', 'string', 'max:2000'];
-            } else {
-                $rules['g-recaptcha-response'] = ['nullable', 'string', 'max:2000'];
-            }
-        } else {
-            $rules['cf-turnstile-response'] = ['nullable', 'string', 'max:2000'];
-            $rules['g-recaptcha-response'] = ['nullable', 'string', 'max:2000'];
-        }
-
-        return $rules;
+            'website' => ['nullable', 'string', 'max:191'],
+        ], $this->captchaFieldRules());
     }
 
     public function withValidator($validator): void
     {
+        $this->registerCaptchaValidator($validator);
+
         $validator->after(function ($validator): void {
             if ($validator->errors()->isNotEmpty()) {
                 return;
             }
 
-            /** @var CaptchaVerifier $captcha */
-            $captcha = app(CaptchaVerifier::class);
-            if (! $captcha->verify($this)) {
-                $validator->errors()->add(
-                    'captcha',
-                    __('Captcha verification failed. Please try again.')
-                );
+            if ($this->shouldBypassFormTiming()) {
+                return;
+            }
+
+            $loaded = session('lead_form_loaded_at');
+            if ($loaded !== null && is_numeric($loaded)) {
+                $elapsed = time() - (int) $loaded;
+                if ($elapsed < (int) config('rate_limiting.form_timing_min_seconds', 2)) {
+                    $this->throwDecoyLeadSuccess();
+                }
             }
         });
+    }
+
+    private function shouldBypassFormTiming(): bool
+    {
+        if (app()->environment('testing')) {
+            return true;
+        }
+
+        return (bool) config('rate_limiting.form_timing_bypass', false);
+    }
+
+    /**
+     * @return never
+     */
+    private function throwDecoyLeadSuccess(): void
+    {
+        if ($this->expectsJson()) {
+            throw new HttpResponseException(response()->json([
+                'ok' => true,
+                'message' => __('Thank you for contacting Artixcore.'),
+                'lead' => [
+                    'name' => '',
+                    'email' => '',
+                ],
+            ], 200));
+        }
+
+        throw new HttpResponseException(
+            redirect()
+                ->route('lead')
+                ->with('status', __('Thanks — we received your project request and will get back to you soon.'))
+        );
     }
 
     protected function failedValidation(Validator $validator): void

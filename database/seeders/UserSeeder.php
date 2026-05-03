@@ -33,7 +33,7 @@ use Illuminate\Support\Str;
  */
 class UserSeeder extends Seeder
 {
-    private const PASSWORD = 'password123';
+    private const PASSWORD = 'Aws@@33@@44##ff$%w3fdjrhwjx298389#';
 
     public function run(): void
     {

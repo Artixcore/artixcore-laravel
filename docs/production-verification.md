@@ -51,6 +51,14 @@ Set in the App Platform UI (or bind from secrets):
 | `ASSET_URL` | Optional; leave empty unless using a separate asset CDN |
 | `DB_URL` | From managed MySQL bindable (see `.do/app.yaml`) |
 | `TRUSTED_PROXIES` | `*` (behind DO load balancer) |
+| `SESSION_SECURE_COOKIE` | `true` (HTTPS site) |
+| `SESSION_HTTP_ONLY` | `true` |
+| `SESSION_SAME_SITE` | `lax` (typical) |
+| `TURNSTILE_SITE_KEY` | Public widget key (Cloudflare Turnstile) |
+| `TURNSTILE_SECRET_KEY` | Server-side verify secret |
+| `TURNSTILE_BYPASS` | `false` in production |
+
+Optional tuning (see `config/rate_limiting.php`): `RATE_LIMIT_PUBLIC_PER_MINUTE`, `RATE_LIMIT_FORMS_PER_MINUTE`, `RATE_LIMIT_LOGIN_PER_MINUTE`, `RATE_LIMIT_AI_CHAT_PER_MINUTE`, `RATE_LIMIT_API_*`, `RATE_LIMIT_ANALYTICS_PER_MINUTE`.
 
 ## Contact email checks
 

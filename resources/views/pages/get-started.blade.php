@@ -9,5 +9,7 @@
 		class="intake-root"
 		data-store-url="{{ route('get-started.store') }}"
 		data-chat-url="{{ url('/api/v1/ai/chat') }}"
+		data-captcha-driver="{{ config('captcha.driver', 'turnstile') }}"
+		data-turnstile-site-key="{{ config('captcha.turnstile.site_key', '') }}"
 	></div>
 @endsection

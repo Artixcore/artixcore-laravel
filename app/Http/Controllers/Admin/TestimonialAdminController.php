@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Testimonial;
+use App\Services\HtmlSanitizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -64,7 +65,7 @@ class TestimonialAdminController extends Controller
      */
     private function validated(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'author_name' => ['required', 'string', 'max:255'],
             'role' => ['nullable', 'string', 'max:255'],
             'company' => ['nullable', 'string', 'max:255'],
@@ -73,6 +74,12 @@ class TestimonialAdminController extends Controller
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_published' => ['sometimes', 'boolean'],
         ]) + ['is_published' => $request->boolean('is_published')];
+
+        if (isset($data['body']) && is_string($data['body'])) {
+            $data['body'] = app(HtmlSanitizer::class)->sanitize($data['body']);
+        }
+
+        return $data;
     }
 
     private function respond(Request $request, string $message, string $redirect): JsonResponse|RedirectResponse

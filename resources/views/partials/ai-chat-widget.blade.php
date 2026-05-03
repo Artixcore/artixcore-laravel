@@ -1,5 +1,6 @@
 @php
 	$slug = config('ai.widget_agent_slug');
+	$turnstileSiteKey = (string) config('captcha.turnstile.site_key', '');
 @endphp
 @if (is_string($slug) && $slug !== '' && config('ai.chat_enabled', true))
 	<div
@@ -8,6 +9,7 @@
 		data-agent-slug="{{ $slug }}"
 		data-chat-url="{{ url('/api/v1/ai/chat') }}"
 		data-profile-url="{{ url('/api/v1/ai/agents/'.$slug.'/profile') }}"
+		data-turnstile-site-key="{{ $turnstileSiteKey }}"
 	>
 		<div
 			id="ai-chat-panel"
@@ -20,6 +22,14 @@
 				<button type="button" id="ai-chat-close" class="rounded-lg p-1 text-zinc-500 hover:bg-zinc-100" aria-label="Close">&times;</button>
 			</div>
 			<div id="ai-chat-messages" class="max-h-72 space-y-3 overflow-y-auto px-4 py-3 text-sm"></div>
+			@if (config('captcha.driver') === 'turnstile' && $turnstileSiteKey !== '')
+				<div
+					id="ai-chat-turnstile"
+					class="cf-turnstile border-t border-zinc-100 px-4 py-3"
+					data-sitekey="{{ $turnstileSiteKey }}"
+					data-theme="light"
+				></div>
+			@endif
 			<form id="ai-chat-form" class="border-t border-zinc-100 p-3">
 				<label class="sr-only" for="ai-chat-input">Message</label>
 				<textarea
@@ -106,6 +116,18 @@
 				if (!text) return;
 				append('user', text);
 				input.value = '';
+				var chatPayload = {
+					agent_slug: slug,
+					message: text,
+					conversation_public_id: convId,
+					visitor_token: visitorToken(),
+				};
+				if (!convId) {
+					var tsEl = document.querySelector('#ai-chat-widget-root [name="cf-turnstile-response"]');
+					if (tsEl && tsEl.value) {
+						chatPayload['cf-turnstile-response'] = tsEl.value;
+					}
+				}
 				fetch(chatUrl, {
 					method: 'POST',
 					headers: {
@@ -113,12 +135,7 @@
 						'Content-Type': 'application/json',
 						'X-Requested-With': 'XMLHttpRequest',
 					},
-					body: JSON.stringify({
-						agent_slug: slug,
-						message: text,
-						conversation_public_id: convId,
-						visitor_token: visitorToken(),
-					}),
+					body: JSON.stringify(chatPayload),
 				})
 					.then(function (r) {
 						return r.json().then(function (j) {
@@ -139,4 +156,7 @@
 			});
 		})();
 	</script>
+	@if (config('captcha.driver') === 'turnstile' && $turnstileSiteKey !== '')
+		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+	@endif
 @endif

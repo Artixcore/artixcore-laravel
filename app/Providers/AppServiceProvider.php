@@ -36,8 +36,37 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
 
+        RateLimiter::for('public-web', function (Request $request) {
+            $perMinute = max(1, (int) config('rate_limiting.public_web_per_minute', 120));
+
+            return Limit::perMinute($perMinute)->by(sha1((string) $request->ip()));
+        });
+
+        RateLimiter::for('lead-forms', function (Request $request) {
+            $perMinute = max(1, (int) config('rate_limiting.forms_per_minute', 5));
+            $email = strtolower((string) $request->input('email', ''));
+
+            return [
+                Limit::perMinute($perMinute)->by(sha1((string) $request->ip())),
+                Limit::perMinute($perMinute)->by(sha1((string) $request->ip().'|'.$email)),
+            ];
+        });
+
+        RateLimiter::for('login-web', function (Request $request) {
+            $perMinute = max(1, (int) config('rate_limiting.login_per_minute', 5));
+            $email = strtolower((string) $request->input('email', ''));
+
+            return Limit::perMinute($perMinute)->by(sha1((string) $request->ip().'|'.$email));
+        });
+
+        RateLimiter::for('analytics-ingest', function (Request $request) {
+            $perMinute = max(1, (int) config('rate_limiting.analytics_per_minute', 60));
+
+            return Limit::perMinute($perMinute)->by(sha1((string) $request->ip()));
+        });
+
         RateLimiter::for('ai-chat-minute', function (Request $request) {
-            $perMinute = 20;
+            $perMinute = (int) config('rate_limiting.ai_chat_per_minute', 10);
             try {
                 $perMinute = (int) PlatformSecuritySetting::instance()->chat_rate_limit_per_minute;
             } catch (\Throwable) {

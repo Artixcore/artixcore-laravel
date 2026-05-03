@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Faq;
+use App\Services\HtmlSanitizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -63,7 +64,7 @@ class FaqAdminController extends Controller
      */
     private function validated(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'question' => ['required', 'string', 'max:500'],
             'answer' => ['required', 'string', 'max:10000'],
             'sort_order' => ['required', 'integer', 'min:0'],
@@ -75,6 +76,12 @@ class FaqAdminController extends Controller
             'show_on_general_faq' => $request->boolean('show_on_general_faq'),
             'show_on_saas_page' => $request->boolean('show_on_saas_page'),
         ];
+
+        if (isset($data['answer']) && is_string($data['answer'])) {
+            $data['answer'] = app(HtmlSanitizer::class)->sanitize($data['answer']);
+        }
+
+        return $data;
     }
 
     private function respond(Request $request, string $message, string $redirect): JsonResponse|RedirectResponse

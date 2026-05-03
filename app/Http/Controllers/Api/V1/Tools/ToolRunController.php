@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Tools;
 
 use App\Http\Controllers\Controller;
 use App\Models\MicroTool;
+use App\Services\Tools\ToolRunInputAllowlist;
 use App\Services\Tools\ToolRunService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,16 +13,19 @@ use Throwable;
 
 class ToolRunController extends Controller
 {
-    public function __construct(private ToolRunService $toolRuns) {}
+    public function __construct(
+        private ToolRunService $toolRuns,
+        private ToolRunInputAllowlist $inputAllowlist,
+    ) {}
 
     public function __invoke(Request $request, string $slug): JsonResponse
     {
         $tool = MicroTool::query()->active()->where('slug', $slug)->firstOrFail();
 
-        $input = $request->all();
-        if (! is_array($input)) {
-            $input = [];
-        }
+        $raw = $request->all();
+        $input = is_array($raw)
+            ? $this->inputAllowlist->filter($tool->slug, $raw)
+            : [];
 
         $user = $request->user('sanctum');
 

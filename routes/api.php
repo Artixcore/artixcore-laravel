@@ -70,7 +70,7 @@ Route::prefix('v1')->group(function (): void {
         ->name('api.v1.meta.block-types');
 
     Route::post('/contact', [ContactController::class, 'store'])
-        ->middleware('throttle:10,1');
+        ->middleware('throttle:lead-forms');
 
     Route::get('/navigation', NavigationController::class);
 
@@ -97,7 +97,7 @@ Route::prefix('v1')->group(function (): void {
     Route::get('/trending', TrendingController::class);
 
     Route::post('/analytics/events', [AnalyticsEventController::class, 'store'])
-        ->middleware('throttle:60,1');
+        ->middleware('throttle:analytics-ingest');
 
     Route::get('/tools', [ToolCatalogController::class, 'index'])->name('api.v1.tools.index');
     Route::get('/tools/session', ToolSessionController::class)

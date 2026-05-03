@@ -3,6 +3,9 @@
 use App\Http\Middleware\EnsureBladeAdminAccess;
 use App\Http\Middleware\EnsureBuilderAccess;
 use App\Http\Middleware\OptionalSanctumAuth;
+use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\ThrottleApiGuestOrUser;
+use App\Http\Middleware\ThrottlePublicWebRequests;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -33,6 +36,16 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login'));
+
+        $middleware->appendToGroup('web', [
+            ThrottlePublicWebRequests::class,
+            SecurityHeaders::class,
+        ]);
+
+        $middleware->appendToGroup('api', [
+            ThrottleApiGuestOrUser::class,
+            SecurityHeaders::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

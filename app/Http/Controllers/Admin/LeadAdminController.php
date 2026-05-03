@@ -52,8 +52,21 @@ class LeadAdminController extends Controller
             });
         }
 
+        $allowedSorts = ['created_at', 'updated_at', 'submitted_at'];
+        $sort = $request->query('sort');
+        $sort = is_string($sort) && in_array($sort, $allowedSorts, true) ? $sort : null;
+
+        $direction = strtolower((string) $request->query('direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        if ($sort === 'created_at' || $sort === 'updated_at') {
+            $base->orderBy($sort, $direction);
+        } elseif ($sort === 'submitted_at') {
+            $base->orderByRaw('COALESCE(submitted_at, created_at) '.$direction);
+        } else {
+            $base->orderByRaw('COALESCE(submitted_at, created_at) DESC');
+        }
+
         $leads = $base
-            ->orderByRaw('COALESCE(submitted_at, created_at) DESC')
             ->paginate(30)
             ->withQueryString();
 

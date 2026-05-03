@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CaseStudy;
+use App\Services\HtmlSanitizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -69,7 +70,7 @@ class CaseStudyAdminController extends Controller
      */
     private function validated(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'slug' => [
                 'nullable',
@@ -86,6 +87,12 @@ class CaseStudyAdminController extends Controller
             'featured' => ['sometimes', 'boolean'],
             'published_at' => ['nullable', 'date'],
         ]) + ['featured' => $request->boolean('featured')];
+
+        if (isset($data['body']) && is_string($data['body'])) {
+            $data['body'] = app(HtmlSanitizer::class)->sanitize($data['body']);
+        }
+
+        return $data;
     }
 
     private function respond(Request $request, string $message, string $redirect): JsonResponse|RedirectResponse

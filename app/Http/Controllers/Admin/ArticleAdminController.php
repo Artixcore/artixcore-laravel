@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Taxonomy;
 use App\Models\Term;
+use App\Services\HtmlSanitizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -120,7 +121,13 @@ class ArticleAdminController extends Controller
             'term_ids.*' => ['integer', 'exists:terms,id'],
         ];
 
-        return $request->validate($rules) + ['featured' => $request->boolean('featured')];
+        $data = $request->validate($rules) + ['featured' => $request->boolean('featured')];
+
+        if (isset($data['body']) && is_string($data['body'])) {
+            $data['body'] = app(HtmlSanitizer::class)->sanitize($data['body']);
+        }
+
+        return $data;
     }
 
     private function respond(Request $request, string $message, string $redirect): JsonResponse|RedirectResponse

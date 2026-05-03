@@ -22,6 +22,8 @@ class LeadController extends Controller
 
     public function create(): View
     {
+        session()->put('lead_form_loaded_at', time());
+
         return view('pages.lead', [
             'captchaDriver' => config('captcha.driver', 'turnstile'),
             'turnstileSiteKey' => config('captcha.turnstile.site_key', ''),
