@@ -199,6 +199,7 @@ class WebNavigationService
             ['label' => 'Services', 'url' => '/services', 'children' => [], 'mega' => 'services'],
             ['label' => 'SaaS Platforms', 'url' => '/saas-platforms', 'children' => [], 'mega' => null],
             ['label' => 'Portfolio', 'url' => '/portfolio', 'children' => [], 'mega' => 'portfolio'],
+            ['label' => 'Articles', 'url' => '/articles', 'children' => [], 'mega' => null],
             ['label' => 'About', 'url' => '/about', 'children' => [], 'mega' => null],
         ];
     }
