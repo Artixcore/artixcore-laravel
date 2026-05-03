@@ -11,17 +11,18 @@ return new class extends Migration
         if (! Schema::hasTable('content_relations')) {
             Schema::create('content_relations', function (Blueprint $table): void {
                 $table->id();
-                $table->string('source_type');
+                $table->string('source_type', 100);
                 $table->unsignedBigInteger('source_id');
-                $table->string('related_type');
+                $table->string('related_type', 100);
                 $table->unsignedBigInteger('related_id');
-                $table->string('relation_type')->nullable();
+                $table->string('relation_type', 80)->nullable();
                 $table->unsignedInteger('sort_order')->default(0);
                 $table->boolean('is_featured')->default(false);
                 $table->timestamps();
 
-                $table->index(['source_type', 'source_id']);
-                $table->index(['related_type', 'related_id']);
+                $table->index(['source_type', 'source_id'], 'content_relations_source_index');
+                $table->index(['related_type', 'related_id'], 'content_relations_related_index');
+                $table->index('relation_type', 'content_relations_relation_type_index');
                 $table->unique(
                     ['source_type', 'source_id', 'related_type', 'related_id', 'relation_type'],
                     'content_relations_unique_link'
@@ -33,7 +34,9 @@ return new class extends Migration
             Schema::create('faqables', function (Blueprint $table): void {
                 $table->id();
                 $table->foreignId('faq_id')->constrained('faqs')->cascadeOnDelete();
-                $table->morphs('faqable');
+                $table->string('faqable_type', 100);
+                $table->unsignedBigInteger('faqable_id');
+                $table->index(['faqable_type', 'faqable_id'], 'faqables_faqable_type_faqable_id_index');
                 $table->unsignedInteger('sort_order')->default(0);
                 $table->timestamps();
 
@@ -45,7 +48,9 @@ return new class extends Migration
             Schema::create('testimonialables', function (Blueprint $table): void {
                 $table->id();
                 $table->foreignId('testimonial_id')->constrained('testimonials')->cascadeOnDelete();
-                $table->morphs('testimonialable');
+                $table->string('testimonialable_type', 100);
+                $table->unsignedBigInteger('testimonialable_id');
+                $table->index(['testimonialable_type', 'testimonialable_id'], 'testimonialables_testimonialable_type_testimonialable_id_index');
                 $table->unsignedInteger('sort_order')->default(0);
                 $table->timestamps();
 
@@ -56,7 +61,7 @@ return new class extends Migration
         if (! Schema::hasTable('portfolio_items')) {
             Schema::create('portfolio_items', function (Blueprint $table): void {
                 $table->id();
-                $table->string('slug')->unique();
+                $table->string('slug', 191)->unique();
                 $table->string('title');
                 $table->string('client_name')->nullable();
                 $table->string('project_type')->nullable();
