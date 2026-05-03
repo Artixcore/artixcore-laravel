@@ -38,13 +38,13 @@ class SecurityHeaders
     {
         $directives = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
-            "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
+            "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "img-src 'self' data: https:",
             "font-src 'self' data: https://fonts.gstatic.com",
             'frame-src https://challenges.cloudflare.com',
-            "child-src https://challenges.cloudflare.com",
+            'child-src https://challenges.cloudflare.com',
             "worker-src 'self' blob:",
             "connect-src 'self' https://challenges.cloudflare.com",
             "base-uri 'self'",
@@ -53,8 +53,8 @@ class SecurityHeaders
         ];
 
         if (app()->environment('local')) {
-            $directives[2] = "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com http://127.0.0.1:* http://localhost:*";
-            $directives[3] = "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com http://127.0.0.1:* http://localhost:*";
+            $directives[2] = "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com http://127.0.0.1:* http://localhost:*";
+            $directives[3] = "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com http://127.0.0.1:* http://localhost:*";
             $directives[4] = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com http://127.0.0.1:* http://localhost:*";
             $directives[6] = "font-src 'self' data: https://fonts.gstatic.com http://127.0.0.1:* http://localhost:*";
             $directives[9] = "connect-src 'self' https://challenges.cloudflare.com ws: http://127.0.0.1:* http://localhost:* http://[::1]:*";

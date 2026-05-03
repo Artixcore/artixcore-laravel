@@ -111,7 +111,7 @@ class StoreWebLeadRequest extends FormRequest
             throw new HttpResponseException(response()->json([
                 'ok' => false,
                 'message' => $message,
-                'errors' => $errors,
+                'errors' => $errors->toArray(),
             ], 422));
         }
 

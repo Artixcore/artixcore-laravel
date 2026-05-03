@@ -118,7 +118,7 @@ class LeadFormTest extends TestCase
             'cf-turnstile-response' => 'test-turnstile-token',
         ]);
 
-        $response->assertOk()
+        $response->assertCreated()
             ->assertJsonPath('ok', true)
             ->assertJsonPath('lead.email', self::VALID_TEST_EMAIL);
 
@@ -235,8 +235,8 @@ class LeadFormTest extends TestCase
             'cf-turnstile-response' => 'test-turnstile-token',
         ];
 
-        $this->postJson(route('lead.store'), $payload)->assertOk();
-        $this->postJson(route('lead.store'), $payload)->assertOk();
+        $this->postJson(route('lead.store'), $payload)->assertCreated();
+        $this->postJson(route('lead.store'), $payload)->assertCreated();
 
         $this->postJson(route('lead.store'), $payload)->assertStatus(429);
     }

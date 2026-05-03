@@ -121,6 +121,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
         }
+        const captchaErrorKeys = ['cf-turnstile-response', 'g-recaptcha-response', 'captcha'];
+        for (const key of captchaErrorKeys) {
+            if (!errors[key]) {
+                continue;
+            }
+            const tokenInput = form.querySelector(
+                `input[name="${key}"], textarea[name="${key}"]`
+            );
+            if (tokenInput && typeof tokenInput.focus === 'function') {
+                tokenInput.focus();
+                return;
+            }
+            if (captchaEl) {
+                captchaEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            const capLabel = document.getElementById('lead-captcha-label');
+            if (capLabel && typeof capLabel.focus === 'function') {
+                capLabel.setAttribute('tabindex', '-1');
+                capLabel.focus();
+            }
+            return;
+        }
     }
 
     function resetCaptchaWidget() {
@@ -230,6 +252,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (response.ok && data && data.ok === true) {
+                setLoading(false);
                 form.classList.add('d-none');
                 if (successEl) {
                     const nameSpan = successEl.querySelector('[data-lead-success-name]');

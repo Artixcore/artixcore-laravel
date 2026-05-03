@@ -59,7 +59,6 @@ class LeadController extends Controller
                 'request_id' => $request->header('X-Request-Id') ?? $request->header('X-Correlation-Id'),
                 'ip' => $request->ip(),
                 'exception' => $e::class,
-                'message' => $e->getMessage(),
             ]);
 
             if ($request->expectsJson()) {
@@ -83,7 +82,7 @@ class LeadController extends Controller
                     'name' => $lead->name,
                     'email' => $lead->email,
                 ],
-            ]);
+            ], 201);
         }
 
         return redirect()
