@@ -1,6 +1,6 @@
 @php
 	$slug = config('ai.widget_agent_slug');
-	$turnstileSiteKey = (string) config('captcha.turnstile.site_key', '');
+	$turnstileSiteKey = (string) (config('services.turnstile.site_key') ?: config('captcha.turnstile.site_key', ''));
 @endphp
 @if (is_string($slug) && $slug !== '' && config('ai.chat_enabled', true))
 	<div
