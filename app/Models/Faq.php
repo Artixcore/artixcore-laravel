@@ -10,6 +10,7 @@ class Faq extends Model
     protected $fillable = [
         'question',
         'answer',
+        'category',
         'sort_order',
         'is_published',
         'show_on_general_faq',

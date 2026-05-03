@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\MarketingContentAdminController;
 use App\Http\Controllers\Admin\MarketUpdateAdminController;
 use App\Http\Controllers\Admin\MediaAdminController;
 use App\Http\Controllers\Admin\NavItemAdminController;
+use App\Http\Controllers\Admin\PortfolioItemAdminController;
 use App\Http\Controllers\Admin\SecuritySettingsAdminController;
 use App\Http\Controllers\Admin\SeoSettingAdminController;
 use App\Http\Controllers\Admin\ServiceAdminController;
@@ -42,9 +43,9 @@ use App\Http\Controllers\Web\LeadController;
 use App\Http\Controllers\Web\LegalPageController;
 use App\Http\Controllers\Web\MarketUpdatePublicController;
 use App\Http\Controllers\Web\PageBuilderController;
+use App\Http\Controllers\Web\PortfolioPublicController;
 use App\Http\Controllers\Web\SaaSPlatformsController;
 use App\Http\Controllers\Web\ServiceController;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -56,10 +57,9 @@ Route::get('/about', [AboutController::class, 'show'])->name('about');
 Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
 Route::get('/services/{slug}', [ServiceController::class, 'show'])->name('services.show');
 Route::get('/saas-platforms', [SaaSPlatformsController::class, 'index'])->name('saas-platforms');
-Route::redirect('/portfolio', '/case-studies', 301)->name('portfolio.index');
-Route::get('/portfolio/{slug}', function (string $slug): RedirectResponse {
-    return redirect()->route('case-studies.show', ['slug' => $slug], 301);
-})->where('slug', '[A-Za-z0-9\-]+')->name('portfolio.show');
+Route::get('/saas-platforms/{slug}', [SaaSPlatformsController::class, 'show'])->name('saas-platforms.show');
+Route::get('/portfolio', [PortfolioPublicController::class, 'index'])->name('portfolio.index');
+Route::get('/portfolio/{slug}', [PortfolioPublicController::class, 'show'])->where('slug', '[A-Za-z0-9\-]+')->name('portfolio.show');
 Route::get('/case-studies', [CaseStudyPublicController::class, 'index'])->name('case-studies.index');
 Route::get('/case-studies/category/{categorySlug}', [CaseStudyPublicController::class, 'category'])->name('case-studies.category');
 Route::get('/case-studies/tag/{tagSlug}', [CaseStudyPublicController::class, 'tag'])->name('case-studies.tag');
@@ -122,6 +122,7 @@ Route::middleware(['auth', 'blade.admin'])->prefix('admin')->name('admin.')->gro
     Route::delete('/navigation/{nav_menu}/{nav_item}', [NavItemAdminController::class, 'destroy'])->name('navigation.destroy');
 
     Route::resource('services', ServiceAdminController::class)->except(['show']);
+    Route::resource('portfolio-items', PortfolioItemAdminController::class)->except(['show']);
     Route::resource('testimonials', TestimonialAdminController::class)->except(['show']);
     Route::resource('faqs', FaqAdminController::class)->except(['show']);
     Route::resource('articles', ArticleAdminController::class)->except(['show']);

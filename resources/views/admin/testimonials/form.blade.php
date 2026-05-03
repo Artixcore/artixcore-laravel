@@ -26,6 +26,14 @@
 				/>
 			</div>
 			<x-admin.textarea name="body" label="Quote" rows="4" required>{{ old('body', $testimonial->body) }}</x-admin.textarea>
+			<x-admin.input
+				name="rating"
+				label="Rating (1–5, optional)"
+				type="number"
+				min="1"
+				max="5"
+				value="{{ old('rating', $testimonial->rating) }}"
+			/>
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-end">
 				<x-admin.input name="sort_order" label="Sort" type="number" value="{{ old('sort_order', $testimonial->sort_order ?? 0) }}" />
 				<x-admin.toggle-switch
@@ -34,6 +42,11 @@
 					:checked="(bool) old('is_published', $testimonial->is_published ?? true)"
 				/>
 			</div>
+			<input type="hidden" name="featured" value="0" />
+			<label class="inline-flex cursor-pointer items-center gap-2 text-sm text-zinc-700">
+				<input type="checkbox" name="featured" value="1" class="size-4 rounded border-zinc-300 text-indigo-600" @checked(old('featured', $testimonial->featured ?? false)) />
+				Featured (homepage / highlights)
+			</label>
 			<div class="flex flex-wrap items-center gap-3 border-t border-zinc-100 pt-6">
 				<x-admin.button variant="primary" type="submit">Save</x-admin.button>
 				<x-admin.button variant="ghost" :href="route('admin.testimonials.index')">Cancel</x-admin.button>

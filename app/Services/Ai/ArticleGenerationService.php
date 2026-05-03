@@ -4,6 +4,9 @@ namespace App\Services\Ai;
 
 use App\Models\AiProvider;
 use App\Models\Article;
+use App\Models\ContentRelation;
+use App\Models\Product;
+use App\Models\Service;
 use App\Services\Ai\Clients\OpenAiCompatibleClient;
 use App\Services\Ai\Exceptions\LlmTransportException;
 use App\Services\HtmlSanitizer;
@@ -169,8 +172,51 @@ class ArticleGenerationService
         }
 
         AiPayloadTermSynchronizer::sync($article, $payload);
+        $this->attachOptionalGraphFromPayload($article, $payload);
 
         return $article->fresh(['terms.taxonomy']);
+    }
+
+    /**
+     * When AI JSON includes related slugs, link the new article for manual review in admin.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function attachOptionalGraphFromPayload(Article $article, array $payload): void
+    {
+        $serviceSlug = trim((string) ($payload['related_service_slug'] ?? ''));
+        if ($serviceSlug !== '') {
+            $service = Service::query()->where('slug', $serviceSlug)->first();
+            if ($service !== null) {
+                ContentRelation::query()->firstOrCreate(
+                    [
+                        'source_type' => Service::class,
+                        'source_id' => $service->id,
+                        'related_type' => Article::class,
+                        'related_id' => $article->id,
+                        'relation_type' => ContentRelation::RELATED_ARTICLE,
+                    ],
+                    ['sort_order' => 0, 'is_featured' => false],
+                );
+            }
+        }
+
+        $platformSlug = trim((string) ($payload['related_platform_slug'] ?? ''));
+        if ($platformSlug !== '') {
+            $platform = Product::query()->where('slug', $platformSlug)->first();
+            if ($platform !== null) {
+                ContentRelation::query()->firstOrCreate(
+                    [
+                        'source_type' => Product::class,
+                        'source_id' => $platform->id,
+                        'related_type' => Article::class,
+                        'related_id' => $article->id,
+                        'relation_type' => ContentRelation::RELATED_ARTICLE,
+                    ],
+                    ['sort_order' => 0, 'is_featured' => false],
+                );
+            }
+        }
     }
 
     /**

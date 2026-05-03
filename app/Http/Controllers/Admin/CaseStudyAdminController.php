@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\SyncsAdminContentGraph;
 use App\Http\Controllers\Controller;
+use App\Models\Article;
 use App\Models\CaseStudy;
+use App\Models\ContentRelation;
+use App\Models\Faq;
 use App\Models\Taxonomy;
 use App\Models\Term;
+use App\Models\Testimonial;
 use App\Services\Content\VideoEmbedResolver;
 use App\Services\HtmlSanitizer;
 use App\Support\Slug\UniqueSlugGenerator;
@@ -20,6 +25,8 @@ use Illuminate\View\View;
 
 class CaseStudyAdminController extends Controller
 {
+    use SyncsAdminContentGraph;
+
     public function index(Request $request): View
     {
         $this->authorize('viewAny', CaseStudy::class);
@@ -63,6 +70,12 @@ class CaseStudyAdminController extends Controller
             'categoryParents' => $this->categoryParents(),
             'categoryChildren' => $this->categoryChildrenGrouped(),
             'tagTerms' => $this->tagTerms(),
+            'pickArticles' => Article::query()->orderBy('title')->limit(500)->get(['id', 'title']),
+            'pickFaqs' => Faq::query()->orderBy('sort_order')->orderBy('question')->get(['id', 'question']),
+            'pickTestimonials' => Testimonial::query()->orderBy('sort_order')->orderBy('author_name')->get(['id', 'author_name']),
+            'relatedArticleIds' => old('related_article_ids', []),
+            'faqIds' => old('faq_ids', []),
+            'testimonialIds' => old('testimonial_ids', []),
         ]);
     }
 
@@ -89,6 +102,7 @@ class CaseStudyAdminController extends Controller
         $study = CaseStudy::query()->create($data);
         $study->terms()->sync($termIds);
         $this->syncMainImage($request, $study);
+        $this->syncCaseStudyGraph($request, $study);
 
         return $this->respond($request, 'Case study created.', route('admin.case-studies.index'));
     }
@@ -104,6 +118,22 @@ class CaseStudyAdminController extends Controller
             'categoryParents' => $this->categoryParents(),
             'categoryChildren' => $this->categoryChildrenGrouped(),
             'tagTerms' => $this->tagTerms(),
+            'pickArticles' => Article::query()->orderBy('title')->limit(500)->get(['id', 'title']),
+            'pickFaqs' => Faq::query()->orderBy('sort_order')->orderBy('question')->get(['id', 'question']),
+            'pickTestimonials' => Testimonial::query()->orderBy('sort_order')->orderBy('author_name')->get(['id', 'author_name']),
+            'relatedArticleIds' => old(
+                'related_article_ids',
+                ContentRelation::query()
+                    ->where('source_type', CaseStudy::class)
+                    ->where('source_id', $caseStudy->id)
+                    ->where('related_type', Article::class)
+                    ->where('relation_type', ContentRelation::RELATED_ARTICLE)
+                    ->orderBy('sort_order')
+                    ->pluck('related_id')
+                    ->all()
+            ),
+            'faqIds' => old('faq_ids', $caseStudy->faqs()->orderByPivot('sort_order')->pluck('faqs.id')->all()),
+            'testimonialIds' => old('testimonial_ids', $caseStudy->testimonials()->orderByPivot('sort_order')->pluck('testimonials.id')->all()),
         ]);
     }
 
@@ -133,6 +163,7 @@ class CaseStudyAdminController extends Controller
         $caseStudy->update($data);
         $caseStudy->terms()->sync($termIds);
         $this->syncMainImage($request, $caseStudy);
+        $this->syncCaseStudyGraph($request, $caseStudy);
 
         return $this->respond($request, 'Case study updated.', route('admin.case-studies.index'));
     }
@@ -158,9 +189,24 @@ class CaseStudyAdminController extends Controller
     {
         $this->authorize('delete', $caseStudy);
         $caseStudy->terms()->detach();
+        $caseStudy->faqs()->detach();
+        $caseStudy->testimonials()->detach();
+        ContentRelation::query()
+            ->where(function ($q) use ($caseStudy): void {
+                $q->where(fn ($q2) => $q2->where('source_type', CaseStudy::class)->where('source_id', $caseStudy->id))
+                    ->orWhere(fn ($q2) => $q2->where('related_type', CaseStudy::class)->where('related_id', $caseStudy->id));
+            })
+            ->delete();
         $caseStudy->delete();
 
         return $this->respond($request, 'Case study deleted.', route('admin.case-studies.index'));
+    }
+
+    private function syncCaseStudyGraph(Request $request, CaseStudy $study): void
+    {
+        $this->syncOutgoingRelationIds($study, ContentRelation::RELATED_ARTICLE, Article::class, $request->input('related_article_ids', []));
+        $this->syncMorphPivotOrdered($study, 'faqs', $request->input('faq_ids', []));
+        $this->syncMorphPivotOrdered($study, 'testimonials', $request->input('testimonial_ids', []));
     }
 
     private function syncMainImage(Request $request, CaseStudy $study): void
@@ -307,6 +353,12 @@ class CaseStudyAdminController extends Controller
             'tag_term_ids.*' => ['integer', 'exists:terms,id'],
             'main_image' => ['nullable', 'image', 'max:8192'],
             'clear_main_image' => ['sometimes', 'boolean'],
+            'related_article_ids' => ['sometimes', 'array'],
+            'related_article_ids.*' => ['integer', 'exists:articles,id'],
+            'faq_ids' => ['sometimes', 'array'],
+            'faq_ids.*' => ['integer', 'exists:faqs,id'],
+            'testimonial_ids' => ['sometimes', 'array'],
+            'testimonial_ids.*' => ['integer', 'exists:testimonials,id'],
         ];
 
         $data = $request->validate($rules) + [

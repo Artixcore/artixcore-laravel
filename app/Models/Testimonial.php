@@ -13,9 +13,11 @@ class Testimonial extends Model
         'role',
         'company',
         'body',
+        'rating',
         'avatar_media_id',
         'sort_order',
         'is_published',
+        'featured',
     ];
 
     protected function casts(): array
@@ -23,6 +25,8 @@ class Testimonial extends Model
         return [
             'sort_order' => 'integer',
             'is_published' => 'boolean',
+            'featured' => 'boolean',
+            'rating' => 'integer',
         ];
     }
 

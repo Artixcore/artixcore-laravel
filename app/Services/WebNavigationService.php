@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\CaseStudy;
 use App\Models\NavItem;
 use App\Models\NavMenu;
+use App\Models\PortfolioItem;
 use App\Models\Service;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -52,6 +53,7 @@ class WebNavigationService
             'services' => collect(),
             'articles' => collect(),
             'caseStudies' => collect(),
+            'portfolioItems' => collect(),
         ];
 
         try {
@@ -70,6 +72,7 @@ class WebNavigationService
             $services = collect();
             $articles = collect();
             $caseStudies = collect();
+            $portfolioItems = collect();
 
             if ($needsServices && Schema::hasTable('services')) {
                 $services = Service::query()
@@ -77,6 +80,16 @@ class WebNavigationService
                     ->with('featuredImageMedia')
                     ->orderBy('sort_order')
                     ->orderBy('title')
+                    ->get();
+            }
+
+            if ($needsPortfolio && Schema::hasTable('portfolio_items')) {
+                $portfolioItems = PortfolioItem::query()
+                    ->published()
+                    ->orderByDesc('featured')
+                    ->orderBy('sort_order')
+                    ->orderByDesc('published_at')
+                    ->take(4)
                     ->get();
             }
 
@@ -93,6 +106,7 @@ class WebNavigationService
                 'services' => $services,
                 'articles' => $articles,
                 'caseStudies' => $caseStudies,
+                'portfolioItems' => $portfolioItems,
             ];
         } catch (\Throwable) {
             return $empty;

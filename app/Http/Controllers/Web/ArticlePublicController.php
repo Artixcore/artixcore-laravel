@@ -95,11 +95,17 @@ class ArticlePublicController extends Controller
         $related = $this->relatedContent->relatedArticles($article);
         $related->load(['media']);
 
+        $linkedOwners = $this->relatedContent->linkedOwnersForArticle($article);
+        $relatedCaseStudiesGraph = $this->relatedContent->relatedCaseStudiesForArticle($article);
+
         return view('pages.articles.show', [
             'article' => $article,
             'articleBodyHtml' => $tocData['html'],
             'toc' => $tocData['toc'],
             'relatedArticles' => $related,
+            'linkedServices' => $linkedOwners['services'],
+            'linkedPlatforms' => $linkedOwners['platforms'],
+            'relatedCaseStudiesGraph' => $relatedCaseStudiesGraph,
         ]);
     }
 

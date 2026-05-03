@@ -93,6 +93,47 @@
 	</div>
 </section>
 
+@php
+	$linkedServices = $linkedServices ?? collect();
+	$linkedPlatforms = $linkedPlatforms ?? collect();
+	$relatedCaseStudiesGraph = $relatedCaseStudiesGraph ?? collect();
+@endphp
+@if($linkedServices->isNotEmpty() || $linkedPlatforms->isNotEmpty())
+<section class="py-5 bg-light bg-opacity-50 border-top">
+	<div class="container">
+		<h2 class="h5 fw-bold mb-3">Related offerings</h2>
+		<ul class="list-unstyled d-flex flex-wrap gap-3 mb-0">
+			@foreach($linkedServices as $svc)
+				<li><a href="{{ route('services.show', $svc->slug) }}" class="badge rounded-pill text-bg-light border text-decoration-none">{{ $svc->title }}</a></li>
+			@endforeach
+			@foreach($linkedPlatforms as $plat)
+				<li><a href="{{ route('saas-platforms.show', $plat->slug) }}" class="badge rounded-pill text-bg-primary-subtle text-primary-emphasis text-decoration-none">{{ $plat->title }}</a></li>
+			@endforeach
+		</ul>
+	</div>
+</section>
+@endif
+
+@if($relatedCaseStudiesGraph->isNotEmpty())
+<section class="py-5 border-top">
+	<div class="container">
+		<h2 class="h5 fw-bold mb-4">Related case studies</h2>
+		<div class="row g-4">
+			@foreach($relatedCaseStudiesGraph as $cs)
+				<div class="col-md-6 col-lg-4">
+					<a href="{{ route('case-studies.show', $cs->slug) }}" class="stretched-link text-decoration-none card border-0 shadow-sm h-100">
+						<div class="card-body">
+							<h3 class="h6">{{ $cs->title }}</h3>
+							<p class="small text-muted mb-0">{{ \Illuminate\Support\Str::limit($cs->outcome_summary ?? '', 120) }}</p>
+						</div>
+					</a>
+				</div>
+			@endforeach
+		</div>
+	</div>
+</section>
+@endif
+
 @if($relatedArticles->isNotEmpty())
 <section class="py-6 bg-light bg-opacity-50 border-top">
 	<div class="container">

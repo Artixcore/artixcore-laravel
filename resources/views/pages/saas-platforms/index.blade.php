@@ -12,6 +12,7 @@
 
 @section('content')
 @include('pages.saas-platforms._hero')
+@include('pages.saas-platforms._platforms_db')
 @include('pages.saas-platforms._stats')
 @include('pages.saas-platforms._overview')
 @include('pages.saas-platforms._offerings')

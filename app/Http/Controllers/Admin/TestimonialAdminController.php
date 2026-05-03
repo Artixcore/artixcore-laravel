@@ -70,10 +70,15 @@ class TestimonialAdminController extends Controller
             'role' => ['nullable', 'string', 'max:255'],
             'company' => ['nullable', 'string', 'max:255'],
             'body' => ['required', 'string', 'max:5000'],
+            'rating' => ['nullable', 'integer', 'min:1', 'max:5'],
             'avatar_media_id' => ['nullable', 'integer', 'exists:media_assets,id'],
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_published' => ['sometimes', 'boolean'],
-        ]) + ['is_published' => $request->boolean('is_published')];
+            'featured' => ['sometimes', 'boolean'],
+        ]) + [
+            'is_published' => $request->boolean('is_published'),
+            'featured' => $request->boolean('featured'),
+        ];
 
         if (isset($data['body']) && is_string($data['body'])) {
             $data['body'] = app(HtmlSanitizer::class)->sanitize($data['body']);

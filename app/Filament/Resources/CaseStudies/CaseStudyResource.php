@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CaseStudies;
 
+use App\Filament\RelationManagers\ContentRelationsRelationManager;
 use App\Filament\Resources\CaseStudies\Pages\CreateCaseStudy;
 use App\Filament\Resources\CaseStudies\Pages\EditCaseStudy;
 use App\Filament\Resources\CaseStudies\Pages\ListCaseStudies;
@@ -35,7 +36,7 @@ class CaseStudyResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ContentRelationsRelationManager::class,
         ];
     }
 

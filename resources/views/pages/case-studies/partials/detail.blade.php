@@ -101,6 +101,111 @@
 		@endif
 	</div>
 </section>
+
+@php $caseStudyBundle = $caseStudyBundle ?? []; @endphp
+@if(!empty($caseStudyBundle['services']) && $caseStudyBundle['services']->isNotEmpty())
+<section class="pb-6 bg-light bg-opacity-50 border-top">
+	<div class="container">
+		<h2 class="h4 mb-3">Related services</h2>
+		<ul class="list-unstyled row g-2">
+			@foreach($caseStudyBundle['services'] as $svc)
+				<li class="col-md-6"><a href="{{ route('services.show', $svc->slug) }}" class="fw-semibold text-decoration-none">{{ $svc->title }}</a></li>
+			@endforeach
+		</ul>
+	</div>
+</section>
+@endif
+
+@if(!empty($caseStudyBundle['platforms']) && $caseStudyBundle['platforms']->isNotEmpty())
+<section class="pb-6 border-top">
+	<div class="container">
+		<h2 class="h4 mb-3">Related SaaS platforms</h2>
+		<ul class="list-unstyled row g-2">
+			@foreach($caseStudyBundle['platforms'] as $plat)
+				<li class="col-md-6"><a href="{{ route('saas-platforms.show', $plat->slug) }}" class="fw-semibold text-decoration-none">{{ $plat->title }}</a></li>
+			@endforeach
+		</ul>
+	</div>
+</section>
+@endif
+
+@if(!empty($caseStudyBundle['portfolioItems']) && $caseStudyBundle['portfolioItems']->isNotEmpty())
+<section class="pb-6 bg-light bg-opacity-25 border-top">
+	<div class="container">
+		<h2 class="h4 mb-3">Portfolio</h2>
+		<ul class="list-unstyled row g-2">
+			@foreach($caseStudyBundle['portfolioItems'] as $pf)
+				<li class="col-md-6"><a href="{{ route('portfolio.show', $pf->slug) }}" class="fw-semibold text-decoration-none">{{ $pf->title }}</a></li>
+			@endforeach
+		</ul>
+	</div>
+</section>
+@endif
+
+@if(!empty($caseStudyBundle['articles']) && $caseStudyBundle['articles']->isNotEmpty())
+<section class="pb-6 border-top">
+	<div class="container">
+		<h2 class="h4 mb-4">Related articles</h2>
+		<div class="row g-4">
+			@foreach($caseStudyBundle['articles'] as $art)
+				<div class="col-md-6 col-lg-4">
+					<a href="{{ route('articles.show', $art->slug) }}" class="text-reset text-decoration-none card border-0 shadow-sm h-100 overflow-hidden">
+						<div class="ratio ratio-16x9 bg-secondary bg-opacity-10">
+							<img src="{{ $art->main_image_url }}" alt="" class="object-fit-cover" loading="lazy">
+						</div>
+						<div class="card-body">
+							<h3 class="h6 mb-0">{{ $art->title }}</h3>
+						</div>
+					</a>
+				</div>
+			@endforeach
+		</div>
+	</div>
+</section>
+@endif
+
+@php $studyTestimonials = $studyTestimonials ?? collect(); @endphp
+@if($studyTestimonials->isNotEmpty())
+<section class="pb-6 bg-light bg-opacity-50 border-top">
+	<div class="container">
+		<h2 class="h4 mb-4">Testimonials</h2>
+		<div class="row g-4">
+			@foreach($studyTestimonials as $tm)
+				<div class="col-md-6">
+					<blockquote class="card border-0 shadow-sm h-100 mb-0">
+						<div class="card-body">
+							<p class="mb-3">{{ $tm->body }}</p>
+							<footer class="small text-muted"><strong>{{ $tm->author_name }}</strong></footer>
+						</div>
+					</blockquote>
+				</div>
+			@endforeach
+		</div>
+	</div>
+</section>
+@endif
+
+@php $studyFaqs = $studyFaqs ?? collect(); @endphp
+@if($studyFaqs->isNotEmpty())
+<section class="pb-6 border-top">
+	<div class="container">
+		<h2 class="h4 mb-4">FAQs</h2>
+		<div class="accordion" id="csFaq">
+			@foreach($studyFaqs as $i => $faq)
+				<div class="accordion-item">
+					<h3 class="accordion-header">
+						<button class="accordion-button {{ $i > 0 ? 'collapsed' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#csFaq{{ $faq->id }}">{{ $faq->question }}</button>
+					</h3>
+					<div id="csFaq{{ $faq->id }}" class="accordion-collapse collapse {{ $i === 0 ? 'show' : '' }}" data-bs-parent="#csFaq">
+						<div class="accordion-body">{!! nl2br(e($faq->answer)) !!}</div>
+					</div>
+				</div>
+			@endforeach
+		</div>
+	</div>
+</section>
+@endif
+
 @if(isset($relatedCaseStudies) && $relatedCaseStudies->isNotEmpty())
 <section class="pb-6 bg-light">
 	<div class="container">

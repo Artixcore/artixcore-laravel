@@ -202,6 +202,38 @@
 				</div>
 			@endif
 
+			@isset($pickArticles)
+				<div class="space-y-4 border-t border-zinc-100 pt-6">
+					<h3 class="text-sm font-semibold uppercase tracking-wide text-zinc-500">Related content</h3>
+					<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+						<div>
+							<label class="admin-field-label">Related articles</label>
+							<select name="related_article_ids[]" multiple class="admin-field-input h-40 font-mono text-xs">
+								@foreach ($pickArticles as $row)
+									<option value="{{ $row->id }}" @selected(in_array($row->id, $relatedArticleIds ?? [], true))>{{ $row->title }}</option>
+								@endforeach
+							</select>
+						</div>
+						<div>
+							<label class="admin-field-label">FAQs</label>
+							<select name="faq_ids[]" multiple class="admin-field-input h-40 font-mono text-xs">
+								@foreach ($pickFaqs as $row)
+									<option value="{{ $row->id }}" @selected(in_array($row->id, $faqIds ?? [], true))>{{ \Illuminate\Support\Str::limit($row->question, 72) }}</option>
+								@endforeach
+							</select>
+						</div>
+						<div>
+							<label class="admin-field-label">Testimonials</label>
+							<select name="testimonial_ids[]" multiple class="admin-field-input h-40 font-mono text-xs">
+								@foreach ($pickTestimonials as $row)
+									<option value="{{ $row->id }}" @selected(in_array($row->id, $testimonialIds ?? [], true))>{{ $row->author_name }}</option>
+								@endforeach
+							</select>
+						</div>
+					</div>
+				</div>
+			@endisset
+
 			<div class="flex flex-wrap items-center gap-3 border-t border-zinc-100 pt-6">
 				<x-admin.button variant="primary" type="submit">Save</x-admin.button>
 				<x-admin.button variant="ghost" :href="route('admin.case-studies.index')">Cancel</x-admin.button>

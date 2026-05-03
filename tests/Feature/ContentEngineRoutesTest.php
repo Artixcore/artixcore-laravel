@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\CaseStudy;
 use App\Models\MarketUpdate;
+use App\Models\PortfolioItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -11,14 +12,30 @@ class ContentEngineRoutesTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_portfolio_root_redirects_to_case_studies(): void
+    public function test_portfolio_index_loads(): void
     {
-        $this->get('/portfolio')->assertRedirect('/case-studies');
+        $this->get(route('portfolio.index'))->assertOk();
     }
 
-    public function test_portfolio_slug_redirects_to_case_study_show(): void
+    public function test_portfolio_show_loads_when_published(): void
     {
-        $this->get('/portfolio/sample-slug')->assertRedirect(route('case-studies.show', ['slug' => 'sample-slug']));
+        PortfolioItem::query()->create([
+            'slug' => 'sample-portfolio-item',
+            'title' => 'Sample portfolio item',
+            'short_description' => 'Stub item for routes smoke test.',
+            'body' => '<p>Body</p>',
+            'status' => PortfolioItem::STATUS_PUBLISHED,
+            'featured' => false,
+            'sort_order' => 0,
+            'published_at' => now()->subDay(),
+        ]);
+
+        $this->get(route('portfolio.show', 'sample-portfolio-item'))->assertOk();
+    }
+
+    public function test_unknown_portfolio_slug_returns_not_found(): void
+    {
+        $this->get(route('portfolio.show', 'missing-portfolio-slug'))->assertNotFound();
     }
 
     public function test_case_studies_index_loads(): void

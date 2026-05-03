@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Products;
 
+use App\Filament\RelationManagers\ContentRelationsRelationManager;
+use App\Filament\RelationManagers\FaqsRelationManager;
+use App\Filament\RelationManagers\TestimonialsRelationManager;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
@@ -35,7 +38,9 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ContentRelationsRelationManager::class,
+            FaqsRelationManager::class,
+            TestimonialsRelationManager::class,
         ];
     }
 

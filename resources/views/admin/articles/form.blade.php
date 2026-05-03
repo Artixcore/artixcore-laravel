@@ -50,7 +50,20 @@
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<x-admin.select name="article_type" label="Article type">
 						<option value="">—</option>
-						@foreach (['latest_discovery', 'today_trends', 'latest_tech', 'company_update', 'tutorial', 'insight'] as $t)
+						@foreach ([
+							'service_article',
+							'platform_article',
+							'portfolio_article',
+							'case_study_support',
+							'technology_article',
+							'market_update',
+							'tutorial',
+							'insight',
+							'latest_discovery',
+							'today_trends',
+							'latest_tech',
+							'company_update',
+						] as $t)
 							<option value="{{ $t }}" @selected(old('article_type', $article->article_type) === $t)>{{ $t }}</option>
 						@endforeach
 					</x-admin.select>
@@ -163,6 +176,35 @@
 					</div>
 				</div>
 			@endif
+
+			@isset($pickArticles)
+				<div class="space-y-4 border-t border-zinc-100 pt-6">
+					<h3 class="text-sm font-semibold uppercase tracking-wide text-zinc-500">Related content (graph)</h3>
+					<p class="text-xs text-zinc-600">Curated relationships for the public article page (optional).</p>
+					<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+						<div>
+							<label for="related_article_ids" class="admin-field-label">Related articles</label>
+							<select id="related_article_ids" name="related_article_ids[]" multiple class="admin-field-input h-44 font-mono text-xs">
+								@foreach ($pickArticles as $pa)
+									@if ($article->exists && (int) $pa->id === (int) $article->id)
+										@continue
+									@endif
+									<option value="{{ $pa->id }}" @selected(in_array($pa->id, $relatedArticleIds ?? [], true))>{{ $pa->title }}</option>
+								@endforeach
+							</select>
+							<p class="mt-1 text-xs text-zinc-500">Hold Ctrl/Cmd to select multiple.</p>
+						</div>
+						<div>
+							<label for="related_case_study_ids" class="admin-field-label">Related case studies</label>
+							<select id="related_case_study_ids" name="related_case_study_ids[]" multiple class="admin-field-input h-44 font-mono text-xs">
+								@foreach ($pickCaseStudies as $cs)
+									<option value="{{ $cs->id }}" @selected(in_array($cs->id, $relatedCaseStudyIds ?? [], true))>{{ $cs->title }}</option>
+								@endforeach
+							</select>
+						</div>
+					</div>
+				</div>
+			@endisset
 
 			@if ($article->exists && ($article->ai_prompt || $article->ai_generation_meta))
 				<div class="space-y-2 border-t border-zinc-100 pt-6">

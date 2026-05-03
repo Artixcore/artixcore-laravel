@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasMorphContentRelations;
+use App\Models\Concerns\HasMorphFaqsAndTestimonials;
 use App\Models\Concerns\HasTerms;
 use App\Services\Content\VideoEmbedResolver;
 use App\Support\Slug\UniqueSlugGenerator;
@@ -14,6 +16,8 @@ use Illuminate\Support\Str;
 
 class CaseStudy extends Model
 {
+    use HasMorphContentRelations;
+    use HasMorphFaqsAndTestimonials;
     use HasTerms;
     use SoftDeletes;
 

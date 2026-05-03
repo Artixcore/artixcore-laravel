@@ -5,19 +5,35 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\CaseStudy;
 use App\Models\Faq;
+use App\Models\Product;
 use App\Models\Service;
 use App\Models\SiteSetting;
 use App\Models\Testimonial;
+use App\Services\Content\RelatedContentService;
+use App\Services\HtmlSanitizer;
 use App\Support\MarketingContent;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class SaaSPlatformsController extends Controller
 {
+    public function __construct(
+        private RelatedContentService $relatedContent,
+        private HtmlSanitizer $htmlSanitizer,
+    ) {}
+
     public function index(): View
     {
         $settings = SiteSetting::safeInstance();
         $saasPage = MarketingContent::mergeSaaSPage($settings->saas_page_content);
+
+        $platforms = Product::query()
+            ->published()
+            ->with('mainImageMedia')
+            ->orderByDesc('featured')
+            ->orderBy('sort_order')
+            ->orderBy('title')
+            ->get();
 
         $testimonials = collect();
         if (! empty($saasPage['show_testimonials'])) {
@@ -42,10 +58,42 @@ class SaaSPlatformsController extends Controller
 
         return view('pages.saas-platforms.index', [
             'saasPage' => $saasPage,
+            'platforms' => $platforms,
             'testimonials' => $testimonials,
             'faqs' => $faqs,
             'caseStudies' => $caseStudies,
             'highlightedServices' => $highlightedServices,
+        ]);
+    }
+
+    public function show(string $slug): View
+    {
+        $platform = Product::query()
+            ->published()
+            ->where('slug', $slug)
+            ->with(['terms.taxonomy', 'mainImageMedia', 'faqs', 'testimonials.avatarMedia'])
+            ->firstOrFail();
+
+        $this->authorize('view', $platform);
+
+        $bundle = $this->relatedContent->bundleForProduct($platform);
+
+        $body = $this->htmlSanitizer->sanitizeForPublic((string) ($platform->body ?? ''));
+        $features = is_array($platform->features) ? $platform->features : [];
+        $useCases = is_array($platform->use_cases) ? $platform->use_cases : [];
+
+        $faqs = $platform->faqs()->published()->orderByPivot('sort_order')->get();
+        $testimonials = $platform->testimonials()->published()->with('avatarMedia')->orderByPivot('sort_order')->get();
+
+        return view('pages.saas-platforms.show', [
+            'platform' => $platform,
+            'bundle' => $bundle,
+            'bodyHtml' => $this->htmlSanitizer->hardenLinks($body),
+            'featuresList' => $features,
+            'useCasesList' => $useCases,
+            'faqs' => $faqs,
+            'testimonials' => $testimonials,
+            'videoEmbed' => $platform->video_embed,
         ]);
     }
 

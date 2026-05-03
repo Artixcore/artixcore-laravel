@@ -3,6 +3,10 @@
 namespace App\Services\Ai;
 
 use App\Models\CaseStudy;
+use App\Models\ContentRelation;
+use App\Models\PortfolioItem;
+use App\Models\Product;
+use App\Models\Service;
 use App\Services\Ai\Clients\OpenAiCompatibleClient;
 use App\Services\Ai\Exceptions\LlmTransportException;
 use App\Services\HtmlSanitizer;
@@ -192,8 +196,68 @@ class CaseStudyGenerationService
         }
 
         AiPayloadTermSynchronizer::sync($study, $payload);
+        $this->attachOptionalGraphFromPayload($study, $payload);
 
         return $study->fresh(['terms.taxonomy']);
+    }
+
+    /**
+     * Optional JSON keys link curated graph edges for editorial review (same pattern as AI articles).
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function attachOptionalGraphFromPayload(CaseStudy $study, array $payload): void
+    {
+        $serviceSlug = trim((string) ($payload['related_service_slug'] ?? ''));
+        if ($serviceSlug !== '') {
+            $service = Service::query()->where('slug', $serviceSlug)->first();
+            if ($service !== null) {
+                ContentRelation::query()->firstOrCreate(
+                    [
+                        'source_type' => Service::class,
+                        'source_id' => $service->id,
+                        'related_type' => CaseStudy::class,
+                        'related_id' => $study->id,
+                        'relation_type' => ContentRelation::RELATED_CASE_STUDY,
+                    ],
+                    ['sort_order' => 0, 'is_featured' => false],
+                );
+            }
+        }
+
+        $platformSlug = trim((string) ($payload['related_platform_slug'] ?? ''));
+        if ($platformSlug !== '') {
+            $platform = Product::query()->where('slug', $platformSlug)->first();
+            if ($platform !== null) {
+                ContentRelation::query()->firstOrCreate(
+                    [
+                        'source_type' => Product::class,
+                        'source_id' => $platform->id,
+                        'related_type' => CaseStudy::class,
+                        'related_id' => $study->id,
+                        'relation_type' => ContentRelation::RELATED_CASE_STUDY,
+                    ],
+                    ['sort_order' => 0, 'is_featured' => false],
+                );
+            }
+        }
+
+        $portfolioSlug = trim((string) ($payload['related_portfolio_slug'] ?? ''));
+        if ($portfolioSlug !== '') {
+            $item = PortfolioItem::query()->where('slug', $portfolioSlug)->first();
+            if ($item !== null) {
+                ContentRelation::query()->firstOrCreate(
+                    [
+                        'source_type' => PortfolioItem::class,
+                        'source_id' => $item->id,
+                        'related_type' => CaseStudy::class,
+                        'related_id' => $study->id,
+                        'relation_type' => ContentRelation::RELATED_CASE_STUDY,
+                    ],
+                    ['sort_order' => 0, 'is_featured' => false],
+                );
+            }
+        }
     }
 
     public function generateScheduledDraft(?string $forcedTopic = null): ?CaseStudy

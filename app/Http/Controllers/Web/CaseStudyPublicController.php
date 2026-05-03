@@ -9,6 +9,7 @@ use App\Models\Term;
 use App\Services\Content\RelatedContentService;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class CaseStudyPublicController extends Controller
@@ -134,7 +135,7 @@ class CaseStudyPublicController extends Controller
         $study = CaseStudy::query()
             ->published()
             ->where('slug', $slug)
-            ->with(['terms.taxonomy', 'terms.parent'])
+            ->with(['terms.taxonomy', 'terms.parent', 'faqs', 'testimonials.avatarMedia'])
             ->firstOrFail();
 
         $study->increment('view_count');
@@ -146,6 +147,10 @@ class CaseStudyPublicController extends Controller
         $bodyExtra = $this->htmlSanitizer->sanitizeForPublic((string) ($study->body ?? ''));
 
         $related = $this->relatedContent->relatedCaseStudies($study);
+        $bundle = $this->relatedContent->bundleForCaseStudy($study);
+
+        $studyFaqs = $study->faqs()->published()->orderByPivot('sort_order')->get();
+        $studyTestimonials = $study->testimonials()->published()->with('avatarMedia')->orderByPivot('sort_order')->get();
 
         return view('pages.case-studies.show', [
             'study' => $study,
@@ -155,6 +160,9 @@ class CaseStudyPublicController extends Controller
             'lessonsHtml' => $this->htmlSanitizer->hardenLinks($lessons),
             'bodyHtml' => $this->htmlSanitizer->hardenLinks($bodyExtra),
             'relatedCaseStudies' => $related,
+            'caseStudyBundle' => $bundle,
+            'studyFaqs' => $studyFaqs,
+            'studyTestimonials' => $studyTestimonials,
             'videoEmbed' => $study->video_embed,
         ]);
     }
@@ -168,7 +176,7 @@ class CaseStudyPublicController extends Controller
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, Term>
+     * @return Collection<int, Term>
      */
     private function categoryTermsForNav()
     {

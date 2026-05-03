@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\SyncsAdminContentGraph;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\CaseStudy;
+use App\Models\ContentRelation;
 use App\Models\Taxonomy;
 use App\Models\Term;
 use App\Services\Content\VideoEmbedResolver;
@@ -21,6 +24,8 @@ use Illuminate\View\View;
 
 class ArticleAdminController extends Controller
 {
+    use SyncsAdminContentGraph;
+
     public function index(Request $request): View
     {
         $this->authorize('viewAny', Article::class);
@@ -55,6 +60,10 @@ class ArticleAdminController extends Controller
             'categoryParents' => $this->categoryParents(),
             'categoryChildren' => $this->categoryChildrenGrouped(),
             'tagTerms' => $this->tagTerms(),
+            'pickArticles' => Article::query()->orderBy('title')->limit(500)->get(['id', 'title', 'slug']),
+            'pickCaseStudies' => CaseStudy::query()->orderBy('title')->limit(500)->get(['id', 'title', 'slug']),
+            'relatedArticleIds' => old('related_article_ids', []),
+            'relatedCaseStudyIds' => old('related_case_study_ids', []),
         ]);
     }
 
@@ -76,6 +85,7 @@ class ArticleAdminController extends Controller
         $article->terms()->sync($termIds);
         $this->syncMainImageUpload($request, $article);
         $this->syncGalleryUploads($request, $article);
+        $this->syncArticleGraph($request, $article);
 
         return $this->respond($request, 'Article created.', route('admin.articles.index'));
     }
@@ -91,6 +101,30 @@ class ArticleAdminController extends Controller
             'categoryParents' => $this->categoryParents(),
             'categoryChildren' => $this->categoryChildrenGrouped(),
             'tagTerms' => $this->tagTerms(),
+            'pickArticles' => Article::query()->orderBy('title')->limit(500)->get(['id', 'title', 'slug']),
+            'pickCaseStudies' => CaseStudy::query()->orderBy('title')->limit(500)->get(['id', 'title', 'slug']),
+            'relatedArticleIds' => old(
+                'related_article_ids',
+                ContentRelation::query()
+                    ->where('source_type', Article::class)
+                    ->where('source_id', $article->id)
+                    ->where('related_type', Article::class)
+                    ->where('relation_type', ContentRelation::RELATED_ARTICLE)
+                    ->orderBy('sort_order')
+                    ->pluck('related_id')
+                    ->all()
+            ),
+            'relatedCaseStudyIds' => old(
+                'related_case_study_ids',
+                ContentRelation::query()
+                    ->where('source_type', Article::class)
+                    ->where('source_id', $article->id)
+                    ->where('related_type', CaseStudy::class)
+                    ->where('relation_type', ContentRelation::RELATED_CASE_STUDY)
+                    ->orderBy('sort_order')
+                    ->pluck('related_id')
+                    ->all()
+            ),
         ]);
     }
 
@@ -116,6 +150,7 @@ class ArticleAdminController extends Controller
         $article->terms()->sync($termIds);
         $this->syncMainImageUpload($request, $article);
         $this->syncGalleryUploads($request, $article);
+        $this->syncArticleGraph($request, $article);
 
         return $this->respond($request, 'Article updated.', route('admin.articles.index'));
     }
@@ -140,6 +175,12 @@ class ArticleAdminController extends Controller
     {
         $this->authorize('delete', $article);
         $article->terms()->detach();
+        ContentRelation::query()
+            ->where(function ($q) use ($article): void {
+                $q->where(fn ($q2) => $q2->where('source_type', Article::class)->where('source_id', $article->id))
+                    ->orWhere(fn ($q2) => $q2->where('related_type', Article::class)->where('related_id', $article->id));
+            })
+            ->delete();
         $article->delete();
 
         return $this->respond($request, 'Article deleted.', route('admin.articles.index'));
@@ -290,6 +331,10 @@ class ArticleAdminController extends Controller
             'main_image' => ['nullable', 'image', 'max:8192'],
             'gallery_images' => ['nullable', 'array'],
             'gallery_images.*' => ['nullable', 'image', 'max:8192'],
+            'related_article_ids' => ['sometimes', 'array'],
+            'related_article_ids.*' => ['integer', 'exists:articles,id'],
+            'related_case_study_ids' => ['sometimes', 'array'],
+            'related_case_study_ids.*' => ['integer', 'exists:case_studies,id'],
         ];
 
         $data = $request->validate($rules) + [
@@ -304,6 +349,25 @@ class ArticleAdminController extends Controller
         }
 
         return $data;
+    }
+
+    private function syncArticleGraph(Request $request, Article $article): void
+    {
+        $this->syncOutgoingRelationIds(
+            $article,
+            ContentRelation::RELATED_ARTICLE,
+            Article::class,
+            array_values(array_filter(
+                $request->input('related_article_ids', []),
+                static fn ($id): bool => (int) $id !== (int) $article->id
+            ))
+        );
+        $this->syncOutgoingRelationIds(
+            $article,
+            ContentRelation::RELATED_CASE_STUDY,
+            CaseStudy::class,
+            $request->input('related_case_study_ids', [])
+        );
     }
 
     private function respond(Request $request, string $message, string $redirect): JsonResponse|RedirectResponse

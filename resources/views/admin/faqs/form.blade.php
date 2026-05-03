@@ -15,6 +15,7 @@
 				@method('PUT')
 			@endif
 			<x-admin.input name="question" label="Question" value="{{ old('question', $faq->question) }}" required />
+			<x-admin.input name="category" label="Category (optional)" value="{{ old('category', $faq->category) }}" />
 			<x-admin.textarea name="answer" label="Answer" rows="4" required>{{ old('answer', $faq->answer) }}</x-admin.textarea>
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-end">
 				<x-admin.input name="sort_order" label="Sort" type="number" value="{{ old('sort_order', $faq->sort_order ?? 0) }}" />

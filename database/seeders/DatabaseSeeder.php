@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             CaseStudyMarketTaxonomySeeder::class,
             ArticleCategoryTagSeeder::class,
             SeoSettingsSeeder::class,
+            ArtixcoreContentSeeder::class,
         ]);
     }
 }

@@ -67,6 +67,7 @@ class FaqAdminController extends Controller
         $data = $request->validate([
             'question' => ['required', 'string', 'max:500'],
             'answer' => ['required', 'string', 'max:10000'],
+            'category' => ['nullable', 'string', 'max:120'],
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_published' => ['sometimes', 'boolean'],
             'show_on_general_faq' => ['sometimes', 'boolean'],

@@ -47,6 +47,9 @@
 @endphp
 <script type="application/ld+json">{!! json_encode($creativeLd, $jsonFlags) !!}</script>
 <script type="application/ld+json">{!! json_encode($breadcrumb, $jsonFlags) !!}</script>
+@if(isset($studyFaqs) && $studyFaqs->isNotEmpty())
+	@include('partials.faq-jsonld', ['faqs' => $studyFaqs])
+@endif
 @endpush
 
 @section('content')
@@ -58,6 +61,9 @@
 	'lessonsHtml' => $lessonsHtml,
 	'bodyHtml' => $bodyHtml,
 	'relatedCaseStudies' => $relatedCaseStudies,
+	'caseStudyBundle' => $caseStudyBundle ?? [],
+	'studyTestimonials' => $studyTestimonials ?? collect(),
+	'studyFaqs' => $studyFaqs ?? collect(),
 	'videoEmbed' => $videoEmbed ?? null,
 ])
 @endsection

@@ -1,30 +1,44 @@
 @extends('layouts.app')
 
-@section('meta_title', config('marketing.portfolio.meta_title'))
-@section('meta_description', config('marketing.portfolio.meta_description'))
-@section('og_title', config('marketing.portfolio.meta_title'))
-@section('og_description', config('marketing.portfolio.meta_description'))
+@section('meta_title', 'Portfolio — '.($site->site_name ?? 'Artixcore'))
+@section('meta_description', 'Selected projects and implementations from Artixcore.')
 
 @section('content')
-<section class="pt-8 pb-5">
+<section class="pt-8 pb-6">
 	<div class="container">
-		<h1 class="mb-4">Portfolio</h1>
+		<nav class="mb-3">
+			<ol class="breadcrumb mb-0">
+				<li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
+				<li class="breadcrumb-item active">Portfolio</li>
+			</ol>
+		</nav>
+		<h1 class="mb-3">Portfolio</h1>
+		<p class="lead text-muted">Explore projects across services and industries. Detail pages link related articles and case studies.</p>
+	</div>
+</section>
+
+<section class="pb-8">
+	<div class="container">
 		<div class="row g-4">
-			@foreach($projects as $project)
+			@forelse($portfolioItems as $item)
 				<div class="col-md-6 col-lg-4">
-					<div class="card h-100 border-0 shadow-sm">
-						<div class="card-body">
-							<h5><a href="{{ route('case-studies.show', $project->slug) }}" class="stretched-link text-decoration-none">{{ $project->title }}</a></h5>
-							@if($project->client_name)
-								<p class="small text-primary mb-2">{{ $project->client_name }}</p>
-							@endif
-							<p class="small text-muted mb-0">{{ \Illuminate\Support\Str::limit($project->summary, 140) }}</p>
+					<a href="{{ route('portfolio.show', $item->slug) }}" class="text-reset text-decoration-none card border-0 shadow-sm h-100 overflow-hidden">
+						<div class="ratio ratio-16x9 bg-secondary bg-opacity-10">
+							<img src="{{ $item->main_image_url }}" alt="" class="object-fit-cover" loading="lazy">
 						</div>
-					</div>
+						<div class="card-body">
+							<h2 class="h6 mb-1">{{ $item->title }}</h2>
+							@if($item->short_description)
+								<p class="small text-muted mb-0">{{ \Illuminate\Support\Str::limit($item->short_description, 120) }}</p>
+							@endif
+						</div>
+					</a>
 				</div>
-			@endforeach
+			@empty
+				<p class="text-muted">No portfolio projects published yet.</p>
+			@endforelse
 		</div>
-		<div class="mt-4">{{ $projects->links() }}</div>
+		<div class="mt-5">{{ $portfolioItems->links() }}</div>
 	</div>
 </section>
 @endsection

@@ -57,5 +57,8 @@
 	'toc' => $toc,
 	'relatedArticles' => $relatedArticles,
 	'shareUrl' => $shareUrl,
+	'linkedServices' => $linkedServices ?? collect(),
+	'linkedPlatforms' => $linkedPlatforms ?? collect(),
+	'relatedCaseStudiesGraph' => $relatedCaseStudiesGraph ?? collect(),
 ])
 @endsection
