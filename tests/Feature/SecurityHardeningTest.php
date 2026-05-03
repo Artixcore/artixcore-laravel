@@ -44,6 +44,21 @@ class SecurityHardeningTest extends TestCase
         $this->get(route('admin.leads.index'))->assertRedirect(route('login'));
     }
 
+    public function test_guest_can_view_blade_login_page(): void
+    {
+        $this->get(route('login'))->assertOk()->assertSee('Blade admin sign-in', false);
+    }
+
+    public function test_authenticated_admin_redirected_from_login_to_dashboard(): void
+    {
+        $this->seed();
+
+        /** @var User $admin */
+        $admin = User::query()->where('email', 'master@artixcore.com')->firstOrFail();
+
+        $this->actingAs($admin)->get(route('login'))->assertRedirect(route('admin.dashboard'));
+    }
+
     public function test_public_pages_include_security_headers(): void
     {
         $this->get('/')->assertOk()

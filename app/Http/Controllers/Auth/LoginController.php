@@ -10,12 +10,8 @@ use Illuminate\View\View;
 
 class LoginController extends Controller
 {
-    public function show(): View|RedirectResponse
+    public function show(): View
     {
-        if (Auth::check()) {
-            return redirect()->route('admin.dashboard');
-        }
-
         return view('auth.login');
     }
 

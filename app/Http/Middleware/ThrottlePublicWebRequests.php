@@ -41,7 +41,7 @@ class ThrottlePublicWebRequests
             }
         }
 
-        if ($path === 'up' || $path === 'health') {
+        if ($path === 'up' || $path === 'health' || $path === 'login') {
             return true;
         }
 
