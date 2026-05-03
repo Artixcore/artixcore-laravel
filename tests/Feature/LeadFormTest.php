@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Http\Requests\Web\StoreWebLeadRequest;
 use App\Models\Lead;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -154,7 +153,92 @@ class LeadFormTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonPath('ok', false)
-            ->assertJsonStructure(['errors' => ['captcha']]);
+            ->assertJsonStructure(['errors' => ['captcha', 'cf-turnstile-response']]);
+    }
+
+    public function test_lead_json_missing_turnstile_token_returns_422(): void
+    {
+        config([
+            'captcha.bypass' => false,
+            'captcha.driver' => 'turnstile',
+            'captcha.turnstile.secret_key' => 'test-secret',
+        ]);
+
+        $this->get(route('lead'));
+
+        $response = $this->postJson(route('lead.store'), [
+            '_token' => csrf_token(),
+            'name' => 'Ajax User',
+            'email' => self::VALID_TEST_EMAIL,
+            'service_type' => 'Web Development',
+            'message' => 'This is at least ten chars for the message body.',
+            'source' => 'website',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('ok', false)
+            ->assertJsonValidationErrors(['cf-turnstile-response']);
+    }
+
+    public function test_lead_json_missing_turnstile_secret_returns_422_not_500(): void
+    {
+        config([
+            'captcha.bypass' => false,
+            'captcha.driver' => 'turnstile',
+            'services.turnstile.secret_key' => '',
+            'captcha.turnstile.secret_key' => '',
+        ]);
+
+        Http::fake();
+
+        $this->get(route('lead'));
+
+        $response = $this->postJson(route('lead.store'), [
+            '_token' => csrf_token(),
+            'name' => 'Ajax User',
+            'email' => self::VALID_TEST_EMAIL,
+            'service_type' => 'Web Development',
+            'message' => 'This is at least ten chars for the message body.',
+            'source' => 'website',
+            'cf-turnstile-response' => 'any-token',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('ok', false)
+            ->assertJsonStructure(['errors' => ['captcha', 'cf-turnstile-response']]);
+
+        Http::assertNothingSent();
+    }
+
+    public function test_lead_json_rate_limit_returns_429(): void
+    {
+        config([
+            'rate_limiting.forms_per_minute' => 2,
+            'captcha.bypass' => false,
+            'captcha.driver' => 'turnstile',
+            'captcha.turnstile.secret_key' => 'test-secret',
+        ]);
+
+        Http::fake([
+            (string) config('captcha.turnstile.verify_url') => Http::response(['success' => true], 200),
+        ]);
+
+        $this->get(route('lead'));
+
+        $payload = [
+            '_token' => csrf_token(),
+            'name' => 'Throttle User',
+            'email' => self::VALID_TEST_EMAIL,
+            'service_type' => 'Web Development',
+            'message' => 'This is at least ten chars for the message body.',
+            'source' => 'website',
+            'cf-turnstile-response' => 'test-turnstile-token',
+        ];
+
+        $this->postJson(route('lead.store'), $payload)->assertOk();
+        $this->postJson(route('lead.store'), $payload)->assertOk();
+
+        $this->postJson(route('lead.store'), $payload)->assertStatus(429);
     }
 
     public function test_non_ajax_post_redirects_with_success_without_accept_json(): void

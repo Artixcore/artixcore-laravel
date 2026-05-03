@@ -80,6 +80,7 @@ class Lead extends Model
             'visitor_context' => 'array',
             'submitted_at' => 'datetime',
             'reviewed_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 

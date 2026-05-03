@@ -26,7 +26,7 @@ class LeadController extends Controller
 
         return view('pages.lead', [
             'captchaDriver' => config('captcha.driver', 'turnstile'),
-            'turnstileSiteKey' => config('captcha.turnstile.site_key', ''),
+            'turnstileSiteKey' => (string) (config('services.turnstile.site_key') ?: config('captcha.turnstile.site_key', '')),
             'recaptchaSiteKey' => config('captcha.recaptcha_v2.site_key', ''),
             'captchaBypass' => $this->captchaVerifier->allowsBypass(),
         ]);
@@ -49,8 +49,18 @@ class LeadController extends Controller
                 'user_agent' => $request->userAgent(),
                 'submitted_at' => now(),
             ]);
+
+            $this->notifyAdmins($lead);
         } catch (Throwable $e) {
             report($e);
+
+            Log::error('Lead submission failed.', [
+                'route' => $request->route()?->getName(),
+                'request_id' => $request->header('X-Request-Id') ?? $request->header('X-Correlation-Id'),
+                'ip' => $request->ip(),
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+            ]);
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -64,8 +74,6 @@ class LeadController extends Controller
                 ->withInput($request->except(['captcha', 'cf-turnstile-response', 'g-recaptcha-response']))
                 ->withErrors(['message' => __('Something went wrong. Please try again shortly.')]);
         }
-
-        $this->notifyAdmins($lead);
 
         if ($request->expectsJson()) {
             return response()->json([

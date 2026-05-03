@@ -82,9 +82,9 @@
 						<div class="mb-3">
 							<span class="form-label d-block" id="lead-captcha-label">Verification <span class="text-danger">*</span></span>
 							@if ($captchaDriver === 'turnstile' && $turnstileSiteKey)
-								<div id="lead-turnstile" class="cf-turnstile" data-sitekey="{{ $turnstileSiteKey }}" data-theme="light"></div>
+								<div id="lead-captcha" data-sitekey="{{ $turnstileSiteKey }}" data-theme="light"></div>
 							@elseif ($captchaDriver === 'recaptcha_v2' && $recaptchaSiteKey)
-								<div id="lead-turnstile" class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}"></div>
+								<div id="lead-captcha" class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}"></div>
 							@else
 								<p class="text-warning small mb-0">Captcha is not fully configured. Set site and secret keys in your environment.</p>
 							@endif

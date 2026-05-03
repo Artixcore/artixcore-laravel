@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Log;
 
 class CaptchaVerifier
 {
+    public function __construct(
+        private TurnstileVerifier $turnstileVerifier,
+    ) {}
+
     public function verify(Request $request): bool
     {
         if ($this->allowsBypass()) {
@@ -59,34 +63,7 @@ class CaptchaVerifier
 
     private function verifyTurnstile(string $token, ?string $remoteIp): bool
     {
-        $secret = (string) config('captcha.turnstile.secret_key', '');
-        if ($secret === '') {
-            Log::warning('Turnstile secret key not configured.');
-
-            return false;
-        }
-
-        try {
-            $response = Http::asForm()
-                ->timeout(10)
-                ->post((string) config('captcha.turnstile.verify_url'), [
-                    'secret' => $secret,
-                    'response' => $token,
-                    'remoteip' => $remoteIp,
-                ]);
-        } catch (\Throwable $e) {
-            report($e);
-
-            return false;
-        }
-
-        if (! $response->successful()) {
-            return false;
-        }
-
-        $json = $response->json();
-
-        return is_array($json) && ! empty($json['success']);
+        return $this->turnstileVerifier->verify($token, $remoteIp);
     }
 
     private function verifyRecaptchaV2(string $token, ?string $remoteIp): bool

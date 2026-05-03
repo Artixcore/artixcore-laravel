@@ -101,7 +101,9 @@ class StoreWebLeadRequest extends FormRequest
     {
         if ($this->expectsJson()) {
             $errors = $validator->errors();
-            $onlyCaptcha = count($errors->keys()) === 1 && $errors->has('captcha');
+            $captchaKeys = ['captcha', 'cf-turnstile-response', 'g-recaptcha-response'];
+            $keys = $errors->keys();
+            $onlyCaptcha = $keys !== [] && count(array_diff($keys, $captchaKeys)) === 0;
             $message = $onlyCaptcha
                 ? __('Captcha verification failed. Please try again.')
                 : __('Please check the form and try again.');

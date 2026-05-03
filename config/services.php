@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cloudflare Turnstile (public forms)
+    |--------------------------------------------------------------------------
+    |
+    | Site key is safe for Blade; secret key is server-only (see CaptchaVerifier).
+    |
+    */
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+        'bypass' => filter_var(env('TURNSTILE_BYPASS', false), FILTER_VALIDATE_BOOLEAN),
+    ],
+
 ];

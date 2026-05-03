@@ -52,10 +52,14 @@ trait ValidatesTurnstileCaptcha
             /** @var CaptchaVerifier $captcha */
             $captcha = app(CaptchaVerifier::class);
             if (! $captcha->verify($this)) {
-                $validator->errors()->add(
-                    'captcha',
-                    __('Captcha verification failed. Please try again.')
-                );
+                $msg = __('Captcha verification failed. Please try again.');
+                $validator->errors()->add('captcha', $msg);
+                if ((string) config('captcha.driver', 'turnstile') === 'turnstile') {
+                    $validator->errors()->add('cf-turnstile-response', $msg);
+                }
+                if ((string) config('captcha.driver', 'turnstile') === 'recaptcha_v2') {
+                    $validator->errors()->add('g-recaptcha-response', $msg);
+                }
             }
         });
     }

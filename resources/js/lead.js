@@ -1,7 +1,7 @@
 /**
- * Lead form: AJAX submit + Turnstile-friendly handling (public marketing page only).
+ * Lead form: AJAX submit + Turnstile explicit render (scoped reset; public marketing page only).
  */
-(function () {
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('lead-form');
     if (!form) {
         return;
@@ -12,7 +12,7 @@
     const submitBtn = document.getElementById('lead-submit');
     const submitLabel = submitBtn?.querySelector('.lead-submit-label');
     const submitSpinner = submitBtn?.querySelector('[data-lead-submit-spinner]');
-    const captchaEl = document.getElementById('lead-turnstile');
+    const captchaEl = document.getElementById('lead-captcha');
 
     const fieldFocusOrder = [
         'name',
@@ -23,6 +23,51 @@
         'cf-turnstile-response',
         'captcha',
     ];
+
+    initLeadTurnstileExplicit(captchaEl);
+
+    function initLeadTurnstileExplicit(el) {
+        if (!el || el.classList.contains('g-recaptcha') || !el.dataset.sitekey) {
+            return;
+        }
+
+        function renderWhenReady() {
+            if (el.dataset.turnstileWidgetId) {
+                return;
+            }
+            if (typeof window.turnstile === 'undefined' || typeof window.turnstile.ready !== 'function') {
+                return;
+            }
+            window.turnstile.ready(function () {
+                if (el.dataset.turnstileWidgetId) {
+                    return;
+                }
+                try {
+                    const wid = window.turnstile.render(el, {
+                        sitekey: el.dataset.sitekey,
+                        theme: el.dataset.theme || 'light',
+                    });
+                    if (wid) {
+                        el.dataset.turnstileWidgetId = String(wid);
+                    }
+                } catch (_) {
+                    /* ignore */
+                }
+            });
+        }
+
+        renderWhenReady();
+        if (!el.dataset.turnstileWidgetId) {
+            let attempts = 0;
+            const timer = window.setInterval(function () {
+                attempts += 1;
+                renderWhenReady();
+                if (el.dataset.turnstileWidgetId || attempts > 150) {
+                    window.clearInterval(timer);
+                }
+            }, 100);
+        }
+    }
 
     function clearErrors() {
         form.querySelectorAll('[data-error-for]').forEach((el) => {
@@ -83,12 +128,16 @@
             return;
         }
         if (
-            captchaEl.classList.contains('cf-turnstile') &&
+            captchaEl.dataset.sitekey &&
+            !captchaEl.classList.contains('g-recaptcha') &&
             typeof window.turnstile !== 'undefined' &&
             typeof window.turnstile.reset === 'function'
         ) {
+            const wid = captchaEl.dataset.turnstileWidgetId;
             try {
-                window.turnstile.reset();
+                if (wid) {
+                    window.turnstile.reset(wid);
+                }
             } catch (_) {
                 /* ignore */
             }
@@ -121,6 +170,20 @@
         }
     }
 
+    function csrfHeader() {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        const fromMeta = meta?.getAttribute('content');
+        if (fromMeta) {
+            return { 'X-CSRF-TOKEN': fromMeta };
+        }
+        const input = form.querySelector('input[name="_token"]');
+        const fromInput = input?.getAttribute('value');
+        if (fromInput) {
+            return { 'X-CSRF-TOKEN': fromInput };
+        }
+        return {};
+    }
+
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
         clearErrors();
@@ -144,17 +207,13 @@
             return;
         }
 
-        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-
         try {
             const response = await fetch(form.action, {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    ...(csrfMeta?.getAttribute('content')
-                        ? { 'X-CSRF-TOKEN': csrfMeta.getAttribute('content') }
-                        : {}),
+                    ...csrfHeader(),
                 },
                 body: new FormData(form),
                 credentials: 'same-origin',
@@ -195,6 +254,18 @@
                 return;
             }
 
+            if (response.status === 429) {
+                if (generalError) {
+                    generalError.textContent =
+                        (data && typeof data.message === 'string' && data.message) ||
+                        'Too many submissions. Please wait a minute and try again.';
+                    generalError.classList.remove('d-none');
+                }
+                resetCaptchaWidget();
+                setLoading(false);
+                return;
+            }
+
             if (response.status === 419) {
                 if (generalError) {
                     generalError.textContent =
@@ -225,4 +296,4 @@
 
         setLoading(false);
     });
-})();
+});
