@@ -14,7 +14,7 @@
 				<div class="col-md-6 col-lg-4">
 					<div class="card h-100 border-0 shadow-sm">
 						<div class="card-body">
-							<h5><a href="{{ route('portfolio.show', $project->slug) }}" class="stretched-link text-decoration-none">{{ $project->title }}</a></h5>
+							<h5><a href="{{ route('case-studies.show', $project->slug) }}" class="stretched-link text-decoration-none">{{ $project->title }}</a></h5>
 							@if($project->client_name)
 								<p class="small text-primary mb-2">{{ $project->client_name }}</p>
 							@endif

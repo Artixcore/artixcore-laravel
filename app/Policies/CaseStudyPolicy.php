@@ -18,11 +18,20 @@ class CaseStudyPolicy
             return true;
         }
 
-        if ($caseStudy->status !== 'published') {
+        if ($caseStudy->status === CaseStudy::STATUS_ARCHIVED) {
+            return false;
+        }
+
+        if ($caseStudy->status !== CaseStudy::STATUS_PUBLISHED) {
             return false;
         }
 
         return ! $caseStudy->published_at || $caseStudy->published_at->lte(now());
+    }
+
+    public function publish(User $user, CaseStudy $caseStudy): bool
+    {
+        return $user->can('case_studies.publish');
     }
 
     public function create(User $user): bool

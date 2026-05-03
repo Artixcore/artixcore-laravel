@@ -33,7 +33,8 @@ use Illuminate\Support\Str;
  */
 class UserSeeder extends Seeder
 {
-    private const PASSWORD = 'Aws@@33@@44##ff$%w3fdjrhwjx298389#';
+    /** @see docblock above — matches bootstrap accounts used in feature tests */
+    private const PASSWORD = 'password123';
 
     public function run(): void
     {

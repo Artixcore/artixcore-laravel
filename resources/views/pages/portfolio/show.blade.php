@@ -9,7 +9,7 @@
 		<nav class="mb-3">
 			<ol class="breadcrumb mb-0">
 				<li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-				<li class="breadcrumb-item"><a href="{{ route('portfolio.index') }}">Portfolio</a></li>
+				<li class="breadcrumb-item"><a href="{{ route('case-studies.index') }}">Case studies</a></li>
 				<li class="breadcrumb-item active">{{ $project->title }}</li>
 			</ol>
 		</nav>

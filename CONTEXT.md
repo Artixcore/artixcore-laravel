@@ -26,9 +26,9 @@ Use this file as ground truth for **repository layout and runtime behavior**. Th
 | Admin UI | Filament ^5.4 |
 | API auth | Laravel Sanctum |
 | Permissions / media | Spatie Laravel Permission, Spatie Laravel Media Library |
-| Scheduling | Defined in [bootstrap/app.php](bootstrap/app.php): `micro-tools:aggregate-daily-stats` daily at `01:00`; `pages:publish-scheduled` every minute; `articles:generate-ai` daily at `04:00` (draft Ali 1.0 articles, respects `AI_ARTICLE_DAILY_LIMIT`; default does not auto-publish) |
+| Scheduling | Defined in [bootstrap/app.php](bootstrap/app.php): `micro-tools:aggregate-daily-stats` daily at `01:00`; `pages:publish-scheduled` every minute; **`content:generate-ai`** daily at `04:00` — orchestrates Ali 1.0 **articles** (daily caps via `AI_ARTICLE_DAILY_LIMIT`), **case studies**, and **market updates** (interval gates via `config/ai_content.php`; defaults do not auto-publish). Legacy **`articles:generate-ai`** remains a thin delegate when present. |
 
-**Production scheduling caveat:** [.do/app.yaml](.do/app.yaml) notes DigitalOcean App Platform job cadence limits; do not assume true per-minute resolution for `everyMinute()` tasks on that platform. Prefer batch-style commands (e.g. daily `articles:generate-ai`) on DO unless your job runner reliably fires more frequently than ~15 minutes.
+**Production scheduling caveat:** [.do/app.yaml](.do/app.yaml) notes DigitalOcean App Platform job cadence limits; do not assume true per-minute resolution for `everyMinute()` tasks on that platform. Prefer batch-style commands (e.g. daily **`content:generate-ai`**) on DO unless your job runner reliably fires more frequently than ~15 minutes.
 
 ---
 
@@ -36,7 +36,7 @@ Use this file as ground truth for **repository layout and runtime behavior**. Th
 
 ### Web (Blade + session) — [routes/web.php](routes/web.php)
 
-- Public marketing routes: home, about, services, SaaS platforms, portfolio, blog, contact, get-started, careers, FAQ, legal.
+- Public marketing routes: home, about, services, SaaS platforms, **`/case-studies`** (canonical case studies; legacy **`/portfolio`** URLs **301** to **`/case-studies`**), **`/market-updates`**, blog, contact, get-started, careers, FAQ, legal.
 - **`/login`** (guest): session login.
 - **`/admin/*`**: authenticated users with middleware `blade.admin` — dashboard, site/SEO/marketing settings, navigation CRUD, resources (services, testimonials, FAQs, articles, case studies, legal pages, jobs), contact messages, media, AI providers/agents/conversations, leads, users/roles, security settings, activity logs; optional **`ai-builder-context`** behind `can:builder.access`.
 - **`/builder/pages/{page}`** and **`/builder-api/v1/*`**: middleware `web`, `auth`, `builder.access`. Publish requires `can:builder.publish`; AI propose requires `can:builder.ai.use` and throttle `builder-ai-minute`.

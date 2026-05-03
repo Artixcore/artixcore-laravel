@@ -54,6 +54,13 @@
                 icon="briefcase"
                 :active="request()->routeIs('admin.case-studies.*')"
             >Case studies</x-admin.sidebar-item>
+            @can('market_updates.view_any')
+                <x-admin.sidebar-item
+                    :href="route('admin.market-updates.index')"
+                    icon="signal"
+                    :active="request()->routeIs('admin.market-updates.*')"
+                >Market updates</x-admin.sidebar-item>
+            @endcan
             <x-admin.sidebar-item
                 :href="route('admin.legal-pages.index')"
                 icon="document-text"

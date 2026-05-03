@@ -3,11 +3,13 @@
 use App\Http\Controllers\Admin\ActivityLogAdminController;
 use App\Http\Controllers\Admin\AiAgentAdminController;
 use App\Http\Controllers\Admin\AiArticleGeneratorAdminController;
+use App\Http\Controllers\Admin\AiContentQuickGenerateController;
 use App\Http\Controllers\Admin\AiBuilderBusinessProfileAdminController;
 use App\Http\Controllers\Admin\AiConversationAdminController;
 use App\Http\Controllers\Admin\AiProviderAdminController;
 use App\Http\Controllers\Admin\ArticleAdminController;
 use App\Http\Controllers\Admin\CaseStudyAdminController;
+use App\Http\Controllers\Admin\MarketUpdateAdminController;
 use App\Http\Controllers\Admin\ContactMessageAdminController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqAdminController;
@@ -37,10 +39,12 @@ use App\Http\Controllers\Web\GetStartedController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LeadController;
 use App\Http\Controllers\Web\LegalPageController;
+use App\Http\Controllers\Web\CaseStudyPublicController;
+use App\Http\Controllers\Web\MarketUpdatePublicController;
 use App\Http\Controllers\Web\PageBuilderController;
-use App\Http\Controllers\Web\PortfolioController;
 use App\Http\Controllers\Web\SaaSPlatformsController;
 use App\Http\Controllers\Web\ServiceController;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -49,8 +53,18 @@ Route::get('/about', [AboutController::class, 'show'])->name('about');
 Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
 Route::get('/services/{slug}', [ServiceController::class, 'show'])->name('services.show');
 Route::get('/saas-platforms', [SaaSPlatformsController::class, 'index'])->name('saas-platforms');
-Route::get('/portfolio', [PortfolioController::class, 'index'])->name('portfolio.index');
-Route::get('/portfolio/{slug}', [PortfolioController::class, 'show'])->name('portfolio.show');
+Route::redirect('/portfolio', '/case-studies', 301)->name('portfolio.index');
+Route::get('/portfolio/{slug}', function (string $slug): RedirectResponse {
+    return redirect()->route('case-studies.show', ['slug' => $slug], 301);
+})->where('slug', '[A-Za-z0-9\-]+')->name('portfolio.show');
+Route::get('/case-studies', [CaseStudyPublicController::class, 'index'])->name('case-studies.index');
+Route::get('/case-studies/category/{categorySlug}', [CaseStudyPublicController::class, 'category'])->name('case-studies.category');
+Route::get('/case-studies/tag/{tagSlug}', [CaseStudyPublicController::class, 'tag'])->name('case-studies.tag');
+Route::get('/case-studies/{slug}', [CaseStudyPublicController::class, 'show'])->name('case-studies.show');
+Route::get('/market-updates', [MarketUpdatePublicController::class, 'index'])->name('market-updates.index');
+Route::get('/market-updates/category/{categorySlug}', [MarketUpdatePublicController::class, 'category'])->name('market-updates.category');
+Route::get('/market-updates/tag/{tagSlug}', [MarketUpdatePublicController::class, 'tag'])->name('market-updates.tag');
+Route::get('/market-updates/{slug}', [MarketUpdatePublicController::class, 'show'])->name('market-updates.show');
 Route::get('/articles', [ArticlePublicController::class, 'index'])->name('articles.index');
 Route::get('/articles/category/{categorySlug}', [ArticlePublicController::class, 'category'])->name('articles.category');
 Route::get('/articles/tag/{tagSlug}', [ArticlePublicController::class, 'tag'])->name('articles.tag');
@@ -111,7 +125,15 @@ Route::middleware(['auth', 'blade.admin'])->prefix('admin')->name('admin.')->gro
     Route::get('/articles/{article}/preview', [ArticleAdminController::class, 'preview'])->name('articles.preview');
     Route::get('/ai-article-generator', [AiArticleGeneratorAdminController::class, 'index'])->name('ai-article-generator.index');
     Route::post('/ai-article-generator', [AiArticleGeneratorAdminController::class, 'store'])->name('ai-article-generator.store');
+    Route::get('/case-studies/{caseStudy}/preview', [CaseStudyAdminController::class, 'preview'])->name('case-studies.preview');
     Route::resource('case-studies', CaseStudyAdminController::class)->except(['show']);
+    Route::get('/market-updates/{marketUpdate}/preview', [MarketUpdateAdminController::class, 'preview'])->name('market-updates.preview');
+    Route::resource('market-updates', MarketUpdateAdminController::class)->except(['show']);
+
+    Route::post('/ai-content/quick/article', [AiContentQuickGenerateController::class, 'article'])->name('ai-content.quick.article');
+    Route::post('/ai-content/quick/case-study', [AiContentQuickGenerateController::class, 'caseStudy'])->name('ai-content.quick.case-study');
+    Route::post('/ai-content/quick/market-update', [AiContentQuickGenerateController::class, 'marketUpdate'])->name('ai-content.quick.market-update');
+
     Route::resource('legal-pages', LegalPageAdminController::class)->except(['show']);
     Route::resource('job-postings', JobPostingAdminController::class)->except(['show']);
 

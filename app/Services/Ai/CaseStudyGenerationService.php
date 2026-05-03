@@ -3,6 +3,7 @@
 namespace App\Services\Ai;
 
 use App\Models\CaseStudy;
+use App\Services\Ai\Clients\OpenAiCompatibleClient;
 use App\Services\Ai\Exceptions\LlmTransportException;
 use App\Services\HtmlSanitizer;
 use App\Support\Ai\AiPayloadTermSynchronizer;

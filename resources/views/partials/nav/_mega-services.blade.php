@@ -51,7 +51,7 @@
 				<div class="dropdown-item d-flex bg-light-hover position-relative text-wrap py-3">
 					<div class="icon-md border bg-body rounded flex-shrink-0"><i class="bi bi-kanban heading-color fs-6"></i></div>
 					<div class="ms-2">
-						<a class="stretched-link heading-color fw-bold mb-0" href="{{ route('portfolio.index') }}">Work</a>
+						<a class="stretched-link heading-color fw-bold mb-0" href="{{ route('case-studies.index') }}">Work</a>
 						<p class="mb-0 text-body small">Selected case studies and client outcomes.</p>
 					</div>
 				</div>
@@ -63,12 +63,12 @@
 					<div class="dropdown-item bg-light-hover d-flex align-items-sm-center gap-2 position-relative {{ $loop->last ? '' : 'mb-3' }}">
 						<img src="{{ $placeholderImg }}" class="rounded icon-lg object-fit-cover" width="56" height="56" alt="">
 						<p class="text-wrap fw-bold mb-0">
-							<a href="{{ route('portfolio.show', $study->slug) }}" class="stretched-link heading-color text-primary-hover">{{ $study->title }}</a>
+							<a href="{{ route('case-studies.show', $study->slug) }}" class="stretched-link heading-color text-primary-hover">{{ $study->title }}</a>
 						</p>
 					</div>
 				@empty
 					<div class="dropdown-item small text-muted mb-0">
-						<a href="{{ route('portfolio.index') }}" class="fw-bold">View portfolio</a>
+						<a href="{{ route('case-studies.index') }}" class="fw-bold">View case studies</a>
 					</div>
 				@endforelse
 			</div>

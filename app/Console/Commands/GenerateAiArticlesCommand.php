@@ -28,6 +28,12 @@ class GenerateAiArticlesCommand extends Command
             return self::SUCCESS;
         }
 
+        if (! $articles->providerConfigured()) {
+            $this->warn('No OPENAI_API_KEY or enabled AI provider — skipping.');
+
+            return self::SUCCESS;
+        }
+
         $result = $orchestrator->run(false, 'articles', $forcedType, $forcedTopic, false);
 
         foreach ($result['errors'] as $err) {

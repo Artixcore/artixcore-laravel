@@ -258,7 +258,13 @@ class CaseStudy extends Model
     {
         $outcomes = $this->outcomes;
         if (is_array($outcomes) && $outcomes !== []) {
-            $flat = implode(' ', array_map(static fn ($o): string => is_string($o) ? $o : '', $outcomes));
+            $parts = [];
+            foreach ($outcomes as $o) {
+                if (is_string($o)) {
+                    $parts[] = $o;
+                }
+            }
+            $flat = implode(' ', $parts);
 
             return Str::limit(trim(strip_tags($flat)), 220);
         }
