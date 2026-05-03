@@ -4,6 +4,7 @@ namespace App\Services\Content;
 
 use App\Models\Article;
 use App\Models\CaseStudy;
+use App\Models\MarketUpdate;
 use App\Models\Product;
 use App\Models\ResearchPaper;
 use Illuminate\Database\Eloquent\Collection;
@@ -64,6 +65,26 @@ class RelatedContentService
         return CaseStudy::query()
             ->published()
             ->where('id', '!=', $study->id)
+            ->whereHas('terms', fn ($q) => $q->whereIn('terms.id', $termIds))
+            ->orderByDesc('featured')
+            ->orderByDesc('published_at')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * @return Collection<int, MarketUpdate>
+     */
+    public function relatedMarketUpdates(MarketUpdate $update, int $limit = 4): Collection
+    {
+        $termIds = $update->terms()->pluck('terms.id');
+        if ($termIds->isEmpty()) {
+            return MarketUpdate::query()->whereKey([])->get();
+        }
+
+        return MarketUpdate::query()
+            ->published()
+            ->where('id', '!=', $update->id)
             ->whereHas('terms', fn ($q) => $q->whereIn('terms.id', $termIds))
             ->orderByDesc('featured')
             ->orderByDesc('published_at')

@@ -10,8 +10,11 @@ class ArticleGenerationLog extends Model
         'log_date',
         'status',
         'article_type',
+        'content_type',
         'error_message',
+        'payload_summary',
         'articles_created',
+        'records_created',
         'metadata',
     ];
 
@@ -20,6 +23,7 @@ class ArticleGenerationLog extends Model
         return [
             'log_date' => 'date',
             'articles_created' => 'integer',
+            'records_created' => 'integer',
             'metadata' => 'array',
         ];
     }

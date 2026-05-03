@@ -4,11 +4,10 @@ namespace App\Services\Ai;
 
 use App\Models\AiProvider;
 use App\Models\Article;
-use App\Models\Taxonomy;
-use App\Models\Term;
 use App\Services\Ai\Clients\OpenAiCompatibleClient;
 use App\Services\Ai\Exceptions\LlmTransportException;
 use App\Services\HtmlSanitizer;
+use App\Support\Ai\AiPayloadTermSynchronizer;
 use App\Support\Slug\UniqueSlugGenerator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -160,7 +159,7 @@ class ArticleGenerationService
             $article->save();
         }
 
-        $this->syncTermsFromPayload($article, $payload);
+        AiPayloadTermSynchronizer::sync($article, $payload);
 
         return $article->fresh(['terms.taxonomy']);
     }
@@ -202,7 +201,7 @@ class ArticleGenerationService
         $article->updated_by = Auth::id();
         $article->save();
 
-        $this->syncTermsFromPayload($article, $payload);
+        AiPayloadTermSynchronizer::sync($article, $payload);
     }
 
     /**
@@ -286,60 +285,6 @@ PROMPT;
         }
 
         return $decoded;
-    }
-
-    /**
-     * @param  array<string, mixed>  $payload
-     */
-    private function syncTermsFromPayload(Article $article, array $payload): void
-    {
-        $ids = [];
-
-        $categoryTax = Taxonomy::query()->firstOrCreate(['slug' => 'categories'], ['name' => 'Categories']);
-        $tagsTax = Taxonomy::query()->firstOrCreate(['slug' => 'tags'], ['name' => 'Tags']);
-
-        $parentCategory = null;
-        $catName = trim((string) ($payload['category'] ?? ''));
-        if ($catName !== '') {
-            $parentCategory = Term::query()->firstOrCreate(
-                ['taxonomy_id' => $categoryTax->id, 'slug' => Str::slug($catName)],
-                ['name' => $catName, 'sort_order' => 0, 'parent_id' => null]
-            );
-            $ids[] = $parentCategory->id;
-        }
-
-        $subName = trim((string) ($payload['subcategory'] ?? ''));
-        if ($subName !== '' && $parentCategory !== null) {
-            $child = Term::query()->updateOrCreate(
-                [
-                    'taxonomy_id' => $categoryTax->id,
-                    'parent_id' => $parentCategory->id,
-                    'slug' => Str::slug($subName),
-                ],
-                ['name' => $subName, 'sort_order' => 0]
-            );
-            $ids[] = $child->id;
-        }
-
-        $tags = $payload['tags'] ?? [];
-        if (is_array($tags)) {
-            foreach ($tags as $tag) {
-                $name = trim((string) $tag);
-                if ($name === '') {
-                    continue;
-                }
-                $term = Term::query()->firstOrCreate(
-                    ['taxonomy_id' => $tagsTax->id, 'slug' => Str::slug($name)],
-                    ['name' => $name, 'sort_order' => 0, 'parent_id' => null]
-                );
-                $ids[] = $term->id;
-            }
-        }
-
-        $ids = array_values(array_unique(array_filter($ids)));
-        if ($ids !== []) {
-            $article->terms()->sync($ids);
-        }
     }
 
     /**

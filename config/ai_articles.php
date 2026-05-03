@@ -6,7 +6,7 @@ return [
 
     'model' => env('OPENAI_ARTICLE_MODEL', 'gpt-4.1-mini'),
 
-    'author_name' => env('AI_ARTICLE_AUTHOR', 'Ali 1.0'),
+    'author_name' => env('AI_CONTENT_AUTHOR', env('AI_ARTICLE_AUTHOR', 'Ali 1.0')),
 
     'auto_publish' => filter_var(env('AI_ARTICLE_AUTO_PUBLISH', false), FILTER_VALIDATE_BOOLEAN),
 
