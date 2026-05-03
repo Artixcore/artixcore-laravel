@@ -40,8 +40,15 @@
             <x-admin.sidebar-item
                 :href="route('admin.articles.index')"
                 icon="newspaper"
-                :active="request()->routeIs('admin.articles.*')"
+                :active="request()->routeIs('admin.articles.*') && !request()->routeIs('admin.ai-article-generator.*')"
             >Articles</x-admin.sidebar-item>
+            @can('ai_articles.generate')
+                <x-admin.sidebar-item
+                    :href="route('admin.ai-article-generator.index')"
+                    icon="bolt"
+                    :active="request()->routeIs('admin.ai-article-generator.*')"
+                >Ali 1.0 generator</x-admin.sidebar-item>
+            @endcan
             <x-admin.sidebar-item
                 :href="route('admin.case-studies.index')"
                 icon="briefcase"

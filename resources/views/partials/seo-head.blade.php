@@ -6,11 +6,22 @@
 	$pageOgImage = $__env->hasSection('og_image') ? trim($__env->yieldContent('og_image')) : '';
 	$ogImage = $pageOgImage !== '' ? $pageOgImage : ($seoHead['og_image'] ?? null);
 	$tw = $seoHead['twitter'] ?? ['card' => 'summary_large_image', 'site' => null, 'creator' => null];
-	$canonical = url()->current();
+	$canonical = $__env->hasSection('canonical_url')
+		? trim($__env->yieldContent('canonical_url'))
+		: '';
+	if ($canonical === '') {
+		$canonical = url()->current();
+	}
 @endphp
 <link rel="canonical" href="{{ $canonical }}">
 <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
-<meta property="og:type" content="{{ $seoHead['og_type'] ?? 'website' }}">
+@php
+	$ogType = $__env->hasSection('og_type') ? trim($__env->yieldContent('og_type')) : '';
+	if ($ogType === '') {
+		$ogType = $seoHead['og_type'] ?? 'website';
+	}
+@endphp
+<meta property="og:type" content="{{ e($ogType) }}">
 <meta property="og:url" content="{{ $canonical }}">
 <meta property="og:title" content="{{ e($ogTitle) }}">
 @if($ogDescription !== '')

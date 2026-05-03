@@ -18,11 +18,25 @@ class ArticlePolicy
             return true;
         }
 
-        if ($article->status !== 'published') {
+        if ($article->status === Article::STATUS_ARCHIVED) {
+            return false;
+        }
+
+        if ($article->status !== Article::STATUS_PUBLISHED) {
             return false;
         }
 
         return ! $article->published_at || $article->published_at->lte(now());
+    }
+
+    public function publish(User $user, Article $article): bool
+    {
+        return $user->can('articles.publish');
+    }
+
+    public function generateAi(User $user): bool
+    {
+        return $user->can('ai_articles.generate');
     }
 
     public function create(User $user): bool

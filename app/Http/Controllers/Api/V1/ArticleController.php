@@ -24,11 +24,12 @@ class ArticleController extends Controller
             'q' => 'sometimes|string|max:200',
         ]);
 
-        $query = Article::query()->published()->with('terms');
+        $query = Article::query()->published()->with(['terms.taxonomy', 'media']);
 
         if (! empty($filters['category'])) {
-            $query->whereHas('terms', function ($q) use ($filters): void {
-                $q->where('slug', $filters['category'])
+            $slug = $filters['category'];
+            $query->whereHas('terms', function ($q) use ($slug): void {
+                $q->where('slug', $slug)
                     ->whereHas('taxonomy', fn ($t) => $t->where('slug', 'categories'));
             });
         }
@@ -48,11 +49,7 @@ class ArticleController extends Controller
         }
 
         if (! empty($filters['q'])) {
-            $needle = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $filters['q']).'%';
-            $query->where(function ($q) use ($needle): void {
-                $q->where('title', 'like', $needle)
-                    ->orWhere('summary', 'like', $needle);
-            });
+            $query->search($filters['q']);
         }
 
         $interest = collect(explode(',', (string) $request->header('X-Interest-Topics', '')))
@@ -68,11 +65,12 @@ class ArticleController extends Controller
 
     public function show(string $slug): ArticleResource
     {
-        $article = Article::query()->where('slug', $slug)->with('terms')->firstOrFail();
+        $article = Article::query()->where('slug', $slug)->with(['terms.taxonomy', 'media'])->firstOrFail();
         $this->authorize('view', $article);
         $article->increment('view_count');
 
         $related = $this->relatedContent->relatedArticles($article);
+        $related->load(['media']);
         $article->setRelation('relatedArticles', $related);
 
         return new ArticleResource($article);

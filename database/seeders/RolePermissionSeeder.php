@@ -38,6 +38,8 @@ class RolePermissionSeeder extends Seeder
                 'activity_logs.view',
                 'security_settings.view',
                 'security_settings.update',
+                'articles.publish',
+                'ai_articles.generate',
             ],
             $crud('micro_tools'),
             $crud('micro_tool_categories'),
@@ -128,6 +130,7 @@ class RolePermissionSeeder extends Seeder
                 $crud('micro_tools'),
                 $crud('micro_tool_categories'),
                 ['micro_tool_analytics.view', 'micro_tool_runs.view_any', 'micro_tool_runs.view'],
+                ['articles.publish', 'ai_articles.generate'],
             )),
             'marketing_admin' => $pick(array_merge(
                 ['filament.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
@@ -154,6 +157,7 @@ class RolePermissionSeeder extends Seeder
                 ['micro_tool_analytics.view', 'micro_tool_runs.view_any', 'micro_tool_runs.view'],
                 $crud('leads'),
                 ['ai_conversations.view_any', 'ai_conversations.view', 'ai_messages.view_any', 'ai_messages.view'],
+                ['articles.publish', 'ai_articles.generate'],
             )),
             'researcher_admin' => $pick(array_merge(
                 ['filament.access'],
@@ -220,7 +224,11 @@ class RolePermissionSeeder extends Seeder
             )),
             'end_user' => $pick(['portal.access']),
             'client' => $pick(['portal.access']),
-            'article_writer' => $pick(['portal.access']),
+            'article_writer' => $pick(array_merge(
+                ['filament.access', 'portal.access'],
+                $crud('articles'),
+                ['articles.publish', 'ai_articles.generate'],
+            )),
             'contributor' => $pick(['portal.access']),
         ];
 

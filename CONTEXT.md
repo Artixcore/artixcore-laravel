@@ -26,9 +26,9 @@ Use this file as ground truth for **repository layout and runtime behavior**. Th
 | Admin UI | Filament ^5.4 |
 | API auth | Laravel Sanctum |
 | Permissions / media | Spatie Laravel Permission, Spatie Laravel Media Library |
-| Scheduling | Defined in [bootstrap/app.php](bootstrap/app.php): `micro-tools:aggregate-daily-stats` daily at `01:00`; `pages:publish-scheduled` every minute |
+| Scheduling | Defined in [bootstrap/app.php](bootstrap/app.php): `micro-tools:aggregate-daily-stats` daily at `01:00`; `pages:publish-scheduled` every minute; `articles:generate-ai` daily at `04:00` (draft Ali 1.0 articles, respects `AI_ARTICLE_DAILY_LIMIT`; default does not auto-publish) |
 
-**Production scheduling caveat:** [.do/app.yaml](.do/app.yaml) notes DigitalOcean App Platform job cadence limits; do not assume true per-minute resolution for `everyMinute()` tasks on that platform.
+**Production scheduling caveat:** [.do/app.yaml](.do/app.yaml) notes DigitalOcean App Platform job cadence limits; do not assume true per-minute resolution for `everyMinute()` tasks on that platform. Prefer batch-style commands (e.g. daily `articles:generate-ai`) on DO unless your job runner reliably fires more frequently than ~15 minutes.
 
 ---
 

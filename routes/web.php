@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ActivityLogAdminController;
 use App\Http\Controllers\Admin\AiAgentAdminController;
+use App\Http\Controllers\Admin\AiArticleGeneratorAdminController;
 use App\Http\Controllers\Admin\AiBuilderBusinessProfileAdminController;
 use App\Http\Controllers\Admin\AiConversationAdminController;
 use App\Http\Controllers\Admin\AiProviderAdminController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Api\V1\Builder\BuilderSavedSectionController;
 use App\Http\Controllers\Api\V1\Builder\BuilderTemplateController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Web\AboutController;
+use App\Http\Controllers\Web\ArticlePublicController;
 use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\CareerController;
 use App\Http\Controllers\Web\FaqController;
@@ -49,6 +51,11 @@ Route::get('/services/{slug}', [ServiceController::class, 'show'])->name('servic
 Route::get('/saas-platforms', [SaaSPlatformsController::class, 'index'])->name('saas-platforms');
 Route::get('/portfolio', [PortfolioController::class, 'index'])->name('portfolio.index');
 Route::get('/portfolio/{slug}', [PortfolioController::class, 'show'])->name('portfolio.show');
+Route::get('/articles', [ArticlePublicController::class, 'index'])->name('articles.index');
+Route::get('/articles/category/{categorySlug}', [ArticlePublicController::class, 'category'])->name('articles.category');
+Route::get('/articles/tag/{tagSlug}', [ArticlePublicController::class, 'tag'])->name('articles.tag');
+Route::get('/articles/{slug}', [ArticlePublicController::class, 'show'])->name('articles.show');
+
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/contact', fn () => redirect()->route('lead.create', [], 301))->name('contact');
@@ -101,6 +108,9 @@ Route::middleware(['auth', 'blade.admin'])->prefix('admin')->name('admin.')->gro
     Route::resource('testimonials', TestimonialAdminController::class)->except(['show']);
     Route::resource('faqs', FaqAdminController::class)->except(['show']);
     Route::resource('articles', ArticleAdminController::class)->except(['show']);
+    Route::get('/articles/{article}/preview', [ArticleAdminController::class, 'preview'])->name('articles.preview');
+    Route::get('/ai-article-generator', [AiArticleGeneratorAdminController::class, 'index'])->name('ai-article-generator.index');
+    Route::post('/ai-article-generator', [AiArticleGeneratorAdminController::class, 'store'])->name('ai-article-generator.store');
     Route::resource('case-studies', CaseStudyAdminController::class)->except(['show']);
     Route::resource('legal-pages', LegalPageAdminController::class)->except(['show']);
     Route::resource('job-postings', JobPostingAdminController::class)->except(['show']);
