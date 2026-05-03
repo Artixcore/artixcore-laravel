@@ -66,6 +66,7 @@ Use this file as ground truth for **repository layout and runtime behavior**. Th
 | Blade admin | [app/Http/Controllers/Admin/](app/Http/Controllers/Admin/) |
 | Page builder | [app/Services/Builder/](app/Services/Builder/), [app/Http/Controllers/Web/PageBuilderController.php](app/Http/Controllers/Web/PageBuilderController.php), block typing [app/Support/Content/PageBlockType.php](app/Support/Content/PageBlockType.php) |
 | Micro-tools | [app/Services/Tools/](app/Services/Tools/), [app/Providers/MicroToolsServiceProvider.php](app/Providers/MicroToolsServiceProvider.php) |
+| Production CMS/domain repair | [app/Services/ProductionDomainRepairService.php](app/Services/ProductionDomainRepairService.php), [database/seeders/ProductionRemoveTestDomainSeeder.php](database/seeders/ProductionRemoveTestDomainSeeder.php), [app/Console/Commands/RepairProductionContentCommand.php](app/Console/Commands/RepairProductionContentCommand.php) |
 | AI (LLM clients, etc.) | [app/Services/Ai/](app/Services/Ai/), Filament AI resources under `app/Filament/Resources/`; migrations naming `*ai*` / enterprise AI |
 | Policies / authorization | [app/Policies/](app/Policies/); `master_admin` role short-circuits authorization via `Gate::before` in [app/Providers/AppServiceProvider.php](app/Providers/AppServiceProvider.php); `builder.access` / `builder.publish` / `builder.ai.use` are used as abilities (typically Spatie permission names) |
 
@@ -84,6 +85,8 @@ Use this file as ground truth for **repository layout and runtime behavior**. Th
 
 Notable variables (see [.env.example](.env.example)):
 
+- `APP_URL` — production should be `https://artixcore.com` (set explicitly on the host; [config/app.php](config/app.php) uses a **production-safe default** of `https://artixcore.com` when `APP_URL` is unset). Local dev overrides this in `.env` (e.g. `http://localhost:8000`).
+- `CONTACT_EMAIL`, `MAIL_FROM_ADDRESS`, `LEADS_NOTIFICATION_EMAIL` — public marketing and mail defaults; production values are `hello@artixcore.com` in [.env.example](.env.example) and config fallbacks.
 - `FRONTEND_URL`, `SANCTUM_STATEFUL_DOMAINS` — SPA / cross-origin cookie session assumptions.
 - `TRUSTED_PROXIES` — behind load balancers (e.g. DigitalOcean).
 - **AI widget:** `AI_CHAT_ENABLED`, `AI_WIDGET_AGENT_SLUG`, `AI_INTAKE_AGENT_SLUG`.
@@ -93,7 +96,28 @@ Notable variables (see [.env.example](.env.example)):
 
 **Containers:** [Dockerfile](Dockerfile) uses a Node stage for `npm ci` / `npm run build`, copies `public/build` into PHP image, runs `composer install --no-dev`, serves via `php artisan serve` on `$PORT` (see file for exact CMD).
 
-**DigitalOcean:** [.do/app.yaml](.do/app.yaml) defines MySQL and runtime env bindings (e.g. `DB_URL`).
+**DigitalOcean:** [.do/app.yaml](.do/app.yaml) defines MySQL and runtime env bindings (e.g. `DB_URL`). App Platform env should set `APP_URL`, `APP_DOMAIN` / `SANCTUM_STATEFUL_DOMAINS`, and the mail/contact vars above to match the live site.
+
+---
+
+## Production domain, contact email, and status
+
+**Canonical public site:** `https://artixcore.com`. **Canonical public contact email:** `hello@artixcore.com` (mailto: `mailto:hello@artixcore.com`).
+
+**Where the footer and JSON-LD get the email:** Blade partials (e.g. [resources/views/partials/footer.blade.php](resources/views/partials/footer.blade.php), contact/lead pages, [resources/views/partials/seo-jsonld.blade.php](resources/views/partials/seo-jsonld.blade.php)) render `$site->contact_email` from **`site_settings`** (singleton row), composed in [app/Providers/AppServiceProvider.php](app/Providers/AppServiceProvider.php). That value is **database-backed**, not solely `CONTACT_EMAIL` from config. After deploys, if the DB still contains legacy `hello@artixcore.test` or `artixcore.test` URLs (including inside JSON CMS fields), the live site will show them until repaired.
+
+**Repair tooling (idempotent, no row deletes):**
+
+| Mechanism | Purpose |
+| --- | --- |
+| [app/Services/ProductionDomainRepairService.php](app/Services/ProductionDomainRepairService.php) | Replaces legacy `artixcore.test` / `hello@artixcore.test` across scoped CMS/settings tables (strings + recursive JSON). Skips lead/contact-message **identity** email columns. |
+| `php artisan db:seed --class=ProductionRemoveTestDomainSeeder --force` | Post-deploy DB repair entrypoint. |
+| `php artisan artixcore:repair-production-content` | Same logic without going through `db:seed`. |
+| [database/seeders/ProductionContactInfoSeeder.php](database/seeders/ProductionContactInfoSeeder.php) | Narrow fix: normalizes **`site_settings.contact_email`** only when it matches known placeholders. |
+
+**Documentation:** Full checklist, cache commands, and verification steps live in [docs/production-verification.md](docs/production-verification.md).
+
+**Site status (repository vs runtime):** In **this repo**, defaults and `.env.example` target production placeholders (`artixcore.com`, `hello@artixcore.com`). **Runtime** correctness on the public URL depends on **environment variables** on the host **and** MySQL content that powers `site_settings` and CMS JSON; run the repair seeder or Artisan command after deploy if historical `.test` data exists. Never use `migrate:fresh` or `db:wipe` on production.
 
 ---
 
@@ -131,3 +155,4 @@ flowchart LR
 2. Re-verify contracts in [routes/web.php](routes/web.php), [routes/api.php](routes/api.php), and [composer.json](composer.json) before asserting endpoint paths or package versions.
 3. When editing CMS or admin behavior, check whether **Filament**, **Blade `/admin`**, or **both** own the resource.
 4. Treat [.env.example](.env.example) and migrations as the source of truth for configuration knobs and tables, not prose in older docs.
+5. For **production deploys** and contact/domain correctness, follow [docs/production-verification.md](docs/production-verification.md) and the **Production domain, contact email, and status** section above.

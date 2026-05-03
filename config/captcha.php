@@ -10,9 +10,12 @@ return [
 
     /*
     | When true, only in local + testing environments, verification is skipped.
-    | Never enable in production.
+    | Never enable in production. TURNSTILE_BYPASS or legacy CAPTCHA_BYPASS (first wins if set).
     */
-    'bypass' => env('CAPTCHA_BYPASS', false),
+    'bypass' => filter_var(
+        env('TURNSTILE_BYPASS', env('CAPTCHA_BYPASS', false)),
+        FILTER_VALIDATE_BOOLEAN
+    ),
 
     'turnstile' => [
         'site_key' => env('TURNSTILE_SITE_KEY', ''),

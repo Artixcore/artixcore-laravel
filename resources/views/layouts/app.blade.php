@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<title>@yield('meta_title', $site->default_meta_title ?? $site->site_name ?? config('app.name'))</title>
 	@if($description = trim($__env->yieldContent('meta_description', $site->default_meta_description ?? '')))
 		<meta name="description" content="{{ $description }}">

@@ -7,6 +7,7 @@ use App\Http\Requests\Web\StoreWebLeadRequest;
 use App\Models\Lead;
 use App\Notifications\LeadSubmitted;
 use App\Services\Captcha\CaptchaVerifier;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -29,7 +30,7 @@ class LeadController extends Controller
         ]);
     }
 
-    public function store(StoreWebLeadRequest $request): RedirectResponse
+    public function store(StoreWebLeadRequest $request): JsonResponse|RedirectResponse
     {
         $data = $request->validated();
 
@@ -49,6 +50,13 @@ class LeadController extends Controller
         } catch (Throwable $e) {
             report($e);
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => __('Something went wrong. Please try again shortly.'),
+                ], 500);
+            }
+
             return redirect()
                 ->route('lead')
                 ->withInput($request->except(['captcha', 'cf-turnstile-response', 'g-recaptcha-response']))
@@ -56,6 +64,17 @@ class LeadController extends Controller
         }
 
         $this->notifyAdmins($lead);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'message' => __('Thank you for contacting Artixcore.'),
+                'lead' => [
+                    'name' => $lead->name,
+                    'email' => $lead->email,
+                ],
+            ]);
+        }
 
         return redirect()
             ->route('lead')
