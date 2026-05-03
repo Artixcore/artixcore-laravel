@@ -233,10 +233,9 @@
 </section>
 @endif
 
-<section class="py-6">
-	<div class="container text-center">
-		<h2 class="h5 mb-3">Discuss {{ $service->title }} with our team</h2>
-		<a href="{{ route('lead.create') }}" class="btn btn-primary btn-lg">Get in touch</a>
-	</div>
-</section>
+@include('partials.lead-cta', [
+	'ctaTitle' => 'Discuss '.$service->title.' with our team',
+	'ctaBody' => 'Share your goals and constraints — we respond with a clear plan and timeline.',
+	'ctaLabel' => 'Get in touch',
+])
 @endsection

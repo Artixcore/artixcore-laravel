@@ -156,10 +156,45 @@
 </section>
 @endif
 
-<section class="py-6 border-top">
-	<div class="container text-center">
-		<h2 class="h5 mb-3">Ready to build?</h2>
-		<p class="text-muted mb-4">Tell us about your product — we design and ship premium Laravel & React platforms.</p>
-		<a href="{{ route('lead.create') }}" class="btn btn-primary btn-lg">Start a project</a>
+@php
+	$articleFaqs = $articleFaqs ?? collect();
+	$articleTestimonials = $articleTestimonials ?? collect();
+@endphp
+@if($articleTestimonials->isNotEmpty())
+<section class="py-5 border-top bg-light bg-opacity-25">
+	<div class="container">
+		<h2 class="h5 fw-bold mb-4">What clients say</h2>
+		<div class="row g-4">
+			@foreach($articleTestimonials as $tm)
+				<div class="col-md-6">
+					<figure class="card border-0 shadow-sm h-100 p-4">
+						<blockquote class="mb-2 small">“{{ \Illuminate\Support\Str::limit(strip_tags($tm->body), 220) }}”</blockquote>
+						<figcaption class="small text-muted mb-0">{{ $tm->author_name }}{{ $tm->company ? ', '.$tm->company : '' }}</figcaption>
+					</figure>
+				</div>
+			@endforeach
+		</div>
 	</div>
 </section>
+@endif
+@if($articleFaqs->isNotEmpty())
+<section class="py-5 border-top">
+	<div class="container">
+		<h2 class="h5 fw-bold mb-4">FAQs</h2>
+		<div class="accordion" id="articleFaq">
+			@foreach($articleFaqs as $i => $faq)
+				<div class="accordion-item">
+					<h3 class="accordion-header">
+						<button class="accordion-button {{ $i > 0 ? 'collapsed' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#articleFaq{{ $faq->id }}">{{ $faq->question }}</button>
+					</h3>
+					<div id="articleFaq{{ $faq->id }}" class="accordion-collapse collapse {{ $i === 0 ? 'show' : '' }}" data-bs-parent="#articleFaq">
+						<div class="accordion-body">{!! nl2br(e($faq->answer)) !!}</div>
+					</div>
+				</div>
+			@endforeach
+		</div>
+	</div>
+</section>
+@endif
+
+@include('partials.lead-cta')

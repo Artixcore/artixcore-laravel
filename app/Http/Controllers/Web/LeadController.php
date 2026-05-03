@@ -7,8 +7,11 @@ use App\Http\Requests\Web\StoreWebLeadRequest;
 use App\Models\Lead;
 use App\Notifications\LeadSubmitted;
 use App\Services\Captcha\CaptchaVerifier;
+use App\Services\Crm\CrmLeadSyncService;
+use App\Services\GeoIp\GeoIpLookupService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
@@ -18,6 +21,8 @@ class LeadController extends Controller
 {
     public function __construct(
         private CaptchaVerifier $captchaVerifier,
+        private GeoIpLookupService $geoIpLookup,
+        private CrmLeadSyncService $crmLeadSync,
     ) {}
 
     public function create(): View
@@ -45,18 +50,31 @@ class LeadController extends Controller
         $data = $request->validated();
 
         try {
-            $lead = Lead::query()->create([
-                'source' => $data['source'] ?? 'website',
-                'status' => Lead::STATUS_NEW,
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'phone' => $data['phone'] ?? null,
-                'service_type' => $data['service_type'],
-                'message' => $data['message'],
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'submitted_at' => now(),
-            ]);
+            $ip = $request->ip();
+            $userAgent = $request->userAgent();
+            $geo = $this->geoIpLookup->lookup($ip);
+
+            $lead = DB::transaction(function () use ($data, $ip, $userAgent, $geo): Lead {
+                $visitorContext = $this->crmLeadSync->mergeVisitorContext(null, $geo, $ip, $userAgent);
+
+                $lead = Lead::query()->create([
+                    'source' => $data['source'] ?? 'website',
+                    'status' => Lead::STATUS_NEW,
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'phone' => $data['phone'] ?? null,
+                    'service_type' => $data['service_type'],
+                    'message' => $data['message'],
+                    'ip_address' => $ip,
+                    'user_agent' => $userAgent,
+                    'submitted_at' => now(),
+                    'visitor_context' => $visitorContext,
+                ]);
+
+                $this->crmLeadSync->syncFromWebLead($lead, $geo, $ip, $userAgent);
+
+                return $lead;
+            });
 
             $this->notifyAdmins($lead);
         } catch (Throwable $e) {

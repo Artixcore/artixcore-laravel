@@ -12,12 +12,23 @@ class Testimonial extends Model
         'author_name',
         'role',
         'company',
+        'submitter_email',
         'body',
         'rating',
         'avatar_media_id',
+        'company_logo_media_id',
+        'service_id',
+        'product_id',
+        'portfolio_item_id',
+        'case_study_id',
+        'crm_contact_id',
         'sort_order',
         'is_published',
         'featured',
+        'moderation_status',
+        'published_at',
+        'created_by',
+        'updated_by',
     ];
 
     protected function casts(): array
@@ -27,6 +38,7 @@ class Testimonial extends Model
             'is_published' => 'boolean',
             'featured' => 'boolean',
             'rating' => 'integer',
+            'published_at' => 'datetime',
         ];
     }
 
@@ -39,11 +51,24 @@ class Testimonial extends Model
     }
 
     /**
+     * @return BelongsTo<MediaAsset, $this>
+     */
+    public function companyLogoMedia(): BelongsTo
+    {
+        return $this->belongsTo(MediaAsset::class, 'company_logo_media_id');
+    }
+
+    /**
      * @param  Builder<Testimonial>  $query
      * @return Builder<Testimonial>
      */
     public function scopePublished(Builder $query): Builder
     {
-        return $query->where('is_published', true);
+        return $query
+            ->where('moderation_status', 'approved')
+            ->where(function (Builder $q): void {
+                $q->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            });
     }
 }

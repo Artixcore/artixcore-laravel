@@ -195,9 +195,9 @@
 </section>
 @endif
 
-<section class="py-6">
-	<div class="container text-center">
-		<a href="{{ route('lead.create') }}" class="btn btn-primary btn-lg">Discuss your project</a>
-	</div>
-</section>
+@include('partials.lead-cta', [
+	'ctaTitle' => 'Discuss your project',
+	'ctaBody' => 'Tell us what you are shipping next — we help with Laravel, React, SaaS, and AI-assisted workflows.',
+	'ctaLabel' => 'Discuss your project',
+])
 @endsection

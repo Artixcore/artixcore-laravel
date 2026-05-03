@@ -124,6 +124,14 @@ class Lead extends Model
     }
 
     /**
+     * @return HasMany<CrmContact, $this>
+     */
+    public function crmContacts(): HasMany
+    {
+        return $this->hasMany(CrmContact::class, 'lead_id');
+    }
+
+    /**
      * @param  Builder<$this>  $query
      * @return Builder<$this>
      */

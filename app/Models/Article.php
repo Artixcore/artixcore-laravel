@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasMorphContentRelations;
+use App\Models\Concerns\HasMorphFaqsAndTestimonials;
 use App\Models\Concerns\HasTerms;
 use App\Services\Content\VideoEmbedResolver;
 use App\Support\Slug\UniqueSlugGenerator;
@@ -20,6 +21,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class Article extends Model implements HasMedia
 {
     use HasMorphContentRelations;
+    use HasMorphFaqsAndTestimonials;
     use HasTerms;
     use InteractsWithMedia;
     use SoftDeletes;

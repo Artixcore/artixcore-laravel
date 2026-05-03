@@ -83,6 +83,18 @@ class RolePermissionSeeder extends Seeder
             $crud('ai_conversations'),
             $crud('ai_messages'),
             $crud('leads'),
+            [
+                'crm.view',
+                'crm.create',
+                'crm.update',
+                'crm.delete',
+                'crm.email',
+                'crm.sources.manage',
+                'crm.projects.manage',
+                'reviews.manage',
+                'reviews.publish',
+                'faqs.manage',
+            ],
         )));
     }
 
@@ -154,6 +166,14 @@ class RolePermissionSeeder extends Seeder
                     'ai_case_studies.generate',
                     'ai_market_updates.generate',
                 ],
+                [
+                    'crm.view',
+                    'crm.create',
+                    'crm.update',
+                    'crm.email',
+                    'reviews.manage',
+                    'faqs.manage',
+                ],
             )),
             'marketing_admin' => $pick(array_merge(
                 ['admin.access', 'builder.access', 'builder.publish', 'builder.ai.use'],
@@ -189,6 +209,17 @@ class RolePermissionSeeder extends Seeder
                     'market_updates.publish',
                     'ai_case_studies.generate',
                     'ai_market_updates.generate',
+                ],
+                [
+                    'crm.view',
+                    'crm.create',
+                    'crm.update',
+                    'crm.email',
+                    'crm.sources.manage',
+                    'crm.projects.manage',
+                    'reviews.manage',
+                    'reviews.publish',
+                    'faqs.manage',
                 ],
             )),
             'researcher_admin' => $pick(array_merge(
@@ -230,6 +261,7 @@ class RolePermissionSeeder extends Seeder
                 'users.view',
                 'analytics_events.view_any',
                 'analytics_events.view',
+                'crm.view',
                 'leads.view_any',
                 'leads.view',
                 'leads.update',

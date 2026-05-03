@@ -10,6 +10,12 @@ use App\Http\Controllers\Admin\AiProviderAdminController;
 use App\Http\Controllers\Admin\ArticleAdminController;
 use App\Http\Controllers\Admin\CaseStudyAdminController;
 use App\Http\Controllers\Admin\ContactMessageAdminController;
+use App\Http\Controllers\Admin\Crm\CrmContactController;
+use App\Http\Controllers\Admin\Crm\CrmDashboardController;
+use App\Http\Controllers\Admin\Crm\CrmFaqController;
+use App\Http\Controllers\Admin\Crm\CrmProjectController;
+use App\Http\Controllers\Admin\Crm\CrmReviewController;
+use App\Http\Controllers\Admin\Crm\CrmSourceController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqAdminController;
 use App\Http\Controllers\Admin\JobPostingAdminController;
@@ -192,6 +198,41 @@ Route::middleware(['admin.ip', 'auth', 'blade.admin'])->prefix('admin')->name('a
     Route::get('/leads/{lead}', [LeadAdminController::class, 'show'])->name('leads.show');
     Route::match(['put', 'patch'], '/leads/{lead}', [LeadAdminController::class, 'update'])->name('leads.update');
     Route::delete('/leads/{lead}', [LeadAdminController::class, 'destroy'])->name('leads.destroy');
+
+    Route::prefix('crm')->name('crm.')->group(function (): void {
+        Route::get('/', [CrmDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('contacts', [CrmContactController::class, 'index'])->name('contacts.index');
+        Route::get('contacts/create', [CrmContactController::class, 'create'])->name('contacts.create');
+        Route::post('contacts', [CrmContactController::class, 'store'])->name('contacts.store');
+        Route::get('contacts/{crm_contact}', [CrmContactController::class, 'show'])->name('contacts.show');
+        Route::get('contacts/{crm_contact}/edit', [CrmContactController::class, 'edit'])->name('contacts.edit');
+        Route::patch('contacts/{crm_contact}', [CrmContactController::class, 'update'])->name('contacts.update');
+        Route::delete('contacts/{crm_contact}', [CrmContactController::class, 'destroy'])->name('contacts.destroy');
+        Route::post('contacts/{crm_contact}/send-email', [CrmContactController::class, 'sendEmail'])->name('contacts.send-email');
+        Route::post('contacts/{crm_contact}/notes', [CrmContactController::class, 'storeNote'])->name('contacts.notes.store');
+        Route::patch('contacts/{crm_contact}/status', [CrmContactController::class, 'updateStatus'])->name('contacts.status');
+
+        Route::get('sources', [CrmSourceController::class, 'index'])->name('sources.index');
+        Route::post('sources', [CrmSourceController::class, 'store'])->name('sources.store');
+        Route::patch('sources/{crm_source}', [CrmSourceController::class, 'update'])->name('sources.update');
+        Route::delete('sources/{crm_source}', [CrmSourceController::class, 'destroy'])->name('sources.destroy');
+
+        Route::get('projects', [CrmProjectController::class, 'index'])->name('projects.index');
+        Route::get('projects/create', [CrmProjectController::class, 'create'])->name('projects.create');
+        Route::post('projects', [CrmProjectController::class, 'store'])->name('projects.store');
+        Route::get('projects/{crm_project}/edit', [CrmProjectController::class, 'edit'])->name('projects.edit');
+        Route::patch('projects/{crm_project}', [CrmProjectController::class, 'update'])->name('projects.update');
+        Route::delete('projects/{crm_project}', [CrmProjectController::class, 'destroy'])->name('projects.destroy');
+
+        Route::get('reviews', [CrmReviewController::class, 'index'])->name('reviews.index');
+        Route::post('reviews/{testimonial}/approve', [CrmReviewController::class, 'approve'])->name('reviews.approve');
+        Route::post('reviews/{testimonial}/reject', [CrmReviewController::class, 'reject'])->name('reviews.reject');
+
+        Route::get('faqs', [CrmFaqController::class, 'index'])->name('faqs.index');
+        Route::post('faqs/{faq}/attach', [CrmFaqController::class, 'attach'])->name('faqs.attach');
+        Route::post('faqs/{faq}/detach', [CrmFaqController::class, 'detach'])->name('faqs.detach');
+    });
 
     Route::get('/security-settings', [SecuritySettingsAdminController::class, 'edit'])->name('security-settings.edit');
     Route::put('/security-settings', [SecuritySettingsAdminController::class, 'update'])->name('security-settings.update');

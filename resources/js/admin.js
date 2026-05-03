@@ -134,12 +134,32 @@ window.adminToast = function (message, type) {
     showToast(message, type === 'error' ? 'error' : 'success');
 };
 
+function clearAdminFormErrors(form) {
+    form.querySelectorAll('[data-error-for]').forEach((el) => {
+        el.textContent = '';
+    });
+}
+
+function showAdminFormErrors(form, errors) {
+    if (!errors || typeof errors !== 'object') return;
+    Object.keys(errors).forEach((field) => {
+        const el = form.querySelector(`[data-error-for="${field}"]`);
+        if (el && Array.isArray(errors[field])) {
+            el.textContent = errors[field].join(' ');
+        }
+    });
+}
+
 function initAdminAjaxForms() {
     document.querySelectorAll('form[data-admin-ajax-form]').forEach((form) => {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (form.dataset.ajaxSubmitting === '1') return;
+            form.dataset.ajaxSubmitting = '1';
+            /** @type {HTMLButtonElement | null} */
             const btn = form.querySelector('[type="submit"]');
             if (btn) btn.disabled = true;
+            clearAdminFormErrors(form);
             try {
                 const fd = new FormData(form);
                 const res = await fetch(form.action, {
@@ -154,6 +174,7 @@ function initAdminAjaxForms() {
                 const data = await res.json().catch(() => ({}));
                 if (res.status === 422) {
                     const msg = data.message || 'Validation failed.';
+                    showAdminFormErrors(form, data.errors);
                     showToast(msg, 'error');
                     return;
                 }
@@ -168,6 +189,7 @@ function initAdminAjaxForms() {
             } catch {
                 showToast('Network error.', 'error');
             } finally {
+                form.dataset.ajaxSubmitting = '0';
                 if (btn) btn.disabled = false;
             }
         });

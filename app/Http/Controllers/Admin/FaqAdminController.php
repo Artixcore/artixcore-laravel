@@ -8,6 +8,7 @@ use App\Services\HtmlSanitizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class FaqAdminController extends Controller
@@ -66,20 +67,35 @@ class FaqAdminController extends Controller
     {
         $data = $request->validate([
             'question' => ['required', 'string', 'max:500'],
-            'answer' => ['required', 'string', 'max:10000'],
+            'answer' => ['required', 'string', 'max:20000'],
             'category' => ['nullable', 'string', 'max:120'],
             'sort_order' => ['required', 'integer', 'min:0'],
+            'status' => ['nullable', 'string', Rule::in(['draft', 'published', 'archived'])],
+            'is_featured' => ['sometimes', 'boolean'],
             'is_published' => ['sometimes', 'boolean'],
             'show_on_general_faq' => ['sometimes', 'boolean'],
             'show_on_saas_page' => ['sometimes', 'boolean'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string', 'max:500'],
         ]) + [
             'is_published' => $request->boolean('is_published'),
+            'is_featured' => $request->boolean('is_featured'),
             'show_on_general_faq' => $request->boolean('show_on_general_faq'),
             'show_on_saas_page' => $request->boolean('show_on_saas_page'),
         ];
 
+        if (empty($data['status'])) {
+            $data['status'] = $data['is_published'] ? 'published' : 'draft';
+        }
+        $data['is_published'] = ($data['status'] ?? 'draft') === 'published';
+
         if (isset($data['answer']) && is_string($data['answer'])) {
             $data['answer'] = app(HtmlSanitizer::class)->sanitize($data['answer']);
+        }
+
+        $data['updated_by'] = $request->user()?->id;
+        if (! $request->route('faq')) {
+            $data['created_by'] = $request->user()?->id;
         }
 
         return $data;

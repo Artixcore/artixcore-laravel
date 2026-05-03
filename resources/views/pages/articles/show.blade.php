@@ -48,6 +48,9 @@
 @endphp
 <script type="application/ld+json">{!! json_encode($articleLd, $jsonFlags) !!}</script>
 <script type="application/ld+json">{!! json_encode($breadcrumb, $jsonFlags) !!}</script>
+@if(isset($articleFaqs) && $articleFaqs->isNotEmpty())
+	@include('partials.faq-jsonld', ['faqs' => $articleFaqs])
+@endif
 @endpush
 
 @section('content')
@@ -60,5 +63,7 @@
 	'linkedServices' => $linkedServices ?? collect(),
 	'linkedPlatforms' => $linkedPlatforms ?? collect(),
 	'relatedCaseStudiesGraph' => $relatedCaseStudiesGraph ?? collect(),
+	'articleFaqs' => $articleFaqs ?? collect(),
+	'articleTestimonials' => $articleTestimonials ?? collect(),
 ])
 @endsection

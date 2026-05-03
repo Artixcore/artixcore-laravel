@@ -86,6 +86,13 @@
                 icon="inbox"
                 :active="request()->routeIs('admin.contact-messages.*')"
             >Contact inbox</x-admin.sidebar-item>
+            @can('crm.view')
+                <x-admin.sidebar-item
+                    :href="route('admin.crm.dashboard')"
+                    icon="user-group"
+                    :active="request()->routeIs('admin.crm.*')"
+                >CRM</x-admin.sidebar-item>
+            @endcan
             @can('viewAny', App\Models\Lead::class)
                 <x-admin.sidebar-item
                     :href="route('admin.leads.index')"

@@ -83,7 +83,7 @@ class ArticlePublicController extends Controller
         $article = Article::query()
             ->published()
             ->where('slug', $slug)
-            ->with(['terms.taxonomy', 'terms.parent', 'media'])
+            ->with(['terms.taxonomy', 'terms.parent', 'media', 'faqs', 'testimonials.avatarMedia'])
             ->firstOrFail();
 
         $article->increment('view_count');
@@ -98,6 +98,9 @@ class ArticlePublicController extends Controller
         $linkedOwners = $this->relatedContent->linkedOwnersForArticle($article);
         $relatedCaseStudiesGraph = $this->relatedContent->relatedCaseStudiesForArticle($article);
 
+        $articleFaqs = $article->faqs()->published()->orderByPivot('sort_order')->get();
+        $articleTestimonials = $article->testimonials()->published()->with('avatarMedia')->orderByPivot('sort_order')->get();
+
         return view('pages.articles.show', [
             'article' => $article,
             'articleBodyHtml' => $tocData['html'],
@@ -106,6 +109,8 @@ class ArticlePublicController extends Controller
             'linkedServices' => $linkedOwners['services'],
             'linkedPlatforms' => $linkedOwners['platforms'],
             'relatedCaseStudiesGraph' => $relatedCaseStudiesGraph,
+            'articleFaqs' => $articleFaqs,
+            'articleTestimonials' => $articleTestimonials,
         ]);
     }
 

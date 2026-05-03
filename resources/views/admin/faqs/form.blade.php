@@ -18,13 +18,30 @@
 			<x-admin.input name="category" label="Category (optional)" value="{{ old('category', $faq->category) }}" />
 			<x-admin.textarea name="answer" label="Answer" rows="4" required>{{ old('answer', $faq->answer) }}</x-admin.textarea>
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-end">
+				<div>
+					<label class="admin-field-label" for="faq-status">Workflow status</label>
+					<select id="faq-status" name="status" class="admin-field-input w-full">
+						@foreach (['draft', 'published', 'archived'] as $st)
+							<option value="{{ $st }}" @selected(old('status', $faq->status ?? 'published') === $st)>{{ $st }}</option>
+						@endforeach
+					</select>
+				</div>
 				<x-admin.input name="sort_order" label="Sort" type="number" value="{{ old('sort_order', $faq->sort_order ?? 0) }}" />
+			</div>
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<x-admin.toggle-switch
 					name="is_published"
-					label="Published"
+					label="Published (legacy toggle)"
 					:checked="(bool) old('is_published', $faq->is_published ?? true)"
 				/>
+				<x-admin.toggle-switch
+					name="is_featured"
+					label="Featured"
+					:checked="(bool) old('is_featured', $faq->is_featured ?? false)"
+				/>
 			</div>
+			<x-admin.input name="meta_title" label="Meta title (optional)" value="{{ old('meta_title', $faq->meta_title) }}" />
+			<x-admin.textarea name="meta_description" label="Meta description (optional)" rows="2">{{ old('meta_description', $faq->meta_description) }}</x-admin.textarea>
 			<div class="space-y-3 rounded-[10px] border border-zinc-100 bg-zinc-50/50 p-4">
 				<input type="hidden" name="show_on_general_faq" value="0" />
 				<label class="flex cursor-pointer items-start gap-3 text-sm text-zinc-700">

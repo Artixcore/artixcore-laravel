@@ -225,10 +225,8 @@
 	</div>
 </section>
 @endif
-<section class="py-6">
-	<div class="container text-center">
-		<h2 class="h4 mb-3">Next steps</h2>
-		<p class="text-muted mb-4">Ready to build something similar with {{ $siteName }}?</p>
-		<a href="{{ route('lead.create') }}" class="btn btn-primary btn-lg">Start a project</a>
-	</div>
-</section>
+@include('partials.lead-cta', [
+	'ctaTitle' => 'Next steps',
+	'ctaBody' => 'Ready to build something similar with '.$siteName.'?',
+	'ctaLabel' => 'Start a project',
+])
