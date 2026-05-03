@@ -29,7 +29,7 @@
 							@if($site->contact_email)
 								<li class="nav-item"><a class="nav-link pt-0" href="mailto:{{ $site->contact_email }}">{{ $site->contact_email }}</a></li>
 							@endif
-							<li class="nav-item"><a class="nav-link" href="{{ route('contact') }}">Contact form</a></li>
+							<li class="nav-item"><a class="nav-link" href="{{ route('lead') }}">Contact form</a></li>
 						</ul>
 					</div>
 					<div class="col-md-4">

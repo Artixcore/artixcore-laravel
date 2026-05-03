@@ -18,7 +18,7 @@
 				@endif
 				<div class="d-flex gap-1 gap-sm-3 flex-wrap mt-4 mt-xl-5">
 					@if(!empty($sp['hero_primary_cta_label']))
-						<a class="btn btn-primary mb-0" href="{{ url($sp['hero_primary_cta_url'] ?? '/contact') }}">{{ $sp['hero_primary_cta_label'] }}</a>
+						<a class="btn btn-primary mb-0" href="{{ url($sp['hero_primary_cta_url'] ?? '/lead') }}">{{ $sp['hero_primary_cta_label'] }}</a>
 					@endif
 					@if(!empty($sp['hero_secondary_cta_label']))
 						<a class="btn btn-outline-primary mb-0" href="{{ url($sp['hero_secondary_cta_url'] ?? '/portfolio') }}">{{ $sp['hero_secondary_cta_label'] }}</a>

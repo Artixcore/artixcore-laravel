@@ -24,3 +24,6 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 CONTEXT.md
+.env.example
+.env.testing
+.env.local.backup

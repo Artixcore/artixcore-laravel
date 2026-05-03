@@ -7,7 +7,7 @@
 					<p class="text-white mb-0 opacity-75">{{ $home['cta_body'] ?? '' }}</p>
 				</div>
 				<div class="col-lg-4 text-lg-end">
-					<a href="{{ url($home['cta_button_url'] ?? '/contact') }}" class="btn btn-dark mb-0">{{ $home['cta_button_label'] ?? 'Contact' }}</a>
+					<a href="{{ url($home['cta_button_url'] ?? '/lead') }}" class="btn btn-dark mb-0">{{ $home['cta_button_label'] ?? 'Contact' }}</a>
 				</div>
 			</div>
 		</div>

@@ -32,11 +32,45 @@
 						<option value="{{ $u->id }}" @selected((string) old('assigned_to', $lead->assigned_to) === (string) $u->id)>{{ $u->name }}</option>
 					@endforeach
 				</x-admin.select>
+				<x-admin.textarea name="admin_notes" label="Admin notes" rows="4">{{ old('admin_notes', $lead->admin_notes) }}</x-admin.textarea>
+				<x-admin.input
+					name="reviewed_at"
+					label="Reviewed at"
+					type="datetime-local"
+					value="{{ old('reviewed_at', $lead->reviewed_at?->format('Y-m-d\TH:i')) }}"
+				/>
+				<x-admin.select name="reviewed_by" label="Reviewed by">
+					<option value="">— —</option>
+					@foreach ($staff as $u)
+						<option value="{{ $u->id }}" @selected((string) old('reviewed_by', $lead->reviewed_by) === (string) $u->id)>{{ $u->name }}</option>
+					@endforeach
+				</x-admin.select>
 				<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
 					<div class="md:col-span-2 rounded-lg border border-zinc-100 bg-zinc-50/50 px-3 py-2 text-sm">
 						<p class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Source</p>
 						<p class="mt-1 font-medium text-zinc-800">{{ $lead->source ?: '—' }}</p>
 					</div>
+					@if ($lead->service_type || $lead->message || $lead->submitted_at)
+						<div class="md:col-span-2 rounded-lg border border-zinc-100 bg-white px-3 py-3 text-sm">
+							<p class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Website submission</p>
+							@if ($lead->service_type)
+								<p class="mt-2"><span class="text-zinc-500">Service type:</span> {{ $lead->service_type }}</p>
+							@endif
+							@if ($lead->submitted_at)
+								<p class="mt-1"><span class="text-zinc-500">Submitted:</span> {{ $lead->submitted_at->format('M j, Y g:i a') }}</p>
+							@endif
+							@if ($lead->message)
+								<p class="mt-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">Message</p>
+								<p class="mt-1 whitespace-pre-wrap text-zinc-800">{{ $lead->message }}</p>
+							@endif
+							@if ($lead->ip_address)
+								<p class="mt-3 font-mono text-xs text-zinc-600">IP: {{ $lead->ip_address }}</p>
+							@endif
+							@if ($lead->user_agent)
+								<p class="mt-1 font-mono text-xs text-zinc-600 break-all">UA: {{ $lead->user_agent }}</p>
+							@endif
+						</div>
+					@endif
 					@if ($lead->visitor_context)
 						<div class="md:col-span-2 rounded-lg border border-zinc-100 bg-zinc-50/50 px-3 py-2">
 							<p class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Visitor context</p>

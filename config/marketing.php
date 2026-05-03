@@ -48,4 +48,10 @@ return [
         'meta_title' => 'Contact Artixcore | Start Your Software Project',
         'meta_description' => 'Contact Artixcore to discuss SaaS development, AI software, custom web applications, automation, and digital product engineering.',
     ],
+
+    'lead' => [
+        'meta_title' => 'Start a Project | Artixcore SaaS, AI & Software Development',
+        'meta_description' => 'Tell Artixcore about your software project. Request SaaS development, AI software engineering, web app development, automation, e-commerce, CRM, ERP, or cloud solutions.',
+        'meta_keywords' => 'start software project, Artixcore contact, SaaS development request, AI software development, web application development, app development, custom software quote, Laravel development, React development, automation development',
+    ],
 ];

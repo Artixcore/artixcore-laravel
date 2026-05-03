@@ -22,7 +22,7 @@ final class MarketingContent
             'hero_subtitle' => 'From strategy to launch, we design and engineer reliable software for startups, enterprises, and ambitious teams that need speed, security, and measurable outcomes.',
             'hero_trust_line' => 'Laravel, React, AI, cloud infrastructure, automation, and product engineering under one roof.',
             'hero_primary_cta_label' => 'Start a Project',
-            'hero_primary_cta_url' => '/contact',
+            'hero_primary_cta_url' => '/lead',
             'hero_secondary_cta_label' => 'Explore Services',
             'hero_secondary_cta_url' => '/services',
             'hero_stat_value' => '5K+',
@@ -56,7 +56,7 @@ final class MarketingContent
             'cta_title' => 'Ready to build something exceptional?',
             'cta_body' => 'Tell us about your roadmap—we will respond with a clear plan and timeline.',
             'cta_button_label' => 'Contact Artixcore',
-            'cta_button_url' => '/contact',
+            'cta_button_url' => '/lead',
             'contact_teaser_title' => 'Let’s talk',
             'contact_teaser_body' => 'Share a few details and we will reach out within two business days.',
         ];
@@ -136,7 +136,7 @@ final class MarketingContent
             'cta_title' => 'Not sure which service fits?',
             'cta_body' => 'Tell us what you are building—we will suggest a practical path, timeline, and team shape.',
             'cta_button_label' => 'Contact Artixcore',
-            'cta_button_url' => '/contact',
+            'cta_button_url' => '/lead',
             'show_testimonials' => true,
         ];
     }
@@ -164,7 +164,7 @@ final class MarketingContent
             'hero_title' => 'Build SaaS products your customers pay for every month',
             'hero_subtitle' => 'We take you from idea to launch with clear architecture, scalable backends, and polished product UX—then help you grow with automation, integrations, and operational tooling.',
             'hero_primary_cta_label' => 'Book a strategy call',
-            'hero_primary_cta_url' => '/contact',
+            'hero_primary_cta_url' => '/lead',
             'hero_secondary_cta_label' => 'View portfolio',
             'hero_secondary_cta_url' => '/portfolio',
             'show_stats' => true,
@@ -239,9 +239,9 @@ final class MarketingContent
             'cta_title' => 'Ready to shape your SaaS roadmap?',
             'cta_body' => 'Tell us about your idea, your current stack, and your timeline—we will respond with a practical next step.',
             'cta_primary_label' => 'Contact Artixcore',
-            'cta_primary_url' => '/contact',
+            'cta_primary_url' => '/lead',
             'cta_secondary_label' => 'Request a demo discussion',
-            'cta_secondary_url' => '/contact',
+            'cta_secondary_url' => '/lead',
         ];
     }
 

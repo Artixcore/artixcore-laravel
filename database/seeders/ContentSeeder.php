@@ -205,7 +205,7 @@ class ContentSeeder extends Seeder
                     'eyebrow' => 'Artixcore',
                     'title' => 'Software that scales with ambition',
                     'subtitle' => 'SaaS platforms, blockchain systems, quantum-ready tooling, and research-led engineering.',
-                    'primaryCta' => ['label' => 'Book a call', 'href' => '/contact'],
+                    'primaryCta' => ['label' => 'Book a call', 'href' => '/lead'],
                     'secondaryCta' => ['label' => 'Explore products', 'href' => '/products'],
                 ],
             ]
@@ -234,7 +234,7 @@ class ContentSeeder extends Seeder
                     'title' => 'Ready to ship?',
                     'body' => 'Tell us about your product, research goals, or infrastructure needs.',
                     'buttonLabel' => 'Contact us',
-                    'href' => '/contact',
+                    'href' => '/lead',
                 ],
             ]
         );

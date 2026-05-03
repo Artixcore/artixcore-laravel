@@ -7,12 +7,21 @@ use App\Models\PageBlock;
 use App\Models\User;
 use App\Support\Builder\BuilderDocumentDefaults;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class BuilderPageApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Builder routes use the `web` stack; pipeline resolves PreventRequestForgery (not deprecated ValidateCsrfToken).
+        $this->withoutMiddleware(PreventRequestForgery::class);
+    }
 
     private function contentAdmin(): User
     {

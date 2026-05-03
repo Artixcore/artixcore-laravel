@@ -254,7 +254,7 @@ class PageDocumentCompiler
             'title' => is_string($p['title'] ?? null) ? $p['title'] : '',
             'body' => is_string($p['body'] ?? null) ? $p['body'] : '',
             'buttonLabel' => is_string($p['buttonLabel'] ?? null) ? $p['buttonLabel'] : 'Learn more',
-            'href' => is_string($p['href'] ?? null) ? $p['href'] : '/contact',
+            'href' => is_string($p['href'] ?? null) ? $p['href'] : '/lead',
         ];
     }
 

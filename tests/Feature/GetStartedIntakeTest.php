@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\AiAgent;
 use App\Models\AiMessage;
 use App\Models\AiProvider;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -48,7 +48,7 @@ class GetStartedIntakeTest extends TestCase
 
     public function test_intake_validation_requires_fields(): void
     {
-        $this->withoutMiddleware(ValidateCsrfToken::class);
+        $this->withoutMiddleware(PreventRequestForgery::class);
 
         $response = $this->postJson(route('get-started.store'), []);
 
@@ -57,7 +57,7 @@ class GetStartedIntakeTest extends TestCase
 
     public function test_intake_creates_lead_conversation_and_opening_message(): void
     {
-        $this->withoutMiddleware(ValidateCsrfToken::class);
+        $this->withoutMiddleware(PreventRequestForgery::class);
         $this->seedOpenAiAgent();
         config(['ai.widget_agent_slug' => 'intake-agent']);
 
@@ -105,7 +105,7 @@ class GetStartedIntakeTest extends TestCase
 
     public function test_follow_up_chat_continues_intake_conversation(): void
     {
-        $this->withoutMiddleware(ValidateCsrfToken::class);
+        $this->withoutMiddleware(PreventRequestForgery::class);
         $this->seedOpenAiAgent();
         config(['ai.widget_agent_slug' => 'intake-agent']);
 

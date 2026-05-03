@@ -20,7 +20,7 @@
 						@endif
 						<div class="d-flex flex-wrap gap-2 justify-content-center">
 							@if(!empty($p['hero_primary_cta_label']))
-								<a class="btn btn-lg btn-primary icon-link icon-link-hover mb-0" href="{{ url($p['hero_primary_cta_url'] ?? '/contact') }}">{{ $p['hero_primary_cta_label'] }}<i class="bi bi-chevron-right"></i></a>
+								<a class="btn btn-lg btn-primary icon-link icon-link-hover mb-0" href="{{ url($p['hero_primary_cta_url'] ?? '/lead') }}">{{ $p['hero_primary_cta_label'] }}<i class="bi bi-chevron-right"></i></a>
 							@endif
 							@if(!empty($p['hero_secondary_cta_label']))
 								<a class="btn btn-lg btn-outline-light mb-0" href="{{ url($p['hero_secondary_cta_url'] ?? '/portfolio') }}">{{ $p['hero_secondary_cta_label'] }}</a>

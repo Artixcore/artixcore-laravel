@@ -10,10 +10,10 @@
 				<div class="col-lg-5 text-lg-end">
 					<div class="d-flex flex-wrap gap-2 justify-content-lg-end">
 						@if(!empty($p['cta_primary_label']))
-							<a href="{{ url($p['cta_primary_url'] ?? '/contact') }}" class="btn btn-dark mb-0">{{ $p['cta_primary_label'] }}</a>
+							<a href="{{ url($p['cta_primary_url'] ?? '/lead') }}" class="btn btn-dark mb-0">{{ $p['cta_primary_label'] }}</a>
 						@endif
 						@if(!empty($p['cta_secondary_label']))
-							<a href="{{ url($p['cta_secondary_url'] ?? '/contact') }}" class="btn btn-outline-light mb-0">{{ $p['cta_secondary_label'] }}</a>
+							<a href="{{ url($p['cta_secondary_url'] ?? '/lead') }}" class="btn btn-outline-light mb-0">{{ $p['cta_secondary_label'] }}</a>
 						@endif
 					</div>
 				</div>

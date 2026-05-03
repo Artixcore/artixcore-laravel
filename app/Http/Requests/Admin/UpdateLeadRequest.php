@@ -21,6 +21,12 @@ class UpdateLeadRequest extends FormRequest
         if ($this->input('assigned_to') === '') {
             $this->merge(['assigned_to' => null]);
         }
+        if ($this->input('reviewed_by') === '') {
+            $this->merge(['reviewed_by' => null]);
+        }
+        if ($this->input('reviewed_at') === '') {
+            $this->merge(['reviewed_at' => null]);
+        }
     }
 
     /**
@@ -39,6 +45,11 @@ class UpdateLeadRequest extends FormRequest
             'budget' => ['nullable', 'string', 'max:255'],
             'service_interest' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:10000'],
+            'message' => ['nullable', 'string', 'max:5000'],
+            'service_type' => ['nullable', 'string', 'max:120'],
+            'admin_notes' => ['nullable', 'string', 'max:50000'],
+            'reviewed_at' => ['nullable', 'date'],
+            'reviewed_by' => ['nullable', 'integer', 'exists:users,id'],
             'assigned_to' => ['nullable', 'integer', 'exists:users,id'],
         ];
     }

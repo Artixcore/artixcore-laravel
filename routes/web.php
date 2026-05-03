@@ -30,7 +30,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Web\AboutController;
 use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\CareerController;
-use App\Http\Controllers\Web\ContactController;
+use App\Http\Controllers\Web\LeadController;
 use App\Http\Controllers\Web\FaqController;
 use App\Http\Controllers\Web\GetStartedController;
 use App\Http\Controllers\Web\HomeController;
@@ -51,10 +51,15 @@ Route::get('/portfolio', [PortfolioController::class, 'index'])->name('portfolio
 Route::get('/portfolio/{slug}', [PortfolioController::class, 'show'])->name('portfolio.show');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
-Route::get('/contact', [ContactController::class, 'create'])->name('contact');
-Route::post('/contact', [ContactController::class, 'store'])
-    ->middleware('throttle:10,1')
+Route::get('/contact', fn () => redirect()->route('lead', [], 301))->name('contact');
+Route::post('/contact', [LeadController::class, 'store'])
+    ->middleware('throttle:5,1')
     ->name('contact.store');
+
+Route::get('/lead', [LeadController::class, 'create'])->name('lead');
+Route::post('/lead', [LeadController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('lead.store');
 
 Route::get('/get-started', [GetStartedController::class, 'show'])->name('get-started');
 Route::post('/get-started', [GetStartedController::class, 'store'])

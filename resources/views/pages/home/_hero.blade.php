@@ -57,7 +57,7 @@
 						<p class="artix-hero-trust text-muted mb-0 mt-3">{{ $h['hero_trust_line'] }}</p>
 					@endif
 					<div class="d-flex flex-wrap gap-2 mt-4 mt-md-5">
-						<a class="btn btn-primary mb-0" href="{{ url($h['hero_primary_cta_url'] ?? '/contact') }}">{{ $h['hero_primary_cta_label'] ?? 'Start a Project' }}</a>
+						<a class="btn btn-primary mb-0" href="{{ url($h['hero_primary_cta_url'] ?? '/lead') }}">{{ $h['hero_primary_cta_label'] ?? 'Start a Project' }}</a>
 						<a class="btn btn-light mb-0" href="{{ url($h['hero_secondary_cta_url'] ?? '/services') }}">{{ $h['hero_secondary_cta_label'] ?? 'Explore Services' }}</a>
 					</div>
 				</div>

@@ -23,16 +23,48 @@ class LeadAdminController extends Controller
     {
         $this->authorize('viewAny', Lead::class);
 
-        $q = Lead::query()->with(['assignee', 'conversation']);
+        $base = Lead::query()->with(['assignee', 'conversation', 'reviewedBy']);
+
+        $statsQuery = Lead::query();
+
+        $stats = [
+            'total' => (clone $statsQuery)->count(),
+            'new' => (clone $statsQuery)->where('status', Lead::STATUS_NEW)->count(),
+            'contacted' => (clone $statsQuery)->where('status', Lead::STATUS_CONTACTED)->count(),
+            'converted' => (clone $statsQuery)->where('status', Lead::STATUS_CONVERTED)->count(),
+        ];
 
         if ($request->filled('status')) {
-            $q->where('status', $request->string('status'));
+            $base->where('status', $request->string('status'));
         }
 
+        if ($request->filled('service_type')) {
+            $base->where('service_type', $request->string('service_type'));
+        }
+
+        if ($request->filled('q')) {
+            $q = $request->string('q')->toString();
+            $base->where(function ($query) use ($q): void {
+                $query
+                    ->where('name', 'like', '%'.$q.'%')
+                    ->orWhere('email', 'like', '%'.$q.'%')
+                    ->orWhere('service_type', 'like', '%'.$q.'%');
+            });
+        }
+
+        $leads = $base
+            ->orderByRaw('COALESCE(submitted_at, created_at) DESC')
+            ->paginate(30)
+            ->withQueryString();
+
         return view('admin.leads.index', [
-            'leads' => $q->orderByDesc('created_at')->paginate(30)->withQueryString(),
+            'leads' => $leads,
             'statuses' => Lead::statuses(),
             'currentStatus' => $request->string('status')->toString(),
+            'currentServiceType' => $request->string('service_type')->toString(),
+            'searchQuery' => $request->string('q')->toString(),
+            'serviceTypes' => Lead::SERVICE_TYPES,
+            'stats' => $stats,
         ]);
     }
 
@@ -40,7 +72,7 @@ class LeadAdminController extends Controller
     {
         $this->authorize('view', $lead);
 
-        $lead->load(['assignee', 'conversation.messages']);
+        $lead->load(['assignee', 'reviewedBy', 'conversation.messages']);
 
         return view('admin.leads.show', [
             'lead' => $lead,

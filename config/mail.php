@@ -115,4 +115,15 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Lead form notifications
+    |--------------------------------------------------------------------------
+    |
+    | When set, new website leads trigger LeadSubmitted to this address if mail is configured.
+    |
+    */
+
+    'leads_notification_email' => env('LEADS_NOTIFICATION_EMAIL'),
+
 ];
