@@ -34,11 +34,15 @@ class SecurityHeaders
         return $response;
     }
 
+    /**
+     * Turnstile-compatible CSP. If you still see Trusted Types / nonce CSP errors in the browser,
+     * check Cloudflare (Transform Rules, Page Rules) or other proxies—those headers can override Laravel.
+     */
     private function contentSecurityPolicy(Request $request): string
     {
         $directives = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
             "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "img-src 'self' data: https:",
@@ -53,11 +57,11 @@ class SecurityHeaders
         ];
 
         if (app()->environment('local')) {
-            $directives[2] = "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com http://127.0.0.1:* http://localhost:*";
-            $directives[3] = "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com http://127.0.0.1:* http://localhost:*";
-            $directives[4] = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com http://127.0.0.1:* http://localhost:*";
-            $directives[6] = "font-src 'self' data: https://fonts.gstatic.com http://127.0.0.1:* http://localhost:*";
-            $directives[9] = "connect-src 'self' https://challenges.cloudflare.com ws: http://127.0.0.1:* http://localhost:* http://[::1]:*";
+            $directives[1] = "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com http://127.0.0.1:* http://localhost:*";
+            $directives[2] = "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com http://127.0.0.1:* http://localhost:*";
+            $directives[3] = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com http://127.0.0.1:* http://localhost:*";
+            $directives[5] = "font-src 'self' data: https://fonts.gstatic.com http://127.0.0.1:* http://localhost:*";
+            $directives[8] = "connect-src 'self' https://challenges.cloudflare.com ws: http://127.0.0.1:* http://localhost:* http://[::1]:*";
         }
 
         return implode('; ', $directives);

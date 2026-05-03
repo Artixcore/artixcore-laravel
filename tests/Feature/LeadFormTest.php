@@ -18,15 +18,32 @@ class LeadFormTest extends TestCase
 
     public function test_lead_page_renders(): void
     {
-        $response = $this->get(route('lead'));
+        $response = $this->get(route('lead.create'));
 
         $response->assertOk()
             ->assertSee('Start Your Project with Artixcore', false);
     }
 
+    public function test_lead_page_includes_turnstile_markup_when_site_key_configured(): void
+    {
+        config([
+            'captcha.driver' => 'turnstile',
+            'captcha.bypass' => false,
+            'services.turnstile.bypass' => false,
+            'services.turnstile.site_key' => 'test-site-key-public',
+        ]);
+
+        $response = $this->get(route('lead.create'));
+
+        $response->assertOk()
+            ->assertSee('id="lead-turnstile"', false)
+            ->assertSee('test-site-key-public', false)
+            ->assertSee('cf-turnstile', false);
+    }
+
     public function test_lead_validation_requires_fields(): void
     {
-        $this->get(route('lead'));
+        $this->get(route('lead.create'));
 
         $response = $this->post(route('lead.store'), [
             '_token' => csrf_token(),
@@ -37,7 +54,7 @@ class LeadFormTest extends TestCase
 
     public function test_lead_rejects_invalid_email(): void
     {
-        $this->get(route('lead'));
+        $this->get(route('lead.create'));
 
         $response = $this->post(route('lead.store'), [
             '_token' => csrf_token(),
@@ -53,7 +70,7 @@ class LeadFormTest extends TestCase
 
     public function test_lead_stores_row_when_captcha_bypassed_in_testing(): void
     {
-        $this->get(route('lead'));
+        $this->get(route('lead.create'));
 
         $response = $this->post(route('lead.store'), [
             '_token' => csrf_token(),
@@ -65,7 +82,7 @@ class LeadFormTest extends TestCase
             'source' => 'website',
         ]);
 
-        $response->assertRedirect(route('lead'));
+        $response->assertRedirect(route('lead.create'));
         $response->assertSessionHas('status');
 
         $this->assertDatabaseHas('leads', [
@@ -83,7 +100,7 @@ class LeadFormTest extends TestCase
 
     public function test_lead_json_validation_returns_422(): void
     {
-        $this->get(route('lead'));
+        $this->get(route('lead.create'));
 
         $response = $this->postJson(route('lead.store'), [
             '_token' => csrf_token(),
@@ -106,7 +123,7 @@ class LeadFormTest extends TestCase
             (string) config('captcha.turnstile.verify_url') => Http::response(['success' => true], 200),
         ]);
 
-        $this->get(route('lead'));
+        $this->get(route('lead.create'));
 
         $response = $this->postJson(route('lead.store'), [
             '_token' => csrf_token(),
@@ -140,7 +157,7 @@ class LeadFormTest extends TestCase
             (string) config('captcha.turnstile.verify_url') => Http::response(['success' => false], 200),
         ]);
 
-        $this->get(route('lead'));
+        $this->get(route('lead.create'));
 
         $response = $this->postJson(route('lead.store'), [
             '_token' => csrf_token(),
@@ -164,7 +181,7 @@ class LeadFormTest extends TestCase
             'captcha.turnstile.secret_key' => 'test-secret',
         ]);
 
-        $this->get(route('lead'));
+        $this->get(route('lead.create'));
 
         $response = $this->postJson(route('lead.store'), [
             '_token' => csrf_token(),
@@ -191,7 +208,7 @@ class LeadFormTest extends TestCase
 
         Http::fake();
 
-        $this->get(route('lead'));
+        $this->get(route('lead.create'));
 
         $response = $this->postJson(route('lead.store'), [
             '_token' => csrf_token(),
@@ -223,7 +240,7 @@ class LeadFormTest extends TestCase
             (string) config('captcha.turnstile.verify_url') => Http::response(['success' => true], 200),
         ]);
 
-        $this->get(route('lead'));
+        $this->get(route('lead.create'));
 
         $payload = [
             '_token' => csrf_token(),
@@ -243,7 +260,7 @@ class LeadFormTest extends TestCase
 
     public function test_non_ajax_post_redirects_with_success_without_accept_json(): void
     {
-        $this->get(route('lead'));
+        $this->get(route('lead.create'));
 
         $response = $this->post(route('lead.store'), [
             '_token' => csrf_token(),
@@ -254,7 +271,7 @@ class LeadFormTest extends TestCase
             'source' => 'website',
         ]);
 
-        $response->assertRedirect(route('lead'));
+        $response->assertRedirect(route('lead.create'));
         $response->assertSessionHas('status');
     }
 }

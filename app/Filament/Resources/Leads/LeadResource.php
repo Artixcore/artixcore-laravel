@@ -13,6 +13,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Schema as SchemaFacade;
 
 class LeadResource extends Resource
 {
@@ -58,7 +59,15 @@ class LeadResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = Lead::query()->where('status', Lead::STATUS_NEW)->count();
+        if (! SchemaFacade::hasTable('leads')) {
+            return null;
+        }
+
+        try {
+            $count = Lead::query()->where('status', Lead::STATUS_NEW)->count();
+        } catch (\Throwable) {
+            return null;
+        }
 
         return $count > 0 ? (string) $count : null;
     }

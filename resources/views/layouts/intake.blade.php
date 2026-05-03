@@ -36,8 +36,6 @@
 			@yield('content')
 		</main>
 	</div>
-	@if (config('captcha.driver') === 'turnstile' && filled(config('captcha.turnstile.site_key')))
-		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-	@endif
+	@include('partials.cloudflare-turnstile-script')
 </body>
 </html>

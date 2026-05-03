@@ -36,6 +36,7 @@ class LeadController extends Controller
             'turnstileSiteKey' => (string) (config('services.turnstile.site_key') ?: config('captcha.turnstile.site_key', '')),
             'recaptchaSiteKey' => config('captcha.recaptcha_v2.site_key', ''),
             'captchaBypass' => $this->captchaVerifier->allowsBypass(),
+            'serviceTypes' => Lead::SERVICE_TYPES,
         ]);
     }
 
@@ -64,7 +65,6 @@ class LeadController extends Controller
             Log::error('Lead submission failed.', [
                 'route' => $request->route()?->getName(),
                 'request_id' => $request->header('X-Request-Id') ?? $request->header('X-Correlation-Id'),
-                'ip' => $request->ip(),
                 'exception' => $e::class,
             ]);
 
@@ -76,7 +76,7 @@ class LeadController extends Controller
             }
 
             return redirect()
-                ->route('lead')
+                ->route('lead.create')
                 ->withInput($request->except(['captcha', 'cf-turnstile-response', 'g-recaptcha-response']))
                 ->withErrors(['message' => __('Something went wrong. Please try again shortly.')]);
         }
@@ -93,7 +93,7 @@ class LeadController extends Controller
         }
 
         return redirect()
-            ->route('lead')
+            ->route('lead.create')
             ->with('status', __('Thanks — we received your project request and will get back to you soon.'));
     }
 

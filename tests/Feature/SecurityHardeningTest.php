@@ -15,7 +15,7 @@ class SecurityHardeningTest extends TestCase
 
     public function test_lead_honeypot_returns_success_without_persisting(): void
     {
-        $this->get(route('lead'));
+        $this->get(route('lead.create'));
 
         $response = $this->postJson(route('lead.store'), [
             '_token' => csrf_token(),
@@ -85,6 +85,33 @@ class SecurityHardeningTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.leads.index', ['sort' => 'injected', 'direction' => 'desc']))
             ->assertOk();
+    }
+
+    public function test_admin_lead_update_accepts_patch(): void
+    {
+        $this->seed();
+
+        /** @var User $admin */
+        $admin = User::query()->where('email', 'master@artixcore.com')->firstOrFail();
+
+        $lead = Lead::query()->create([
+            'source' => 'website',
+            'status' => Lead::STATUS_NEW,
+            'name' => 'Patch Me',
+            'email' => 'patch@example.com',
+            'service_type' => Lead::SERVICE_TYPES[0],
+            'message' => 'Message body long enough for testing.',
+            'submitted_at' => now(),
+        ]);
+
+        $this->actingAs($admin)->patch(route('admin.leads.update', $lead), [
+            'status' => Lead::STATUS_CONTACTED,
+            'admin_notes' => 'Called the client.',
+        ])->assertRedirect(route('admin.leads.show', $lead));
+
+        $lead->refresh();
+        $this->assertSame(Lead::STATUS_CONTACTED, $lead->status);
+        $this->assertSame('Called the client.', $lead->admin_notes);
     }
 
     public function test_blade_login_throttles_after_repeated_failures(): void

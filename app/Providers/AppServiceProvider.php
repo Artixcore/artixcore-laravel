@@ -42,7 +42,7 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute($perMinute)->by(sha1((string) $request->ip()));
         });
 
-        RateLimiter::for('lead-forms', function (Request $request) {
+        $leadFormThrottle = function (Request $request) {
             $perMinute = max(1, (int) config('rate_limiting.forms_per_minute', 5));
             $email = strtolower((string) $request->input('email', ''));
 
@@ -50,7 +50,10 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute($perMinute)->by(sha1((string) $request->ip())),
                 Limit::perMinute($perMinute)->by(sha1((string) $request->ip().'|'.$email)),
             ];
-        });
+        };
+
+        RateLimiter::for('lead-forms', $leadFormThrottle);
+        RateLimiter::for('lead-submit', $leadFormThrottle);
 
         RateLimiter::for('login-web', function (Request $request) {
             $perMinute = max(1, (int) config('rate_limiting.login_per_minute', 5));

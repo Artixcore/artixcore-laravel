@@ -26,7 +26,7 @@
 
 				<div id="lead-form-error" class="alert alert-danger d-none" role="alert"></div>
 
-				<div id="lead-success" class="card border-0 shadow-sm mb-4 d-none">
+				<section id="lead-success" class="card border-0 shadow-sm mb-4" hidden>
 					<div class="card-body p-4 p-md-5">
 						<h2 class="h4 mb-3">Welcome, <span data-lead-success-name></span>!</h2>
 						<p class="mb-3">Thank you for contacting Artixcore. We received your project request and will contact you at <span data-lead-success-email></span> soon.</p>
@@ -36,7 +36,7 @@
 							<a href="{{ route('home') }}" class="btn btn-outline-secondary mb-0">Back to Home</a>
 						</div>
 					</div>
-				</div>
+				</section>
 
 				<form id="lead-form" method="post" action="{{ route('lead.store') }}" novalidate>
 					@csrf
@@ -66,7 +66,7 @@
 						<label class="form-label" for="service_type">Service type <span class="text-danger">*</span></label>
 						<select class="form-select @error('service_type') is-invalid @enderror" id="service_type" name="service_type" required aria-describedby="err-service_type">
 							<option value="" disabled @selected(!old('service_type'))>Select a service</option>
-							@foreach (\App\Models\Lead::SERVICE_TYPES as $opt)
+							@foreach ($serviceTypes as $opt)
 								<option value="{{ $opt }}" @selected(old('service_type') === $opt)>{{ $opt }}</option>
 							@endforeach
 						</select>
@@ -83,7 +83,7 @@
 							<span class="form-label d-block" id="lead-captcha-label">Verification <span class="text-danger">*</span></span>
 							@if ($captchaDriver === 'turnstile' && $turnstileSiteKey)
 								<div
-									id="lead-captcha"
+									id="lead-turnstile"
 									class="cf-turnstile"
 									data-sitekey="{{ $turnstileSiteKey }}"
 									data-theme="light"

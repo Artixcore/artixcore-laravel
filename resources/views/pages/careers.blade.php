@@ -27,7 +27,7 @@
 					</div>
 				</div>
 			@empty
-				<p class="text-muted">There are no open listings right now. Check back soon or send your profile via <a href="{{ route('lead') }}">contact</a>.</p>
+				<p class="text-muted">There are no open listings right now. Check back soon or send your profile via <a href="{{ route('lead.create') }}">contact</a>.</p>
 			@endforelse
 		</div>
 	</div>

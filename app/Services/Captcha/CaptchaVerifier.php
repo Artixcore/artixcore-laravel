@@ -34,7 +34,10 @@ class CaptchaVerifier
 
     public function allowsBypass(): bool
     {
-        if (! config('captcha.bypass')) {
+        $bypass = filter_var(config('services.turnstile.bypass'), FILTER_VALIDATE_BOOLEAN)
+            || filter_var(config('captcha.bypass'), FILTER_VALIDATE_BOOLEAN);
+
+        if (! $bypass) {
             return false;
         }
 

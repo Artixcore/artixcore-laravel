@@ -62,7 +62,7 @@
 					</ul>
 				</li>
 				<li class="nav-item d-none d-sm-block">
-					<a href="{{ route('lead') }}" class="btn btn-sm btn-primary mb-0">Get started</a>
+					<a href="{{ route('lead.create') }}" class="btn btn-sm btn-primary mb-0">Get started</a>
 				</li>
 				<li class="nav-item">
 					<button class="navbar-toggler ms-sm-3 p-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">

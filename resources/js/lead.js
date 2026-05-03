@@ -2,10 +2,10 @@
  * Lead form: AJAX submit. Turnstile uses implicit rendering (.cf-turnstile); do not call turnstile.ready().
  */
 document.addEventListener('DOMContentLoaded', function () {
-    if (window.__artixcoreLeadFormBound) {
+    if (window.__artixcoreLeadInitialized) {
         return;
     }
-    window.__artixcoreLeadFormBound = true;
+    window.__artixcoreLeadInitialized = true;
 
     const form = document.getElementById('lead-form');
     if (!form) {
@@ -17,7 +17,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitBtn = document.getElementById('lead-submit');
     const submitLabel = submitBtn?.querySelector('.lead-submit-label');
     const submitSpinner = submitBtn?.querySelector('[data-lead-submit-spinner]');
-    const captchaEl = document.getElementById('lead-captcha');
+    const captchaEl =
+        document.getElementById('lead-turnstile') ??
+        document.getElementById('lead-captcha');
 
     const fieldFocusOrder = [
         'name',
@@ -225,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (emailSpan && data.lead) {
                         emailSpan.textContent = data.lead.email ?? '';
                     }
-                    successEl.classList.remove('d-none');
+                    successEl.removeAttribute('hidden');
                     successEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
                 return;

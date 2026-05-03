@@ -92,7 +92,7 @@ class StoreWebLeadRequest extends FormRequest
 
         throw new HttpResponseException(
             redirect()
-                ->route('lead')
+                ->route('lead.create')
                 ->with('status', __('Thanks — we received your project request and will get back to you soon.'))
         );
     }

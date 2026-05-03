@@ -47,6 +47,13 @@ class Lead extends Model
         'Other',
     ];
 
+    /**
+     * Mass assignment: public website capture (name, email, service_type, message, …),
+     * pipeline/admin fields (assigned_to, internal_notes, …), and AI/intake JSON columns.
+     * {@see \App\Http\Requests\Admin\UpdateLeadRequest} restricts admin updates.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
         'source',
         'status',

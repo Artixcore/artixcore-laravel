@@ -51,14 +51,15 @@ Route::get('/portfolio', [PortfolioController::class, 'index'])->name('portfolio
 Route::get('/portfolio/{slug}', [PortfolioController::class, 'show'])->name('portfolio.show');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
-Route::get('/contact', fn () => redirect()->route('lead', [], 301))->name('contact');
+Route::get('/contact', fn () => redirect()->route('lead.create', [], 301))->name('contact');
 Route::post('/contact', [LeadController::class, 'store'])
-    ->middleware('throttle:lead-forms')
+    ->middleware('throttle:lead-submit')
     ->name('contact.store');
 
-Route::get('/lead', [LeadController::class, 'create'])->name('lead');
+Route::get('/lead', [LeadController::class, 'create'])->name('lead.create');
+
 Route::post('/lead', [LeadController::class, 'store'])
-    ->middleware('throttle:lead-forms')
+    ->middleware('throttle:lead-submit')
     ->name('lead.store');
 
 Route::get('/get-started', [GetStartedController::class, 'show'])->name('get-started');
@@ -120,7 +121,7 @@ Route::middleware(['auth', 'blade.admin'])->prefix('admin')->name('admin.')->gro
 
     Route::get('/leads', [LeadAdminController::class, 'index'])->name('leads.index');
     Route::get('/leads/{lead}', [LeadAdminController::class, 'show'])->name('leads.show');
-    Route::put('/leads/{lead}', [LeadAdminController::class, 'update'])->name('leads.update');
+    Route::match(['put', 'patch'], '/leads/{lead}', [LeadAdminController::class, 'update'])->name('leads.update');
     Route::delete('/leads/{lead}', [LeadAdminController::class, 'destroy'])->name('leads.destroy');
 
     Route::get('/security-settings', [SecuritySettingsAdminController::class, 'edit'])->name('security-settings.edit');
