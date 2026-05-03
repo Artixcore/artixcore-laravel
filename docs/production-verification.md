@@ -6,13 +6,24 @@ Run after each deploy to DigitalOcean App Platform (or equivalent).
 
 ```bash
 php artisan migrate --force
-php artisan db:seed --class=ProductionContactInfoSeeder --force
+php artisan db:seed --class=ProductionRemoveTestDomainSeeder --force
 php artisan storage:link --force
+php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 php artisan event:cache
+# If a queue worker component is running:
+# php artisan queue:restart
 ```
+
+Same repair without seeding entrypoint:
+
+```bash
+php artisan artixcore:repair-production-content
+```
+
+Optional narrow fix (contact email column only): `php artisan db:seed --class=ProductionContactInfoSeeder --force`
 
 Never on production: `php artisan migrate:fresh`, `php artisan db:wipe`, `php artisan migrate:rollback` (unless you understand data loss).
 
@@ -65,6 +76,6 @@ Set in the App Platform UI (or bind from secrets):
 
 ## Root causes (reference)
 
-- **Wrong footer email:** historical `site_settings.contact_email` seeded as `hello@artixcore.test`; fixed idempotently by `ProductionContactInfoSeeder`.
+- **Wrong footer email / JSON-LD / embedded dev URLs:** historical `site_settings` and CMS fields may still contain `hello@artixcore.test` or `artixcore.test`. Run `ProductionRemoveTestDomainSeeder` (or `artixcore:repair-production-content`) after deploy; `ProductionContactInfoSeeder` only normalizes the `site_settings.contact_email` column.
 - **Images 404:** `storage:link` ran only in the PRE_DEPLOY migrate container; web/queue containers lacked `public/storage`. Dockerfile CMD and `.do/app.yaml` `run_command` now run `storage:link --force` before `serve` / `queue:work`.
 - **Uploads lost on redeploy:** App Platform has ephemeral disk; use `MEDIA_DISK=spaces` and Spaces credentials for persistent media.
