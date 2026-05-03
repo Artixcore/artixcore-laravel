@@ -3,13 +3,12 @@
 use App\Http\Controllers\Admin\ActivityLogAdminController;
 use App\Http\Controllers\Admin\AiAgentAdminController;
 use App\Http\Controllers\Admin\AiArticleGeneratorAdminController;
-use App\Http\Controllers\Admin\AiContentQuickGenerateController;
 use App\Http\Controllers\Admin\AiBuilderBusinessProfileAdminController;
+use App\Http\Controllers\Admin\AiContentQuickGenerateController;
 use App\Http\Controllers\Admin\AiConversationAdminController;
 use App\Http\Controllers\Admin\AiProviderAdminController;
 use App\Http\Controllers\Admin\ArticleAdminController;
 use App\Http\Controllers\Admin\CaseStudyAdminController;
-use App\Http\Controllers\Admin\MarketUpdateAdminController;
 use App\Http\Controllers\Admin\ContactMessageAdminController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqAdminController;
@@ -17,6 +16,7 @@ use App\Http\Controllers\Admin\JobPostingAdminController;
 use App\Http\Controllers\Admin\LeadAdminController;
 use App\Http\Controllers\Admin\LegalPageAdminController;
 use App\Http\Controllers\Admin\MarketingContentAdminController;
+use App\Http\Controllers\Admin\MarketUpdateAdminController;
 use App\Http\Controllers\Admin\MediaAdminController;
 use App\Http\Controllers\Admin\NavItemAdminController;
 use App\Http\Controllers\Admin\SecuritySettingsAdminController;
@@ -34,12 +34,12 @@ use App\Http\Controllers\Web\AboutController;
 use App\Http\Controllers\Web\ArticlePublicController;
 use App\Http\Controllers\Web\BlogController;
 use App\Http\Controllers\Web\CareerController;
+use App\Http\Controllers\Web\CaseStudyPublicController;
 use App\Http\Controllers\Web\FaqController;
 use App\Http\Controllers\Web\GetStartedController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LeadController;
 use App\Http\Controllers\Web\LegalPageController;
-use App\Http\Controllers\Web\CaseStudyPublicController;
 use App\Http\Controllers\Web\MarketUpdatePublicController;
 use App\Http\Controllers\Web\PageBuilderController;
 use App\Http\Controllers\Web\SaaSPlatformsController;
@@ -48,6 +48,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::redirect('/resources/articles', '/articles', 301);
+Route::redirect('/resources/case-studies', '/case-studies', 301);
 
 Route::get('/about', [AboutController::class, 'show'])->name('about');
 Route::get('/services', [ServiceController::class, 'index'])->name('services.index');

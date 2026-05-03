@@ -8,8 +8,8 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Idempotent: ensures Articles appears in primary header and footer Explore lists.
- * Safe for production; does not delete or reorder other nav items.
+ * Idempotent: fixes legacy /resources/* nav URLs, ensures Articles exists on web_primary.
+ * Safe for production; does not delete other nav items.
  *
  * php artisan db:seed --class=ProductionArticleNavigationSeeder --force
  */
@@ -21,50 +21,63 @@ class ProductionArticleNavigationSeeder extends Seeder
             return;
         }
 
+        $this->normalizeLegacyUrls();
+
         $primary = NavMenu::query()->firstOrCreate(
             ['key' => 'web_primary'],
             ['name' => 'Marketing header']
         );
 
-        NavItem::query()->updateOrCreate(
-            [
+        NavItem::query()
+            ->where('nav_menu_id', $primary->id)
+            ->whereNull('parent_id')
+            ->where('label', 'Articles')
+            ->update(['url' => '/articles', 'page_id' => null]);
+
+        $hasRootArticlesLink = NavItem::query()
+            ->where('nav_menu_id', $primary->id)
+            ->whereNull('parent_id')
+            ->where('url', '/articles')
+            ->exists();
+
+        if (! $hasRootArticlesLink) {
+            $maxOrder = (int) NavItem::query()
+                ->where('nav_menu_id', $primary->id)
+                ->whereNull('parent_id')
+                ->max('sort_order');
+
+            NavItem::query()->create([
                 'nav_menu_id' => $primary->id,
                 'parent_id' => null,
-                'url' => '/articles',
-            ],
-            [
                 'label' => 'Articles',
-                'sort_order' => 5,
+                'url' => '/articles',
+                'sort_order' => $maxOrder + 1,
                 'page_id' => null,
                 'feature_payload' => null,
-            ]
-        );
-
-        $footer = NavMenu::query()->where('key', 'footer')->first();
-        if ($footer !== null) {
-            NavItem::query()->updateOrCreate(
-                [
-                    'nav_menu_id' => $footer->id,
-                    'parent_id' => null,
-                    'url' => '/articles',
-                ],
-                [
-                    'label' => 'Articles',
-                    'sort_order' => $this->nextFooterSortOrder($footer->id),
-                    'page_id' => null,
-                    'feature_payload' => null,
-                ]
-            );
+            ]);
         }
     }
 
-    private function nextFooterSortOrder(int $menuId): int
+    private function normalizeLegacyUrls(): void
     {
-        $max = NavItem::query()
-            ->where('nav_menu_id', $menuId)
-            ->whereNull('parent_id')
-            ->max('sort_order');
+        NavItem::query()->where('url', '/resources/articles')->update([
+            'url' => '/articles',
+            'page_id' => null,
+        ]);
 
-        return is_numeric($max) ? ((int) $max) + 1 : 0;
+        NavItem::query()->where('url', '/resources/case-studies')->update([
+            'url' => '/case-studies',
+            'page_id' => null,
+        ]);
+
+        NavItem::query()
+            ->whereNotNull('page_id')
+            ->whereHas('page', fn ($q) => $q->where('path', 'resources/articles'))
+            ->update(['url' => '/articles', 'page_id' => null]);
+
+        NavItem::query()
+            ->whereNotNull('page_id')
+            ->whereHas('page', fn ($q) => $q->where('path', 'resources/case-studies'))
+            ->update(['url' => '/case-studies', 'page_id' => null]);
     }
 }

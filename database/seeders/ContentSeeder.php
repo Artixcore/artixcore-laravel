@@ -252,8 +252,8 @@ class ContentSeeder extends Seeder
             ['Products', '/products'],
             ['Solutions', '/solutions'],
             ['Research', '/research'],
-            ['Articles', '/resources/articles'],
-            ['Case studies', '/resources/case-studies'],
+            ['Articles', '/articles'],
+            ['Case studies', '/case-studies'],
             ['About', '/about'],
             ['Team', '/team'],
         ];
@@ -461,7 +461,8 @@ class ContentSeeder extends Seeder
             ],
             [
                 'label' => 'Articles',
-                'page_id' => Page::query()->where('path', 'resources/articles')->value('id'),
+                'url' => '/articles',
+                'page_id' => null,
             ]
         );
 
@@ -473,7 +474,8 @@ class ContentSeeder extends Seeder
             ],
             [
                 'label' => 'Case studies',
-                'page_id' => Page::query()->where('path', 'resources/case-studies')->value('id'),
+                'url' => '/case-studies',
+                'page_id' => null,
             ]
         );
 

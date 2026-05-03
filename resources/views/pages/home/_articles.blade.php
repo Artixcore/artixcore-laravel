@@ -5,14 +5,14 @@
 				<h2 class="mb-1">{{ $home['articles_title'] ?? 'Latest articles' }}</h2>
 				<p class="mb-0 text-muted">{{ $home['articles_subtitle'] ?? '' }}</p>
 			</div>
-			<a href="{{ route('blog.index') }}" class="btn btn-outline-primary btn-sm mb-0">All articles</a>
+			<a href="{{ route('articles.index') }}" class="btn btn-outline-primary btn-sm mb-0">All articles</a>
 		</div>
 		<div class="row g-4">
 			@forelse($articles as $article)
 				<div class="col-md-4">
 					<div class="card h-100 border-0 shadow-sm">
 						<div class="card-body">
-							<h5 class="card-title"><a href="{{ route('blog.show', $article->slug) }}" class="text-decoration-none">{{ $article->title }}</a></h5>
+							<h5 class="card-title"><a href="{{ route('articles.show', $article->slug) }}" class="text-decoration-none">{{ $article->title }}</a></h5>
 							<p class="small text-muted mb-0">{{ \Illuminate\Support\Str::limit($article->summary, 110) }}</p>
 						</div>
 						<div class="card-footer bg-transparent border-0 small text-muted">

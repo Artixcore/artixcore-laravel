@@ -29,6 +29,21 @@ class ArticlePublishingTest extends TestCase
         $this->get(route('articles.index'))->assertOk();
     }
 
+    public function test_legacy_resources_article_url_redirects(): void
+    {
+        $this->get('/resources/articles')->assertRedirect('/articles');
+    }
+
+    public function test_legacy_resources_case_studies_url_redirects(): void
+    {
+        $this->get('/resources/case-studies')->assertRedirect('/case-studies');
+    }
+
+    public function test_blog_index_loads_same_as_articles_stack(): void
+    {
+        $this->get(route('blog.index'))->assertOk();
+    }
+
     public function test_published_article_detail_loads(): void
     {
         Article::query()->create([
@@ -124,5 +139,11 @@ class ArticlePublishingTest extends TestCase
     {
         $this->artisan('articles:generate-ai', ['--dry-run' => true])->assertExitCode(0);
         $this->artisan('articles:generate-ai', ['--dry-run' => true, '--count' => 2])->assertExitCode(0);
+    }
+
+    public function test_content_generate_ai_dry_run(): void
+    {
+        $this->artisan('content:generate-ai', ['--dry-run' => true])->assertExitCode(0);
+        $this->artisan('content:generate-ai', ['--dry-run' => true, '--only' => 'articles'])->assertExitCode(0);
     }
 }

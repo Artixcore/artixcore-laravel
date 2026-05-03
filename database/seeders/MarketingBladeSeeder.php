@@ -55,7 +55,8 @@ class MarketingBladeSeeder extends Seeder
                 ['Services', '/services', 1, ['mega' => 'services']],
                 ['SaaS Platforms', '/saas-platforms', 2, null],
                 ['Portfolio', '/portfolio', 3, ['mega' => 'portfolio']],
-                ['About', '/about', 4, null],
+                ['Articles', '/articles', 4, null],
+                ['About', '/about', 5, null],
             ] as [$label, $url, $order, $featurePayload]
         ) {
             NavItem::query()->create([
