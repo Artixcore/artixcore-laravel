@@ -3,6 +3,13 @@
 # Serves the app with `php artisan serve` on the platform-provided $PORT (default 8080).
 #
 # -----------------------------------------------------------------------------
+# Production deploy sequence (DigitalOcean App Platform — see .do/app.yaml):
+#   Build: composer install --no-dev (below), npm ci + npm run build (assets stage), copy public/build.
+#   Pre-deploy job: php artisan migrate --force && php artisan db:seed --class=RolePermissionSeeder --force
+#   Web/worker boot: optimize:clear && config:cache && route:cache && view:cache (same env as runtime).
+# Do not bake config/route/view caches into the image (APP_KEY / DB only exist at run time).
+#
+# -----------------------------------------------------------------------------
 # APP_KEY belongs in runtime environment variables (DigitalOcean Secrets), NOT in the image build
 #
 # Laravel uses APP_KEY for encryption (sessions, cookies, etc.). Generating it inside `docker build`
@@ -66,4 +73,4 @@ RUN chown -R www-data:www-data storage bootstrap/cache \
 EXPOSE 8080
 ENV PORT=8080
 
-CMD ["sh", "-c", "php artisan storage:link --force >/dev/null 2>&1 || true; php artisan serve --host=0.0.0.0 --port ${PORT:-8080}"]
+CMD ["sh", "-c", "php artisan optimize:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache && (php artisan storage:link --force >/dev/null 2>&1 || true) && php artisan serve --host=0.0.0.0 --port ${PORT:-8080}"]

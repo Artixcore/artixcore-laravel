@@ -17,6 +17,12 @@
 # on that cadence; do not expect true per-minute resolution for everyMinute() tasks on DO jobs.
 # Ali / CMS batch generation runs daily via content:generate-ai (see bootstrap/app.php); relying on
 # this schedule:* component keeps drafts flowing without needing sub-minute precision on DO.
+#
+# Deploy / runtime (production checklist):
+#   - Image build: Dockerfile runs composer install --no-dev, npm ci, npm run build, copies public/build.
+#   - Pre-deploy job: migrate --force, db:seed RolePermissionSeeder (idempotent), storage:link.
+#   - Web & queue: optimize:clear then config:cache, route:cache, view:cache at process start
+#     (runtime env is not available at docker build; each instance builds caches on boot).
 
 name: artixcore
 region: nyc
@@ -96,7 +102,7 @@ services:
     http_port: 8080
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
-    run_command: sh -c "php artisan storage:link --force >/dev/null 2>&1 || true; php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+    run_command: sh -c "php artisan optimize:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache && (php artisan storage:link --force >/dev/null 2>&1 || true) && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
     health_check:
       http_path: /up
       initial_delay_seconds: 45
@@ -121,7 +127,7 @@ workers:
       deploy_on_push: true
     instance_count: 1
     instance_size_slug: basic-xxs
-    run_command: sh -c "php artisan storage:link --force >/dev/null 2>&1 || true; php artisan queue:work database --sleep=3 --tries=3"
+    run_command: sh -c "php artisan optimize:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache && (php artisan storage:link --force >/dev/null 2>&1 || true) && php artisan queue:work database --sleep=3 --tries=3"
 
 jobs:
   - name: migrate
@@ -132,7 +138,7 @@ jobs:
       branch: main
       deploy_on_push: true
     instance_size_slug: basic-xxs
-    run_command: sh -c "php artisan migrate --force && (php artisan storage:link --force || true)"
+    run_command: sh -c "php artisan migrate --force && php artisan db:seed --class=RolePermissionSeeder --force && (php artisan storage:link --force >/dev/null 2>&1 || true)"
 
   - name: schedule
     kind: SCHEDULED
