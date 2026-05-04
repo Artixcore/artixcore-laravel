@@ -8,6 +8,7 @@ use App\Models\CaseStudy;
 use App\Models\Service;
 use App\Models\SiteSetting;
 use App\Models\Testimonial;
+use App\Services\HomepageContentResolver;
 use App\Support\MarketingContent;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -18,9 +19,28 @@ class HomeController extends Controller
     public function index(): View
     {
         $settings = SiteSetting::safeInstance();
-        $home = MarketingContent::mergeHomepage($settings->homepage_content);
+        $resolver = app(HomepageContentResolver::class);
+        $homepageSeo = $resolver->mergeHomepageSeo($settings);
+
+        try {
+            if ($resolver->hasManagedSections()) {
+                $resolved = $resolver->resolveForPublic($settings);
+
+                return view('pages.home.index', [
+                    'legacyHome' => false,
+                    'homepageSeo' => $resolved['seo'],
+                    'homepageSections' => $resolved['sections'],
+                ]);
+            }
+        } catch (\Throwable) {
+            //
+        }
+
+        $home = MarketingContent::mergeHomepage($settings->homepage_content ?? null);
 
         return view('pages.home.index', [
+            'legacyHome' => true,
+            'homepageSeo' => $homepageSeo,
             'home' => $home,
             'services' => $this->safePublishedServices(),
             'projects' => $this->safeFeaturedCaseStudies(),

@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\FaqAdminController;
 use App\Http\Controllers\Admin\JobPostingAdminController;
 use App\Http\Controllers\Admin\LeadAdminController;
 use App\Http\Controllers\Admin\LegalPageAdminController;
+use App\Http\Controllers\Admin\HomepageAdminController;
 use App\Http\Controllers\Admin\MarketingContentAdminController;
 use App\Http\Controllers\Admin\MarketUpdateAdminController;
 use App\Http\Controllers\Admin\MediaAdminController;
@@ -152,6 +153,15 @@ Route::middleware(['admin.ip', 'auth', 'blade.admin'])->prefix('admin')->name('a
 
     Route::get('/marketing-content', [MarketingContentAdminController::class, 'edit'])->name('marketing-content.edit');
     Route::put('/marketing-content', [MarketingContentAdminController::class, 'update'])->name('marketing-content.update');
+
+    Route::get('/homepage', [HomepageAdminController::class, 'index'])->name('homepage.index');
+    Route::patch('/homepage/seo', [HomepageAdminController::class, 'updateSeo'])->name('homepage.seo.update');
+    Route::post('/homepage/sections/reorder', [HomepageAdminController::class, 'reorder'])->name('homepage.sections.reorder');
+    Route::patch('/homepage/sections/{homepage_section}', [HomepageAdminController::class, 'updateSection'])->name('homepage.sections.update');
+    Route::post('/homepage/sections/{homepage_section}/image', [HomepageAdminController::class, 'uploadSectionImage'])->name('homepage.sections.image');
+    Route::post('/homepage/sections/{homepage_section}/items', [HomepageAdminController::class, 'storeItem'])->name('homepage.items.store');
+    Route::patch('/homepage/items/{homepage_section_item}', [HomepageAdminController::class, 'updateItem'])->name('homepage.items.update');
+    Route::delete('/homepage/items/{homepage_section_item}', [HomepageAdminController::class, 'destroyItem'])->name('homepage.items.destroy');
 
     Route::get('/navigation/{nav_menu}', [NavItemAdminController::class, 'index'])->name('navigation.index');
     Route::get('/navigation/{nav_menu}/create', [NavItemAdminController::class, 'create'])->name('navigation.create');

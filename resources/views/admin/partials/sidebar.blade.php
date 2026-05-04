@@ -23,6 +23,11 @@
 
         <x-admin.sidebar-section title="Content">
             <x-admin.sidebar-item
+                :href="route('admin.homepage.index')"
+                icon="photo"
+                :active="request()->routeIs('admin.homepage.*')"
+            >Homepage</x-admin.sidebar-item>
+            <x-admin.sidebar-item
                 :href="route('admin.services.index')"
                 icon="squares-2x2"
                 :active="request()->routeIs('admin.services.*')"

@@ -12,6 +12,12 @@
 	if ($canonical === '') {
 		$canonical = url()->current();
 	}
+	$pageTwTitle = $__env->hasSection('twitter_title') ? trim($__env->yieldContent('twitter_title')) : '';
+	$twTitle = $pageTwTitle !== '' ? $pageTwTitle : $ogTitle;
+	$pageTwDesc = $__env->hasSection('twitter_description') ? trim($__env->yieldContent('twitter_description')) : '';
+	$twDescription = $pageTwDesc !== '' ? $pageTwDesc : $ogDescription;
+	$pageTwImage = $__env->hasSection('twitter_image') ? trim($__env->yieldContent('twitter_image')) : '';
+	$twImage = $pageTwImage !== '' ? $pageTwImage : $ogImage;
 @endphp
 <link rel="canonical" href="{{ $canonical }}">
 <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -34,12 +40,12 @@
 <meta property="fb:app_id" content="{{ e($seoHead['fb_app_id']) }}">
 @endif
 <meta name="twitter:card" content="{{ e($tw['card'] ?? 'summary_large_image') }}">
-<meta name="twitter:title" content="{{ e($ogTitle) }}">
-@if($ogDescription !== '')
-<meta name="twitter:description" content="{{ e($ogDescription) }}">
+<meta name="twitter:title" content="{{ e($twTitle) }}">
+@if($twDescription !== '')
+<meta name="twitter:description" content="{{ e($twDescription) }}">
 @endif
-@if(!empty($ogImage))
-<meta name="twitter:image" content="{{ e($ogImage) }}">
+@if(!empty($twImage))
+<meta name="twitter:image" content="{{ e($twImage) }}">
 @endif
 @if(!empty($tw['site']))
 <meta name="twitter:site" content="{{ e(str_starts_with((string) $tw['site'], '@') ? $tw['site'] : '@'.$tw['site']) }}">

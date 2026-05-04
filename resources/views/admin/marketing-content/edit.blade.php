@@ -13,7 +13,8 @@
 		<form method="post" action="{{ route('admin.marketing-content.update') }}" id="marketing-form" class="space-y-6">
 			@csrf
 			@method('PUT')
-			<x-admin.textarea name="homepage_content_json" label="Homepage content" rows="18" class="font-mono text-xs" required>{{ old('homepage_content_json', $homepageJson) }}</x-admin.textarea>
+			<x-admin.textarea name="homepage_content_json" label="Homepage content (legacy fallback only)" rows="18" class="font-mono text-xs" required>{{ old('homepage_content_json', $homepageJson) }}</x-admin.textarea>
+			<p class="mt-1 text-xs text-zinc-500">When homepage sections exist in the database, use <a href="{{ route('admin.homepage.index') }}" class="font-medium text-indigo-600 underline">Homepage</a> instead.</p>
 			<x-admin.textarea name="about_content_json" label="About page content" rows="14" class="font-mono text-xs" required>{{ old('about_content_json', $aboutJson) }}</x-admin.textarea>
 			<x-admin.textarea name="services_page_content_json" label="Services page content" rows="16" class="font-mono text-xs" required>{{ old('services_page_content_json', $servicesPageJson) }}</x-admin.textarea>
 			<x-admin.textarea name="saas_page_content_json" label="SaaS Platforms page content" rows="18" class="font-mono text-xs" required>{{ old('saas_page_content_json', $saasPageJson) }}</x-admin.textarea>

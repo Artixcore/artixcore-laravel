@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             ArticleCategoryTagSeeder::class,
             SeoSettingsSeeder::class,
             ArtixcoreContentSeeder::class,
+            HomepageSeeder::class,
         ]);
     }
 }
