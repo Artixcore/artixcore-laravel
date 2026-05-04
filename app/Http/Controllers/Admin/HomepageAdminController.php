@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\RespondsWithAdminJson;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ReorderHomepageSectionsRequest;
 use App\Http\Requests\Admin\StoreHomepageSectionItemRequest;
@@ -27,6 +28,8 @@ use Illuminate\View\View;
 
 class HomepageAdminController extends Controller
 {
+    use RespondsWithAdminJson;
+
     public function index(): View
     {
         $this->authorize('update', SiteSetting::instance());
@@ -71,7 +74,7 @@ class HomepageAdminController extends Controller
         $homepage_section->fill($fill);
         $homepage_section->save();
 
-        return $this->adminResponse($request, 'Section saved.');
+        return $this->adminRespond($request, 'Section saved.');
     }
 
     public function uploadSectionImage(Request $request, HomepageSection $homepage_section): JsonResponse|RedirectResponse
@@ -85,7 +88,7 @@ class HomepageAdminController extends Controller
         $homepage_section->image_path = 'storage/'.$path;
         $homepage_section->save();
 
-        return $this->adminResponse($request, 'Image updated.', ['image_path' => $homepage_section->image_path]);
+        return $this->adminRespond($request, 'Image updated.', null, ['image_path' => $homepage_section->image_path]);
     }
 
     public function reorder(ReorderHomepageSectionsRequest $request): JsonResponse|RedirectResponse
@@ -97,7 +100,7 @@ class HomepageAdminController extends Controller
             HomepageSection::query()->whereKey($id)->update(['sort_order' => $i]);
         }
 
-        return $this->adminResponse($request, 'Order saved.');
+        return $this->adminRespond($request, 'Order saved.');
     }
 
     public function storeItem(StoreHomepageSectionItemRequest $request, HomepageSection $homepage_section): JsonResponse|RedirectResponse
@@ -119,7 +122,7 @@ class HomepageAdminController extends Controller
             'is_enabled' => true,
         ]);
 
-        return $this->adminResponse($request, 'Item attached.');
+        return $this->adminRespond($request, 'Item attached.');
     }
 
     public function updateItem(UpdateHomepageSectionItemRequest $request, HomepageSectionItem $homepage_section_item): JsonResponse|RedirectResponse
@@ -129,7 +132,7 @@ class HomepageAdminController extends Controller
         $homepage_section_item->fill($request->validated());
         $homepage_section_item->save();
 
-        return $this->adminResponse($request, 'Item updated.');
+        return $this->adminRespond($request, 'Item updated.');
     }
 
     public function destroyItem(Request $request, HomepageSectionItem $homepage_section_item): JsonResponse|RedirectResponse
@@ -138,7 +141,7 @@ class HomepageAdminController extends Controller
 
         $homepage_section_item->delete();
 
-        return $this->adminResponse($request, 'Item removed.');
+        return $this->adminRespond($request, 'Item removed.');
     }
 
     public function updateSeo(UpdateHomepageSeoRequest $request): JsonResponse|RedirectResponse
@@ -150,16 +153,7 @@ class HomepageAdminController extends Controller
         $settings->homepage_seo = array_merge($current, $request->validated());
         $settings->save();
 
-        return $this->adminResponse($request, 'Homepage SEO saved.');
-    }
-
-    private function adminResponse(Request $request, string $message, array $extra = []): JsonResponse|RedirectResponse
-    {
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(array_merge(['message' => $message, 'success' => true], $extra));
-        }
-
-        return back()->with('status', $message);
+        return $this->adminRespond($request, 'Homepage SEO saved.');
     }
 
     /**

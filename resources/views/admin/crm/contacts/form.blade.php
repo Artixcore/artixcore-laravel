@@ -12,7 +12,7 @@
 			method="post"
 			action="{{ $mode === 'create' ? route('admin.crm.contacts.store') : route('admin.crm.contacts.update', $contact) }}"
 			class="space-y-4"
-			data-admin-ajax-form
+			data-ajax-form
 		>
 			@csrf
 			@if ($mode === 'edit')

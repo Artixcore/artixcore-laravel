@@ -18,7 +18,7 @@
 	<div class="grid gap-6 lg:grid-cols-2">
 		<x-admin.card>
 			<h3 class="mb-4 text-sm font-semibold text-zinc-900">Details</h3>
-			<form method="post" action="{{ route('admin.leads.update', $lead) }}" id="lead-form" class="space-y-4" data-admin-ajax-form>
+			<form method="post" action="{{ route('admin.leads.update', $lead) }}" id="lead-form" class="space-y-4" data-ajax-form>
 				@csrf
 				@method('PUT')
 				<x-admin.select name="status" label="Status" required>

@@ -48,7 +48,7 @@
 						<td class="px-4 py-3 text-sm">
 							<details>
 								<summary class="cursor-pointer text-indigo-600 hover:underline">Attach</summary>
-								<form method="post" action="{{ route('admin.crm.faqs.attach', $faq) }}" class="mt-2 space-y-2 rounded border border-zinc-200 bg-zinc-50 p-2" data-admin-ajax-form>
+								<form method="post" action="{{ route('admin.crm.faqs.attach', $faq) }}" class="mt-2 space-y-2 rounded border border-zinc-200 bg-zinc-50 p-2" data-ajax-form>
 									@csrf
 									<select name="faqable_key" class="admin-field-input w-full text-xs" required>
 										@foreach ($faqableTypeLabels as $key)
@@ -59,7 +59,7 @@
 									<input type="number" name="sort_order" class="admin-field-input w-full text-xs" placeholder="Sort" value="0" min="0">
 									<x-admin.button type="submit" class="text-xs">Attach</x-admin.button>
 								</form>
-								<form method="post" action="{{ route('admin.crm.faqs.detach', $faq) }}" class="mt-2 space-y-2 rounded border border-zinc-200 bg-white p-2" data-admin-ajax-form>
+								<form method="post" action="{{ route('admin.crm.faqs.detach', $faq) }}" class="mt-2 space-y-2 rounded border border-zinc-200 bg-white p-2" data-ajax-form>
 									@csrf
 									<select name="faqable_key" class="admin-field-input w-full text-xs" required>
 										@foreach ($faqableTypeLabels as $key)

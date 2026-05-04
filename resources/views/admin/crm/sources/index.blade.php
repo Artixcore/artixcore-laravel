@@ -12,7 +12,7 @@
 	@can('create', App\Models\CrmSource::class)
 		<x-admin.card class="mb-6 p-4">
 			<h2 class="text-sm font-semibold text-zinc-900">New source</h2>
-			<form method="post" action="{{ route('admin.crm.sources.store') }}" class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-admin-ajax-form>
+			<form method="post" action="{{ route('admin.crm.sources.store') }}" class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-ajax-form>
 				@csrf
 				<div>
 					<label class="admin-field-label" for="s-name">Name</label>
@@ -69,7 +69,7 @@
 							@can('update', $src)
 								<details class="group">
 									<summary class="cursor-pointer text-indigo-600">Edit</summary>
-									<form method="post" action="{{ route('admin.crm.sources.update', $src) }}" class="mt-2 space-y-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3" data-admin-ajax-form>
+									<form method="post" action="{{ route('admin.crm.sources.update', $src) }}" class="mt-2 space-y-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3" data-ajax-form>
 										@csrf
 										@method('PATCH')
 										<input name="name" class="admin-field-input w-full text-sm" value="{{ $src->name }}" required>

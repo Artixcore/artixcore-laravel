@@ -221,11 +221,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (successEl) {
                     const nameSpan = successEl.querySelector('[data-lead-success-name]');
                     const emailSpan = successEl.querySelector('[data-lead-success-email]');
-                    if (nameSpan && data.lead) {
-                        nameSpan.textContent = data.lead.name ?? '';
+                    const lead = data.lead ?? data.data?.lead ?? null;
+                    if (nameSpan && lead) {
+                        nameSpan.textContent = lead.name ?? '';
                     }
-                    if (emailSpan && data.lead) {
-                        emailSpan.textContent = data.lead.email ?? '';
+                    if (emailSpan && lead) {
+                        emailSpan.textContent = lead.email ?? '';
                     }
                     successEl.removeAttribute('hidden');
                     successEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -236,6 +237,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (response.status === 422 && data && data.errors) {
                 showFieldErrors(data.errors);
                 focusFirstInvalid(data.errors);
+                if (generalError && data.message) {
+                    generalError.textContent = data.message;
+                    generalError.classList.remove('d-none');
+                }
                 resetCaptchaWidget();
                 setLoading(false);
                 return;

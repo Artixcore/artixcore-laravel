@@ -12,6 +12,7 @@ use App\Http\Middleware\OptionalSanctumAuth;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\ThrottleApiGuestOrUser;
 use App\Http\Middleware\ThrottlePublicWebRequests;
+use App\Exceptions\AjaxExceptionRenderer;
 use App\Services\Auth\PostLoginRedirectService;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
@@ -85,5 +86,5 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        AjaxExceptionRenderer::register($exceptions);
     })->create();

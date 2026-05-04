@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\AjaxFormEnvelope;
+use App\Http\Support\AjaxRequestExpectations;
 use App\Models\SiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -38,29 +40,29 @@ class MarketingContentAdminController extends Controller
 
         $home = json_decode($data['homepage_content_json'], true);
         if (json_last_error() !== JSON_ERROR_NONE || ! is_array($home)) {
-            return $request->wantsJson()
-                ? response()->json(['success' => false, 'message' => 'Homepage JSON is invalid.'], 422)
+            return AjaxRequestExpectations::prefersJsonResponse($request)
+                ? AjaxFormEnvelope::failure(__('Homepage JSON is invalid.'), 422, ['homepage_content_json' => [__('Invalid JSON.')]])
                 : back()->withErrors(['homepage_content_json' => 'Invalid JSON'])->withInput();
         }
 
         $about = json_decode($data['about_content_json'], true);
         if (json_last_error() !== JSON_ERROR_NONE || ! is_array($about)) {
-            return $request->wantsJson()
-                ? response()->json(['success' => false, 'message' => 'About JSON is invalid.'], 422)
+            return AjaxRequestExpectations::prefersJsonResponse($request)
+                ? AjaxFormEnvelope::failure(__('About JSON is invalid.'), 422, ['about_content_json' => [__('Invalid JSON.')]])
                 : back()->withErrors(['about_content_json' => 'Invalid JSON'])->withInput();
         }
 
         $servicesPage = json_decode($data['services_page_content_json'], true);
         if (json_last_error() !== JSON_ERROR_NONE || ! is_array($servicesPage)) {
-            return $request->wantsJson()
-                ? response()->json(['success' => false, 'message' => 'Services page JSON is invalid.'], 422)
+            return AjaxRequestExpectations::prefersJsonResponse($request)
+                ? AjaxFormEnvelope::failure(__('Services page JSON is invalid.'), 422, ['services_page_content_json' => [__('Invalid JSON.')]])
                 : back()->withErrors(['services_page_content_json' => 'Invalid JSON'])->withInput();
         }
 
         $saasPage = json_decode($data['saas_page_content_json'], true);
         if (json_last_error() !== JSON_ERROR_NONE || ! is_array($saasPage)) {
-            return $request->wantsJson()
-                ? response()->json(['success' => false, 'message' => 'SaaS Platforms page JSON is invalid.'], 422)
+            return AjaxRequestExpectations::prefersJsonResponse($request)
+                ? AjaxFormEnvelope::failure(__('SaaS Platforms page JSON is invalid.'), 422, ['saas_page_content_json' => [__('Invalid JSON.')]])
                 : back()->withErrors(['saas_page_content_json' => 'Invalid JSON'])->withInput();
         }
 
@@ -71,8 +73,8 @@ class MarketingContentAdminController extends Controller
         $settings->saas_page_content = $saasPage;
         $settings->save();
 
-        if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'Marketing content saved.']);
+        if (AjaxRequestExpectations::prefersJsonResponse($request)) {
+            return AjaxFormEnvelope::success(__('Marketing content saved.'));
         }
 
         return redirect()->back()->with('status', 'Marketing content saved.');

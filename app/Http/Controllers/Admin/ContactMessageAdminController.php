@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\AjaxFormEnvelope;
+use App\Http\Support\AjaxRequestExpectations;
 use App\Models\ContactMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -33,7 +35,7 @@ class ContactMessageAdminController extends Controller
         $this->authorize('view', $contactMessage);
         $contactMessage->markRead();
 
-        return response()->json(['success' => true, 'message' => 'Marked as read.']);
+        return AjaxFormEnvelope::success(__('Marked as read.'));
     }
 
     public function destroy(Request $request, ContactMessage $contactMessage): JsonResponse|RedirectResponse
@@ -41,8 +43,8 @@ class ContactMessageAdminController extends Controller
         $this->authorize('delete', $contactMessage);
         $contactMessage->delete();
 
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Message deleted.']);
+        if (AjaxRequestExpectations::prefersJsonResponse($request)) {
+            return AjaxFormEnvelope::success(__('Message deleted.'));
         }
 
         return redirect()->route('admin.contact-messages.index')->with('status', 'Message deleted.');

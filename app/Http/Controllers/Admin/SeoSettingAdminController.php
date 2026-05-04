@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SyncSeoSettingsRequest;
+use App\Http\Responses\AjaxFormEnvelope;
+use App\Http\Support\AjaxRequestExpectations;
 use App\Models\SiteSetting;
 use App\Services\SeoSettingsService;
 use Illuminate\Http\JsonResponse;
@@ -27,11 +29,8 @@ class SeoSettingAdminController extends Controller
 
         $seo->syncFromValidated($request->validatedSeoPayload());
 
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'SEO settings saved.',
-            ]);
+        if (AjaxRequestExpectations::prefersJsonResponse($request)) {
+            return AjaxFormEnvelope::success(__('SEO settings saved.'));
         }
 
         return redirect()->back()->with('status', 'SEO settings saved.');

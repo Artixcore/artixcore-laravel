@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Web;
 
 use App\Http\Requests\Concerns\ValidatesTurnstileCaptcha;
+use App\Http\Support\AjaxRequestExpectations;
 use App\Models\Lead;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
@@ -79,13 +80,16 @@ class StoreWebLeadRequest extends FormRequest
      */
     private function throwDecoyLeadSuccess(): void
     {
-        if ($this->expectsJson()) {
+        if (AjaxRequestExpectations::prefersJsonResponse($this)) {
             throw new HttpResponseException(response()->json([
                 'ok' => true,
                 'message' => __('Thank you for contacting Artixcore.'),
-                'lead' => [
-                    'name' => '',
-                    'email' => '',
+                'redirect' => null,
+                'data' => [
+                    'lead' => [
+                        'name' => '',
+                        'email' => '',
+                    ],
                 ],
             ], 200));
         }
@@ -99,7 +103,7 @@ class StoreWebLeadRequest extends FormRequest
 
     protected function failedValidation(Validator $validator): void
     {
-        if ($this->expectsJson()) {
+        if (AjaxRequestExpectations::prefersJsonResponse($this)) {
             $errors = $validator->errors();
             $captchaKeys = ['captcha', 'cf-turnstile-response', 'g-recaptcha-response'];
             $keys = $errors->keys();

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\Media\CreateMediaAssetFromUpload;
 use App\Http\Controllers\Controller;
+use App\Http\Responses\AjaxFormEnvelope;
+use App\Http\Support\AjaxRequestExpectations;
 use App\Models\MediaAsset;
 use App\Models\SiteSetting;
 use Illuminate\Http\JsonResponse;
@@ -73,10 +75,8 @@ class SiteSettingAdminController extends Controller
         $settings->save();
         $settings->load(['logoMedia', 'faviconMedia', 'ogDefaultMedia']);
 
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Site settings saved.',
+        if (AjaxRequestExpectations::prefersJsonResponse($request)) {
+            return AjaxFormEnvelope::success(__('Site settings saved.'), [
                 'previews' => [
                     'logo' => $settings->logoMedia?->absoluteUrl(),
                     'favicon' => $settings->faviconMedia?->absoluteUrl(),

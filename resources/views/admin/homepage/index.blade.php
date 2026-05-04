@@ -27,7 +27,7 @@
 			method="post"
 			action="{{ route('admin.homepage.seo.update') }}"
 			class="grid gap-4 sm:grid-cols-2"
-			data-admin-ajax-form
+			data-ajax-form
 		>
 			@csrf
 			@method('PATCH')
@@ -74,7 +74,7 @@
 				method="post"
 				action="{{ route('admin.homepage.sections.update', $section) }}"
 				class="mb-4 grid gap-3 sm:grid-cols-2"
-				data-admin-ajax-form
+				data-ajax-form
 			>
 				@csrf
 				@method('PATCH')
@@ -118,7 +118,7 @@
 				action="{{ route('admin.homepage.sections.image', $section) }}"
 				enctype="multipart/form-data"
 				class="mb-4 flex flex-wrap items-end gap-3 border-t border-zinc-100 pt-4"
-				data-admin-ajax-form
+				data-ajax-form
 			>
 				@csrf
 				<div>
@@ -161,7 +161,7 @@
 					</table>
 				</div>
 
-				<form method="post" action="{{ route('admin.homepage.items.store', $section) }}" class="mt-4 flex flex-wrap items-end gap-2" data-admin-ajax-form>
+				<form method="post" action="{{ route('admin.homepage.items.store', $section) }}" class="mt-4 flex flex-wrap items-end gap-2" data-ajax-form>
 					@csrf
 					<div>
 						<label class="mb-1 block text-xs font-medium text-zinc-600">Attach content</label>

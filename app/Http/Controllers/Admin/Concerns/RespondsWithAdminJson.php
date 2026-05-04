@@ -2,20 +2,25 @@
 
 namespace App\Http\Controllers\Admin\Concerns;
 
+use App\Http\Controllers\Concerns\RespondsWithJson;
+use App\Http\Support\AjaxRequestExpectations;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 trait RespondsWithAdminJson
 {
-    protected function adminRespond(Request $request, string $message, ?string $redirect = null, array $extra = [], int $status = 200): JsonResponse|RedirectResponse
+    use RespondsWithJson;
+
+    protected function adminRespond(Request $request, string $message, ?string $redirect = null, array $data = [], int $status = 200): JsonResponse|RedirectResponse
     {
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(array_merge([
-                'success' => $status < 400,
+        if (AjaxRequestExpectations::prefersJsonResponse($request)) {
+            return response()->json([
+                'ok' => $status < 400,
                 'message' => $message,
                 'redirect' => $redirect,
-            ], $extra), $status);
+                'data' => $data,
+            ], $status);
         }
 
         if ($redirect !== null) {

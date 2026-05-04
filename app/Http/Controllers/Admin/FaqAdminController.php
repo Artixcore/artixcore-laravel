@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\AjaxFormEnvelope;
+use App\Http\Support\AjaxRequestExpectations;
 use App\Models\Faq;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\JsonResponse;
@@ -103,8 +105,8 @@ class FaqAdminController extends Controller
 
     private function respond(Request $request, string $message, string $redirect): JsonResponse|RedirectResponse
     {
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(['success' => true, 'message' => $message]);
+        if (AjaxRequestExpectations::prefersJsonResponse($request)) {
+            return AjaxFormEnvelope::success($message);
         }
 
         return redirect()->to($redirect)->with('status', $message);

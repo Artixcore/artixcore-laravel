@@ -23,7 +23,7 @@
 					role="alert"
 				>{{ $errors->first() }}</div>
 
-				<form method="post" action="{{ route('login.submit') }}" class="space-y-6" data-auth-ajax="1">
+				<form method="post" action="{{ route('login.submit') }}" class="space-y-6" data-ajax-form>
 					@csrf
 					<div>
 						<label for="email" class="mb-2 block text-sm font-medium text-slate-700">Email</label>
@@ -78,16 +78,5 @@
 			</div>
 		</div>
 	</div>
-	<script>
-		document.addEventListener('click', (e) => {
-			const b = e.target.closest('[data-toggle-password]');
-			if (!b) return;
-			const sel = b.getAttribute('data-toggle-password');
-			const input = document.querySelector(sel);
-			if (!input) return;
-			input.type = input.type === 'password' ? 'text' : 'password';
-			b.textContent = input.type === 'password' ? 'Show' : 'Hide';
-		});
-	</script>
 </body>
 </html>

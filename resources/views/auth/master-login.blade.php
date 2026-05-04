@@ -21,7 +21,7 @@
 			<div class="rounded-2xl border border-red-900/50 bg-zinc-950/90 px-6 py-8 shadow-2xl shadow-red-950/40 sm:px-10">
 				<div data-auth-banner class="{{ $errors->any() ? '' : 'hidden' }} mb-4 rounded-lg border border-red-800 bg-red-950/80 px-4 py-3 text-sm text-red-100" role="alert">{{ $errors->first() }}</div>
 
-				<form method="post" action="{{ route('master.login.submit') }}" class="space-y-6" data-auth-ajax="1">
+				<form method="post" action="{{ route('master.login.submit') }}" class="space-y-6" data-ajax-form>
 					@csrf
 					<div>
 						<label for="email" class="mb-2 block text-sm font-medium text-zinc-300">Email</label>
@@ -45,15 +45,5 @@
 			</div>
 		</div>
 	</div>
-	<script>
-		document.addEventListener('click', (e) => {
-			const b = e.target.closest('[data-toggle-password]');
-			if (!b) return;
-			const input = document.querySelector(b.getAttribute('data-toggle-password'));
-			if (!input) return;
-			input.type = input.type === 'password' ? 'text' : 'password';
-			b.textContent = input.type === 'password' ? 'Show' : 'Hide';
-		});
-	</script>
 </body>
 </html>

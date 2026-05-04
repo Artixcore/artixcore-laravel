@@ -47,13 +47,13 @@
 							<a href="{{ route('admin.testimonials.edit', $t) }}" class="text-indigo-600 hover:underline">Edit</a>
 							@can('reviews.publish')
 								@if (($t->moderation_status ?? '') !== 'approved')
-									<form method="post" action="{{ route('admin.crm.reviews.approve', $t) }}" class="inline" data-admin-ajax-form>
+									<form method="post" action="{{ route('admin.crm.reviews.approve', $t) }}" class="inline" data-ajax-form>
 										@csrf
 										<button type="submit" class="text-emerald-600 hover:underline">Approve</button>
 									</form>
 								@endif
 								@if (($t->moderation_status ?? '') !== 'rejected')
-									<form method="post" action="{{ route('admin.crm.reviews.reject', $t) }}" class="inline" data-admin-ajax-form>
+									<form method="post" action="{{ route('admin.crm.reviews.reject', $t) }}" class="inline" data-ajax-form>
 										@csrf
 										<button type="submit" class="text-red-600 hover:underline">Reject</button>
 									</form>

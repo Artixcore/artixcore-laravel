@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Http\Controllers\Concerns\RespondsWithJson;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Web\StoreWebLeadRequest;
+use App\Http\Requests\Web\StoreLeadRequest;
+use App\Http\Support\AjaxRequestExpectations;
 use App\Models\Lead;
 use App\Notifications\LeadSubmitted;
 use App\Services\Captcha\CaptchaVerifier;
@@ -19,6 +21,8 @@ use Throwable;
 
 class LeadController extends Controller
 {
+    use RespondsWithJson;
+
     public function __construct(
         private CaptchaVerifier $captchaVerifier,
         private GeoIpLookupService $geoIpLookup,
@@ -45,7 +49,7 @@ class LeadController extends Controller
         ]);
     }
 
-    public function store(StoreWebLeadRequest $request): JsonResponse|RedirectResponse
+    public function store(StoreLeadRequest $request): JsonResponse|RedirectResponse
     {
         $data = $request->validated();
 
@@ -86,11 +90,8 @@ class LeadController extends Controller
                 'exception' => $e::class,
             ]);
 
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'ok' => false,
-                    'message' => __('Something went wrong. Please try again shortly.'),
-                ], 500);
+            if (AjaxRequestExpectations::prefersJsonResponse($request)) {
+                return $this->errorResponse(__('Something went wrong. Please try again shortly.'), 500);
             }
 
             return redirect()
@@ -99,15 +100,18 @@ class LeadController extends Controller
                 ->withErrors(['message' => __('Something went wrong. Please try again shortly.')]);
         }
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'ok' => true,
-                'message' => __('Thank you for contacting Artixcore.'),
-                'lead' => [
-                    'name' => $lead->name,
-                    'email' => $lead->email,
+        if (AjaxRequestExpectations::prefersJsonResponse($request)) {
+            return $this->successResponse(
+                __('Thank you for contacting Artixcore.'),
+                [
+                    'lead' => [
+                        'name' => $lead->name,
+                        'email' => $lead->email,
+                    ],
                 ],
-            ], 201);
+                null,
+                201,
+            );
         }
 
         return redirect()

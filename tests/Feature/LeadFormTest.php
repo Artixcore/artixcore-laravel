@@ -137,7 +137,7 @@ class LeadFormTest extends TestCase
 
         $response->assertCreated()
             ->assertJsonPath('ok', true)
-            ->assertJsonPath('lead.email', self::VALID_TEST_EMAIL);
+            ->assertJsonPath('data.lead.email', self::VALID_TEST_EMAIL);
 
         $this->assertDatabaseHas('leads', [
             'email' => self::VALID_TEST_EMAIL,

@@ -1,3 +1,5 @@
+import { initAjaxForms } from './ajax-forms.js';
+
 const STORAGE_KEY = 'admin-sidebar-collapsed';
 const MOBILE_QUERY = '(max-width: 767px)';
 
@@ -118,11 +120,11 @@ function initAdminDelete() {
                 body,
             });
             const data = res.ok ? await res.json().catch(() => ({})) : null;
-            if (res.ok) {
+            if (res.ok && data?.ok !== false) {
                 showToast(data?.message || 'Deleted.', 'success');
                 btn.closest('[data-admin-row]')?.remove();
             } else {
-                showToast('Could not delete.', 'error');
+                showToast(data?.message || 'Could not delete.', 'error');
             }
         } catch {
             showToast('Could not delete.', 'error');
@@ -134,70 +136,8 @@ window.adminToast = function (message, type) {
     showToast(message, type === 'error' ? 'error' : 'success');
 };
 
-function clearAdminFormErrors(form) {
-    form.querySelectorAll('[data-error-for]').forEach((el) => {
-        el.textContent = '';
-    });
-}
-
-function showAdminFormErrors(form, errors) {
-    if (!errors || typeof errors !== 'object') return;
-    Object.keys(errors).forEach((field) => {
-        const el = form.querySelector(`[data-error-for="${field}"]`);
-        if (el && Array.isArray(errors[field])) {
-            el.textContent = errors[field].join(' ');
-        }
-    });
-}
-
-function initAdminAjaxForms() {
-    document.querySelectorAll('form[data-admin-ajax-form]').forEach((form) => {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (form.dataset.ajaxSubmitting === '1') return;
-            form.dataset.ajaxSubmitting = '1';
-            /** @type {HTMLButtonElement | null} */
-            const btn = form.querySelector('[type="submit"]');
-            if (btn) btn.disabled = true;
-            clearAdminFormErrors(form);
-            try {
-                const fd = new FormData(form);
-                const res = await fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': getCsrfToken(),
-                    },
-                    body: fd,
-                });
-                const data = await res.json().catch(() => ({}));
-                if (res.status === 422) {
-                    const msg = data.message || 'Validation failed.';
-                    showAdminFormErrors(form, data.errors);
-                    showToast(msg, 'error');
-                    return;
-                }
-                if (!res.ok) {
-                    showToast(data.message || 'Request failed.', 'error');
-                    return;
-                }
-                showToast(data.message || 'Saved.', 'success');
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                }
-            } catch {
-                showToast('Network error.', 'error');
-            } finally {
-                form.dataset.ajaxSubmitting = '0';
-                if (btn) btn.disabled = false;
-            }
-        });
-    });
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
     initAdminDelete();
-    initAdminAjaxForms();
+    initAjaxForms(document);
 });

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\Concerns\SyncsAdminContentGraph;
 use App\Http\Controllers\Controller;
+use App\Http\Responses\AjaxFormEnvelope;
+use App\Http\Support\AjaxRequestExpectations;
 use App\Models\Article;
 use App\Models\CaseStudy;
 use App\Models\ContentRelation;
@@ -211,8 +213,8 @@ class PortfolioItemAdminController extends Controller
 
     private function respond(Request $request, string $message, string $redirect): JsonResponse|RedirectResponse
     {
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(['success' => true, 'message' => $message]);
+        if (AjaxRequestExpectations::prefersJsonResponse($request)) {
+            return AjaxFormEnvelope::success($message);
         }
 
         return redirect()->to($redirect)->with('status', $message);

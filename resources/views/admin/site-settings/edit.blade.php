@@ -99,10 +99,11 @@
 					headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' },
 					success: function (res) {
 						adminToast(res.message || 'Saved.', 'success');
-						if (res.previews) {
-							if (res.previews.logo) showPreview('logo', res.previews.logo);
-							if (res.previews.favicon) showPreview('favicon', res.previews.favicon);
-							if (res.previews.og_image) showPreview('og_image', res.previews.og_image);
+						var previews = (res.data && res.data.previews) ? res.data.previews : res.previews;
+						if (previews) {
+							if (previews.logo) showPreview('logo', previews.logo);
+							if (previews.favicon) showPreview('favicon', previews.favicon);
+							if (previews.og_image) showPreview('og_image', previews.og_image);
 						}
 						$(form).find('input[type=file]').val('');
 					},

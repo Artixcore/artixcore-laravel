@@ -82,12 +82,16 @@ class MasterAuthController extends Controller
         return redirect()->intended($target);
     }
 
-    public function logout(Request $request): RedirectResponse
+    public function logout(Request $request): RedirectResponse|JsonResponse
     {
         $this->activityLogger->log('auth.master.logout', $request->user(), [], $request);
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if ($this->wantsAuthJson($request)) {
+            return $this->successResponse(__('Signed out.'), [], route('master.login'));
+        }
 
         return redirect()->route('master.login');
     }

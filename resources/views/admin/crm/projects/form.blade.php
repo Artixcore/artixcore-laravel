@@ -11,7 +11,7 @@
 		<form
 			method="post"
 			action="{{ $mode === 'create' ? route('admin.crm.projects.store') : route('admin.crm.projects.update', $project) }}"
-			data-admin-ajax-form
+			data-ajax-form
 			class="space-y-4"
 		>
 			@csrf

@@ -81,10 +81,7 @@ class EndUserAuthController extends Controller
             ]);
 
             if ($this->wantsAuthJson($request)) {
-                return response()->json([
-                    'ok' => false,
-                    'message' => 'Registration failed. Please try again.',
-                ], 500);
+                return $this->errorResponse(__('Something went wrong. Please try again.'), 500);
             }
 
             return back()
@@ -161,12 +158,16 @@ class EndUserAuthController extends Controller
         return redirect()->intended($target);
     }
 
-    public function logout(Request $request): RedirectResponse
+    public function logout(Request $request): RedirectResponse|JsonResponse
     {
         $this->activityLogger->log('auth.end_user.logout', $request->user(), [], $request);
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if ($this->wantsAuthJson($request)) {
+            return $this->successResponse(__('Signed out.'), [], route('login'));
+        }
 
         return redirect()->route('login');
     }
