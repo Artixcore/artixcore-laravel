@@ -10,6 +10,26 @@
 				<img class="light-mode-item navbar-brand-item" src="{{ $logoLight }}" alt="{{ $site->site_name ?? 'Artixcore' }}">
 				<img class="dark-mode-item navbar-brand-item" src="{{ $logoDark }}" alt="{{ $site->site_name ?? 'Artixcore' }}">
 			</a>
+			<div class="d-flex align-items-center gap-2 order-xl-2 ms-auto ms-xl-0 flex-shrink-0">
+				<div class="d-none d-xl-flex align-items-center gap-2">
+					@auth
+						@if(auth()->user()->hasRole('master_admin'))
+							<a href="{{ route('master.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-0">Master</a>
+						@elseif(auth()->user()->can('admin.access'))
+							<a href="{{ route('admin.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-0">Admin</a>
+						@elseif(auth()->user()->can('portal.access'))
+							<a href="{{ route('portal') }}" class="btn btn-sm btn-outline-secondary mb-0">My portal</a>
+						@endif
+					@else
+						<a href="{{ route('login') }}" class="btn btn-sm btn-outline-secondary mb-0">Login</a>
+						<a href="{{ route('register') }}" class="btn btn-sm btn-outline-primary mb-0">Join</a>
+					@endauth
+					<a href="{{ route('lead.create') }}" class="btn btn-sm btn-primary mb-0">Get started</a>
+				</div>
+				<button class="navbar-toggler p-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
+				</button>
+			</div>
 			<div class="navbar-collapse collapse" id="navbarCollapse">
 				<ul class="navbar-nav navbar-nav-scroll dropdown-hover mx-auto">
 					@foreach($primaryNavLinks as $idx => $item)
@@ -40,19 +60,25 @@
 							</li>
 						@endif
 					@endforeach
+					<li class="nav-item d-xl-none mt-3 pt-3 border-top">
+						<div class="d-grid gap-2 px-2 pb-2">
+							@auth
+								@if(auth()->user()->hasRole('master_admin'))
+									<a href="{{ route('master.dashboard') }}" class="btn btn-sm btn-outline-secondary">Master</a>
+								@elseif(auth()->user()->can('admin.access'))
+									<a href="{{ route('admin.dashboard') }}" class="btn btn-sm btn-outline-secondary">Admin</a>
+								@elseif(auth()->user()->can('portal.access'))
+									<a href="{{ route('portal') }}" class="btn btn-sm btn-outline-secondary">My portal</a>
+								@endif
+							@else
+								<a href="{{ route('login') }}" class="btn btn-sm btn-outline-secondary">Login</a>
+								<a href="{{ route('register') }}" class="btn btn-sm btn-outline-primary">Join</a>
+							@endauth
+							<a href="{{ route('lead.create') }}" class="btn btn-sm btn-primary">Get started</a>
+						</div>
+					</li>
 				</ul>
 			</div>
-			<ul class="nav align-items-center dropdown-hover ms-sm-2">
-				
-				<li class="nav-item d-none d-sm-block">
-					<a href="{{ route('lead.create') }}" class="btn btn-sm btn-primary mb-0">Get started</a>
-				</li>
-				<li class="nav-item">
-					<button class="navbar-toggler ms-sm-3 p-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-						<span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
-					</button>
-				</li>
-			</ul>
 		</div>
 	</nav>
 </header>

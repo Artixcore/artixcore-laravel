@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Auth\Concerns\RespondsWithWebAuthJson;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\EndUserLoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\User;
 use App\Services\Audit\ActivityLogger;
+use App\Services\Auth\PostLoginRedirectService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +26,41 @@ class EndUserAuthController extends Controller
         return view('auth.end-user-login');
     }
 
-    public function login(EndUserLoginRequest $request): RedirectResponse|JsonResponse
+    public function showRegister(Request $request): View
+    {
+        return view('auth.register');
+    }
+
+    public function register(RegisterRequest $request, PostLoginRedirectService $redirectService): RedirectResponse|JsonResponse
+    {
+        $data = $request->validated();
+
+        $user = User::query()->create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'user_kind' => 'external',
+            'phone' => $data['phone'] ?? null,
+            'company_name' => $data['company_name'] ?? null,
+        ]);
+
+        $user->assignRole('end_user');
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        $this->activityLogger->log('auth.end_user.register', $user, [], $request);
+
+        $target = $redirectService->url($user);
+
+        if ($this->wantsAuthJson($request)) {
+            return $this->authJsonSuccess($target);
+        }
+
+        return redirect()->intended($target);
+    }
+
+    public function login(EndUserLoginRequest $request, PostLoginRedirectService $redirectService): RedirectResponse|JsonResponse
     {
         $credentials = $request->only('email', 'password');
         $remember = $request->boolean('remember');
@@ -82,7 +119,7 @@ class EndUserAuthController extends Controller
 
         $this->activityLogger->log('auth.end_user.login_success', $user, [], $request);
 
-        $target = route('portal');
+        $target = $redirectService->url($user);
 
         if ($this->wantsAuthJson($request)) {
             return $this->authJsonSuccess($target);

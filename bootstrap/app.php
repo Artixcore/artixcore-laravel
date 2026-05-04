@@ -6,11 +6,13 @@ use App\Http\Middleware\EnsureBuilderAccess;
 use App\Http\Middleware\EnsureMasterAdmin;
 use App\Http\Middleware\EnsureMasterIpAllowed;
 use App\Http\Middleware\EnsurePortalUser;
+use App\Http\Middleware\NoIndexPrivatePanels;
 use App\Http\Middleware\RedirectAuthenticatedFromLoginPages;
 use App\Http\Middleware\OptionalSanctumAuth;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\ThrottleApiGuestOrUser;
 use App\Http\Middleware\ThrottlePublicWebRequests;
+use App\Services\Auth\PostLoginRedirectService;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -47,6 +49,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'master.panel' => EnsureMasterAdmin::class,
             'portal.user' => EnsurePortalUser::class,
             'login.guest' => RedirectAuthenticatedFromLoginPages::class,
+            'noindex.private' => NoIndexPrivatePanels::class,
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request): string {
@@ -68,19 +71,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return Route::has('home') ? route('home') : '/';
             }
 
-            if ($user->hasRole('master_admin')) {
-                return route('master.dashboard');
-            }
-
-            if ($user->can('admin.access')) {
-                return route('admin.dashboard');
-            }
-
-            if ($user->can('portal.access')) {
-                return route('portal');
-            }
-
-            return Route::has('home') ? route('home') : '/';
+            return app(PostLoginRedirectService::class)->url($user);
         });
 
         $middleware->appendToGroup('web', [

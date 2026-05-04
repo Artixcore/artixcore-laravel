@@ -62,6 +62,13 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute($perMinute)->by(sha1((string) $request->ip().'|'.$email));
         });
 
+        RateLimiter::for('register-web', function (Request $request) {
+            $perMinute = max(1, (int) config('rate_limiting.login_per_minute', 5));
+            $email = strtolower((string) $request->input('email', ''));
+
+            return Limit::perMinute($perMinute)->by(sha1((string) $request->ip().'|'.$email));
+        });
+
         RateLimiter::for('admin-login-web', function (Request $request) {
             $perMinute = max(1, (int) config('artixcore.admin_login_per_minute', 5));
             $email = strtolower((string) $request->input('email', ''));

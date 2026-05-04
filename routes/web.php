@@ -59,12 +59,17 @@ use App\Http\Controllers\Web\PageBuilderController;
 use App\Http\Controllers\Web\PortfolioPublicController;
 use App\Http\Controllers\Web\SaaSPlatformsController;
 use App\Http\Controllers\Web\ServiceController;
+use App\Http\Controllers\Web\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::any('/filament', FilamentLegacyController::class)->name('filament.legacy');
-Route::any('/filament/{path}', FilamentLegacyController::class)->where('path', '.*')->name('filament.legacy.sub');
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+Route::middleware('noindex.private')->group(function (): void {
+    Route::any('/filament', FilamentLegacyController::class)->name('filament.legacy');
+    Route::any('/filament/{path}', FilamentLegacyController::class)->where('path', '.*')->name('filament.legacy.sub');
+});
 
 Route::redirect('/resources/articles', '/articles', 301);
 Route::redirect('/resources/case-studies', '/case-studies', 301);
@@ -112,19 +117,23 @@ Route::get('/privacy-policy', [LegalPageController::class, 'show'])->defaults('s
 Route::get('/terms-and-conditions', [LegalPageController::class, 'show'])->defaults('slug', 'terms-and-conditions')->name('terms');
 Route::get('/legal/{slug}', [LegalPageController::class, 'show'])->name('legal.show');
 
-Route::middleware('login.guest')->group(function (): void {
+Route::middleware(['login.guest', 'noindex.private'])->group(function (): void {
     Route::get('/login', [EndUserAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [EndUserAuthController::class, 'login'])->middleware('throttle:login-web')->name('login.submit');
+    Route::get('/register', [EndUserAuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [EndUserAuthController::class, 'register'])
+        ->middleware('throttle:register-web')
+        ->name('register.submit');
 });
 
-Route::middleware(['login.guest', 'admin.ip'])->group(function (): void {
+Route::middleware(['login.guest', 'admin.ip', 'noindex.private'])->group(function (): void {
     Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
     Route::post('/admin/login', [AdminAuthController::class, 'login'])
         ->middleware('throttle:admin-login-web')
         ->name('admin.login.submit');
 });
 
-Route::middleware(['login.guest', 'master.ip'])->group(function (): void {
+Route::middleware(['login.guest', 'master.ip', 'noindex.private'])->group(function (): void {
     Route::get('/master/login', [MasterAuthController::class, 'showLogin'])->name('master.login');
     Route::post('/master/login', [MasterAuthController::class, 'login'])
         ->middleware('throttle:master-login-web')
@@ -135,13 +144,13 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [EndUserAuthController::class, 'logout'])->name('logout');
 });
 
-Route::get('/dashboard', fn () => redirect()->route('portal'))->middleware('auth')->name('dashboard');
+Route::get('/dashboard', fn () => redirect()->route('portal'))->middleware(['auth', 'noindex.private'])->name('dashboard');
 
-Route::middleware(['auth', 'portal.user'])->group(function (): void {
+Route::middleware(['auth', 'portal.user', 'noindex.private'])->group(function (): void {
     Route::get('/portal', [PortalController::class, 'index'])->name('portal');
 });
 
-Route::middleware(['admin.ip', 'auth', 'blade.admin'])->prefix('admin')->name('admin.')->group(function (): void {
+Route::middleware(['admin.ip', 'auth', 'blade.admin', 'noindex.private'])->prefix('admin')->name('admin.')->group(function (): void {
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -261,7 +270,7 @@ Route::middleware(['admin.ip', 'auth', 'blade.admin'])->prefix('admin')->name('a
     });
 });
 
-Route::middleware(['master.ip', 'auth', 'master.panel'])->prefix('master')->name('master.')->group(function (): void {
+Route::middleware(['master.ip', 'auth', 'master.panel', 'noindex.private'])->prefix('master')->name('master.')->group(function (): void {
     Route::post('/logout', [MasterAuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [MasterDashboardController::class, 'index'])->name('dashboard');
 
@@ -277,7 +286,7 @@ Route::middleware(['master.ip', 'auth', 'master.panel'])->prefix('master')->name
     });
 });
 
-Route::middleware(['web', 'auth', 'builder.access'])->group(function (): void {
+Route::middleware(['web', 'auth', 'builder.access', 'noindex.private'])->group(function (): void {
     Route::get('/builder/pages/{page}', [PageBuilderController::class, 'show'])
         ->whereNumber('page')
         ->name('builder.pages.show');

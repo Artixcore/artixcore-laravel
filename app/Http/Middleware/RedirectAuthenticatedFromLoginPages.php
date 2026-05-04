@@ -52,7 +52,7 @@ class RedirectAuthenticatedFromLoginPages
             return redirect()->route('home');
         }
 
-        if ($request->is('login')) {
+        if ($request->is('login') || $request->is('register')) {
             if ($user->hasRole('master_admin')) {
                 return redirect()->route('master.dashboard');
             }
