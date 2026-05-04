@@ -50,6 +50,43 @@ class EndUserRegisterPortalTest extends TestCase
             ->assertSee('Portal Tester', false);
     }
 
+    public function test_register_json_success_includes_ok_message_and_redirect(): void
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'X-Requested-With' => 'XMLHttpRequest',
+        ])->post(route('register.submit'), [
+            'name' => 'Ajax Registrant',
+            'email' => 'ajax-registrant@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'terms' => '1',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('ok', true)
+            ->assertJsonPath('message', 'Welcome to Artixcore.')
+            ->assertJsonPath('redirect', route('portal'));
+    }
+
+    public function test_register_json_validation_returns_422_with_ok_false(): void
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'X-Requested-With' => 'XMLHttpRequest',
+        ])->post(route('register.submit'), [
+            'name' => '',
+            'email' => 'not-an-email',
+            'password' => 'short',
+            'password_confirmation' => 'mismatch',
+            'terms' => '0',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('ok', false)
+            ->assertJsonPath('message', 'Please check the form and try again.');
+    }
+
     public function test_end_user_cannot_access_admin_dashboard(): void
     {
         $user = User::factory()->create([

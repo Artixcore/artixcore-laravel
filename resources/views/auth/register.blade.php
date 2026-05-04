@@ -23,7 +23,7 @@
 					role="alert"
 				>{{ $errors->first() }}</div>
 
-				<form method="post" action="{{ route('register.submit') }}" class="space-y-5" data-auth-ajax="1">
+				<form id="register-form" method="post" action="{{ route('register.submit') }}" class="space-y-5" data-auth-ajax="1">
 					@csrf
 					<div>
 						<label for="name" class="mb-2 block text-sm font-medium text-slate-700">Full name</label>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\Concerns\RespondsWithWebAuthJson;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\EndUserLoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\Audit\ActivityLogger;
 use App\Services\Auth\PostLoginRedirectService;
@@ -13,7 +14,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Permission;
+use Throwable;
 
 class EndUserAuthController extends Controller
 {
@@ -35,29 +40,57 @@ class EndUserAuthController extends Controller
     {
         $data = $request->validated();
 
-        $user = User::query()->create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => $data['password'],
-            'user_kind' => 'external',
-            'phone' => $data['phone'] ?? null,
-            'company_name' => $data['company_name'] ?? null,
-        ]);
+        try {
+            $user = DB::transaction(function () use ($data) {
+                $role = Role::findOrCreate('end_user', 'web');
+                if ($role->permissions->isEmpty()) {
+                    Permission::findOrCreate('portal.access', 'web');
+                    $role->syncPermissions(['portal.access']);
+                }
 
-        $user->assignRole('end_user');
+                $user = User::query()->create([
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'password' => $data['password'],
+                    'user_kind' => 'external',
+                    'phone' => $data['phone'] ?? null,
+                    'company_name' => $data['company_name'] ?? null,
+                ]);
 
-        Auth::login($user);
-        $request->session()->regenerate();
+                $user->assignRole('end_user');
 
-        $this->activityLogger->log('auth.end_user.register', $user, [], $request);
+                return $user;
+            });
 
-        $target = $redirectService->url($user);
+            Auth::login($user);
+            $request->session()->regenerate();
 
-        if ($this->wantsAuthJson($request)) {
-            return $this->authJsonSuccess($target);
+            $this->activityLogger->log('auth.end_user.register', $user, [], $request);
+
+            $target = $redirectService->url($user);
+
+            if ($this->wantsAuthJson($request)) {
+                return $this->authJsonSuccess($target);
+            }
+
+            return redirect()->intended($target);
+        } catch (Throwable $e) {
+            Log::error('auth.end_user.register_failed', [
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+            ]);
+
+            if ($this->wantsAuthJson($request)) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'Registration failed. Please try again.',
+                ], 500);
+            }
+
+            return back()
+                ->withInput($request->except('password', 'password_confirmation'))
+                ->withErrors(['email' => 'Registration failed. Please try again.']);
         }
-
-        return redirect()->intended($target);
     }
 
     public function login(EndUserLoginRequest $request, PostLoginRedirectService $redirectService): RedirectResponse|JsonResponse
@@ -137,5 +170,4 @@ class EndUserAuthController extends Controller
 
         return redirect()->route('login');
     }
-
 }

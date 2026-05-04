@@ -16,16 +16,20 @@ trait RespondsWithWebAuthJson
 
     protected function authJsonValidationError(Request $request, string $message, array $errors = []): JsonResponse
     {
+        $normalized = $errors ?: ['email' => [$message]];
+
         return response()->json([
+            'ok' => false,
             'message' => $message,
-            'errors' => $errors ?: ['email' => [$message]],
+            'errors' => $normalized,
         ], 422);
     }
 
-    protected function authJsonSuccess(string $redirect): JsonResponse
+    protected function authJsonSuccess(string $redirect, string $message = 'Welcome to Artixcore.'): JsonResponse
     {
         return response()->json([
             'ok' => true,
+            'message' => $message,
             'redirect' => $redirect,
         ]);
     }

@@ -22,6 +22,10 @@ function bindAuthForm(form) {
     form.addEventListener('submit', async (e) => {
         if (form.getAttribute('data-auth-ajax') !== '1') return;
         e.preventDefault();
+        if (form.dataset.authInFlight === '1') {
+            return;
+        }
+        form.dataset.authInFlight = '1';
         const btn = form.querySelector('[type="submit"]');
         if (btn) btn.disabled = true;
         showFieldErrors(form, {});
@@ -52,7 +56,11 @@ function bindAuthForm(form) {
             }
             if (!res.ok) {
                 if (banner) {
-                    banner.textContent = data.message || 'Something went wrong.';
+                    const fallback =
+                        res.status >= 500
+                            ? 'Something went wrong. Please try again.'
+                            : 'Something went wrong.';
+                    banner.textContent = data.message || fallback;
                     banner.classList.remove('hidden');
                 }
                 return;
@@ -66,11 +74,16 @@ function bindAuthForm(form) {
                 banner.classList.remove('hidden');
             }
         } finally {
+            form.dataset.authInFlight = '0';
             if (btn) btn.disabled = false;
         }
     });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (window.__artixcoreAuthInitialized) {
+        return;
+    }
+    window.__artixcoreAuthInitialized = true;
     document.querySelectorAll('form[data-auth-ajax="1"]').forEach((form) => bindAuthForm(form));
 });
